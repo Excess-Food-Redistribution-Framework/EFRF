@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers
+namespace FRF.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

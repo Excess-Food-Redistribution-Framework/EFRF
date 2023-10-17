@@ -15,9 +15,9 @@ namespace Backend.Controllers
             return Ok(new HelloWorldMessage());
         }
     }
-    
+
     public class HelloWorldMessage
     {
-        public string Message { get; set; } = "Hello world!";
+        public string Message { get; set; } = "Hello world! (From other user)";
     }
 }

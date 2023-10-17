@@ -1,4 +1,4 @@
-namespace Backend
+namespace FRF.API
 {
     public class WeatherForecast
     {
