@@ -1,5 +1,7 @@
 ﻿using FRF.Domain.Entities;
 using FRF.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -36,6 +38,7 @@ namespace FRF.API.Controllers
 
         // POST api/<ProductController>
         [HttpPost]
+        [Authorize] // Now post product is available only with valid JWT Token
         public async Task Post([FromBody] Product product)
         {
             await _productService.AddProduct(product);

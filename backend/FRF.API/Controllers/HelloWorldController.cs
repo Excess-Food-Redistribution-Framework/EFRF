@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
@@ -9,15 +10,20 @@ namespace Backend.Controllers
         /// <summary>
         /// Hello world!
         /// </summary>
+        
         [HttpGet(Name = "GetHelloWorld")]
+        [Authorize]
         public ActionResult<HelloWorldMessage> Get()
         {
-            return Ok(new HelloWorldMessage());
+            var userId = User.FindFirst("Name")?.Value;
+            var m = new HelloWorldMessage();
+            m.Message += userId + ")";
+            return Ok(m);
         }
     }
 
     public class HelloWorldMessage
     {
-        public string Message { get; set; } = "Hello world! (From other user)";
+        public string Message { get; set; } = "Hello world! (From other user ";
     }
 }
