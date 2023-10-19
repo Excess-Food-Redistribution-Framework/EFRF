@@ -1,5 +1,4 @@
-﻿using FRF.API.Controllers;
-using FRF.API.Swagger;
+﻿using FRF.API.Swagger;
 using FRF.DAL;
 using FRF.DAL.Interfaces;
 using FRF.DAL.Repositories;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
@@ -24,7 +24,16 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo()
+    {
+        Title = "Excess Food Redistribution Framework API", 
+        Version = "v1"
+    });
+    options.EnableAnnotations();
+});
+
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Dependency Injection (DI).
@@ -81,7 +90,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Excess Food Redistribution Framework API");
+    options.RoutePrefix = "swagger";
+});
 
 app.UseHttpsRedirection();
 

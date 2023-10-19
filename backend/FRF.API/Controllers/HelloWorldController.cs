@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
-namespace Backend.Controllers
+namespace FRF.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class HelloWorldController : ControllerBase
     {
-        /// <summary>
-        /// Hello world!
-        /// </summary>
-        
         [HttpGet(Name = "GetHelloWorld")]
+        [SwaggerOperation("Hello World", "Returns a hello world message")]
         [Authorize]
         public ActionResult<HelloWorldMessage> Get()
         {
@@ -22,6 +20,7 @@ namespace Backend.Controllers
         }
     }
 
+    // TODO: DTO class needs to be moved to a separate file
     public class HelloWorldMessage
     {
         public string Message { get; set; } = "Hello world! (From other user ";

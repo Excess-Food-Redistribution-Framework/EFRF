@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FRF.API.Controllers
 {
@@ -29,6 +30,7 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Route("Register")]
+        [SwaggerOperation("Registration")]
         public async Task<Object> Register(RegisterViewModel model)
         {
             var user = new User { 
@@ -50,7 +52,10 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<Object> Login(LoginViewModel model)
+        [SwaggerOperation("Login")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed")]
+        public async Task<ActionResult<LoginResponse>> Login(LoginViewModel model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -80,12 +85,18 @@ namespace FRF.API.Controllers
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.CreateToken(tokenDescriptor);
                 var token = tokenHandler.WriteToken(securityToken);
-                return Ok(new { token });
+                return Ok(new LoginResponse() { Token = token });
             }
             else
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
             }
+        }
+
+        // TODO: DTO class needs to be moved to a separate file
+        public class LoginResponse
+        {
+            public string Token { get; set; } = string.Empty;
         }
     }
 }
