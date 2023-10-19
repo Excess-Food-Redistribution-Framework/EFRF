@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace FRF.API.Controllers
@@ -91,6 +92,17 @@ namespace FRF.API.Controllers
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
             }
+        }
+        
+        // TODO: Return object without protected data (password, etc.)
+        [HttpGet]
+        [Authorize]
+        [SwaggerOperation("Get current user")]
+        [SwaggerResponse(StatusCodes.Status200OK, "TODO: Complete GetAccount method")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<User>> GetAccount()
+        {
+            return Ok(await _userManager.FindByIdAsync(User.FindFirst("UserId").Value));
         }
 
         // TODO: DTO class needs to be moved to a separate file
