@@ -1,27 +1,36 @@
-# React + TypeScript + Vite
+# React projekt, ESLint, Prettier
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Inštalácia závislostí
 
-Currently, two official plugins are available:
+Prvým krokom pre prácu na React projekte je inštalácia všetkých potrebných závislostí pomocou príkazu: "npm install"
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 2. Visual Studio Code
 
-## Expanding the ESLint configuration
+Pre prácu na vývoji odporúčam používať Visual Studio Code, pre lepšiu podporu pre ESLint a Prettier.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 3. VS Code Extensions
 
-- Configure the top-level `parserOptions` property like this:
+V prípade využívania vývojového prostredia VS Code odporúčam nainštalovať tieto VS Code rozšírenia:
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+- ESLint: Poskytuje podporu pre ESLint priamo v editore.
+- Prettier - Code formatter: Integrácia Prettier do VS Code.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Po nainštalovaní extension ESLint je možné pomocou skratky "CTRL + SHIFT + P", spustiť priamo v IDE funkciu ESLint: Fix all auto-fixable problems, ktorá v otvorenom súbore opraví všetko automatický opraviteľné chyby.
+
+V prípade nainštalovania extension Prettier, odporúčam v nastaveniach VS Code nastaviť funkciu "Default Formatter" na hodnotu "Prettier - Code Formatter" a taktiež zapnúť funkciu "Format on Save" na hodnotu "On" vďaka čomu sa bude daný súbor na ktorom pracujete automatický formátovať pri každom uložení.
+
+## 5. .eslintrc.js a .prettierrc.js
+
+V projekte už existujú základné konfigurácie pre ESLint a Prettier, ktoré je však možné po vzájomnej dohode doplňovať a upravovať tak, aby to všetkým vyhovovalo v najväčšej možnej miere.
+
+## 6. Package.json skripty
+
+V súbore package.json existujú skripty pomocou ktorých je okrem iného možné vykonať aj kontrolu, opravu a formátovanie zdrojového kódu pomocou príkazov z príkazového riadku. Príkazy ako sú lint a format sú užitočné najmä pre tých, ktorí sa rozhodnú využívať iné IDE ako VS Code. Zoznam všetkých príkazov:
+
+- "npm run dev" - Spustí vývojový server, ktorý umožňuje rýchlu a automatickú obnovu pri zmene kódu.
+- "npm run build" - Vytvorí produkčnú verziu projektu
+- "npm run lint" - Spustí ESLint na kontrolu kvality kódu v projekte/v danom priečinku v ktorom sa nachádzate na súboroch s príponami .js, .cjs, .ts a .tsx
+- "npm run lint:fix" - Spustí ESLint kontrolu s možnosťou opraviť niektoré problémy v kóde automaticky.
+- "npm run format": Spustí nad priečinkom "/src" formátovanie všetkých súborov v s príponami .ts a .tsx.
+- "npm run typecheck" - Kontroluje typy v projekte pomocou TypeScript kompilátora, ale neprodukuje žiadne výstupy. Pomáha odhaľovať typové chyby v kóde.
+- "npm run preview" - Spustí preview server, ktorý umožňuje zobraziť a otestovať projekt pred jeho nasadením.
