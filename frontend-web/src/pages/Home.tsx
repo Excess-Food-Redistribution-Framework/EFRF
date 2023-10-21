@@ -5,7 +5,7 @@ export function Home() {
 
   return (
     <div>
-      <h1>Trying to connect with BE by API call</h1>
+      <h1>Connection test with BE by API call</h1>
       <p>{helloWorldText}</p>
     </div>
   );

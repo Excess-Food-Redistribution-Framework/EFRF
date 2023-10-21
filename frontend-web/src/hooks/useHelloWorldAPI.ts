@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
+import { HelloWorldResponse } from '../types/apiTypes';
 
 function useHelloWorldAPI() {
-  const [helloWorldText, setHelloWorldText] = useState('');
+  const [helloWorldText, setHelloWorldText] = useState('Trying to connect...');
 
   useEffect(() => {
-    fetch('/api/HelloWorld') // Doplniť URL adresu
+    fetch('https://frf-api.azurewebsites.net/api/HelloWorld')
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(response.statusText);
         }
-        return response.json();
+        return response.json() as Promise<HelloWorldResponse>;
       })
-      .then((data) => setHelloWorldText(data.message))
-      .catch(() => {
-        setHelloWorldText('Failed to connect to BE');
+      .then((data) => {
+        setHelloWorldText(data.message);
+      })
+      .catch((error) => {
+        setHelloWorldText(error);
       });
   }, []);
 
