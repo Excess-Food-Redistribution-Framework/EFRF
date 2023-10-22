@@ -5,14 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace FRF.DAL
 {
     // Define a class named DatabaseContext that inherits from DbContext.
-    public class DatabaseContext : DbContext
+    public class DatabaseContext : IdentityDbContext<User>
     {
         // DbSet represents a table in the database for entities:
         public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
         // ......OTHER ENTITIES......
 
         // Constructor for the DatabaseContext class.
