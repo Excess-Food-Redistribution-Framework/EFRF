@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using FRF.Services.Interfaces;
 using FRF.DAL.Interfaces;
+using FRF.Domain.Enum;
 
 public class ProductService : IProductService
 {
@@ -20,12 +21,21 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<Product>> GetAllProducts()
     {
+        var now = DateTime.Now;
+        var allProducts = await _productRepository.GetAll().ToListAsync();
+
+        var expiredProduct = allProducts.Where(d => d.ExpirationDate < now).ToList();
+
+        foreach (var product in expiredProduct)
+        {
+            await DeleteProduct(product.Id);
+        }
         return await _productRepository.GetAll().ToListAsync();
     }
 
-    public async Task<Product> GetProductByName(string name)
+    public async Task<Product> GetProductByType(ProductType type)
     {
-        var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Name == name);
+        var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Type == type);
         if (product == null)
         {
             throw new Exception("Product not found");

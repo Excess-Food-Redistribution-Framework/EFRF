@@ -21,7 +21,10 @@ builder.Services.AddSwaggerGen();
 
 // Dependency Injection (DI).
 builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IBaseRepository<FoodDonation>, FoodDonationRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFoodDonationService, FoodDonationService>();
+builder.Services.AddScoped<ProductService>();
 
 // Add CORS policy as "allow for all"
 builder.Services.AddCors(options =>

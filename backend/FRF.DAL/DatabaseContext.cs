@@ -14,7 +14,7 @@ namespace FRF.DAL
         // DbSet represents a table in the database for entities:
         public DbSet<Product> Products { get; set; }
         // ......OTHER ENTITIES......
-
+        public DbSet<FoodDonation> FoodDonations { get; set; }
         // Constructor for the DatabaseContext class.
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
