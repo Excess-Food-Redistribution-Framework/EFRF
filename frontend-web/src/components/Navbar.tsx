@@ -1,7 +1,14 @@
 import { Container, Nav, Navbar as NavbarBootstrap } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../AuthProvider';
 
-export function Navbar() {
+function Navbar() {
+  const { setToken, isLogged } = useAuth();
+
+  const logout = () => {
+    setToken('');
+  };
+
   return (
     <NavbarBootstrap className="bg-white shadow-sm mb-3">
       <Container>
@@ -9,9 +16,18 @@ export function Navbar() {
           <Nav.Link to="/" as={NavLink}>
             Home
           </Nav.Link>
-          <Nav.Link to="/contact" as={NavLink}>
-            Contact
-          </Nav.Link>
+          {isLogged() ? (
+            <>
+              <Nav.Link to="/login" as={NavLink}>
+                Login
+              </Nav.Link>
+              <Nav.Link to="/profile" as={NavLink}>
+                Profile
+              </Nav.Link>
+            </>
+          ) : (
+            <Nav.Link onClick={logout}>Logout</Nav.Link>
+          )}
         </Nav>
       </Container>
     </NavbarBootstrap>

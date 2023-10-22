@@ -1,14 +1,15 @@
+import { Container } from 'react-bootstrap';
 import useHelloWorldAPI from '../hooks/useHelloWorldAPI';
 
-export function Home() {
+function HomePage() {
   const helloWorldText = useHelloWorldAPI();
 
   return (
-    <div>
+    <Container>
       <h1>Connection test with BE by API call</h1>
       <p>{helloWorldText}</p>
-    </div>
+    </Container>
   );
 }
 
-export default Home;
+export default HomePage;
