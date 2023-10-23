@@ -1,4 +1,5 @@
 ﻿using FRF.Domain.Entities;
+using FRF.Domain.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace FRF.Services.Interfaces
     {
         Task<IEnumerable<Product>> GetAllProducts();
         Task<Product> GetProductById(Guid id);
-        Task<Product> GetProductByName(string name);
+        Task<Product> GetProductByType(ProductType name);
         Task AddProduct(Product product);
         Task UpdateProduct(Product product);
         Task DeleteProduct(Guid id);

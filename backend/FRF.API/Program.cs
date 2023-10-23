@@ -38,7 +38,10 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 
 // Dependency Injection (DI).
 builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IBaseRepository<FoodDonation>, FoodDonationRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFoodDonationService, FoodDonationService>();
+builder.Services.AddScoped<ProductService>();
 
 // Auth configuration:
 builder.Services.AddIdentity<User, IdentityRole>()

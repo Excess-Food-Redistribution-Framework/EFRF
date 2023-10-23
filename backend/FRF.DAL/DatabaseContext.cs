@@ -17,7 +17,7 @@ namespace FRF.DAL
         public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }
         // ......OTHER ENTITIES......
-
+        public DbSet<FoodDonation> FoodDonations { get; set; }
         // Constructor for the DatabaseContext class.
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
