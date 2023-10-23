@@ -21,15 +21,6 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<Product>> GetAllProducts()
     {
-        var now = DateTime.Now;
-        var allProducts = await _productRepository.GetAll().ToListAsync();
-
-        var expiredProduct = allProducts.Where(d => d.ExpirationDate < now).ToList();
-
-        foreach (var product in expiredProduct)
-        {
-            await DeleteProduct(product.Id);
-        }
         return await _productRepository.GetAll().ToListAsync();
     }
 

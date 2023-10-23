@@ -13,7 +13,7 @@
             public Guid Id { get; set; }
             public string Title { get; set; }
             public StateFoodDonation State { get; set; } = StateFoodDonation.WaitForTakeDonate;
-            // Другие поля и свойства, связанные с пожертвованиями
-            public List<Product> Products { get; set; } // Список продуктов в этом пожертвовании
+            public string Location { get; set; }
+            public List<Product> Products { get; set; }
         }
     }

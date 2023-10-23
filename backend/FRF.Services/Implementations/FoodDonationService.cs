@@ -6,6 +6,7 @@ using FRF.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,14 @@ public class FoodDonationService : IFoodDonationService
 
     public async Task<IEnumerable<FoodDonation>> GetAllFoodDonations()
     {
-        var allFoodDonations = await _foodDonationRepository.GetAll().ToListAsync();
+        var allFoodDonations = await _foodDonationRepository.GetAll().Include(d => d.Products).ToListAsync();
+        var now = DateTime.Now;
+
+        foreach (var donation in allFoodDonations)
+        {
+            donation.Products.RemoveAll(product => product.ExpirationDate < now);
+        }
+
         return allFoodDonations;
     }
 

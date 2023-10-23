@@ -14,7 +14,5 @@ namespace FRF.Domain.Entities
         public ProductType Type { get; set; }
         public DateTime ExpirationDate { get; set; } = DateTime.Now;
         public int Quantity { get; set; } = 0;
-        [ForeignKey("FoodDonationId")]
-        public Guid? FoodDonationId { get; set; }
     }
 }
