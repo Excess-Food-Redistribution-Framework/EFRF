@@ -36,6 +36,9 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 
+// Auto Mapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Dependency Injection (DI).
