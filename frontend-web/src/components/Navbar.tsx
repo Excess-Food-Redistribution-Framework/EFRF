@@ -30,6 +30,9 @@ function Navbar() {
               <Nav.Link to="/login" as={NavLink}>
                 Login
               </Nav.Link>
+              <Nav.Link to="/registration" as={NavLink}>
+                Registration
+              </Nav.Link>
             </>
           )}
         </Nav>
