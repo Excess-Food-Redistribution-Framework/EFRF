@@ -9,8 +9,9 @@ on:
     branches:
     - git-pipeline
 
+
 env:
-  AZURE_WEBAPP_NAME: EFRF-API
+  AZURE_WEBAPP_NAME: FRF-API
   AZURE_WEBAPP_PACKAGE_PATH: "./publish"
 
 jobs:
