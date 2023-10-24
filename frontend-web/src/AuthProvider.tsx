@@ -45,6 +45,7 @@ function AuthProvider({ children }: React.PropsWithChildren) {
       setToken,
       isAuth,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [token]
   );
 

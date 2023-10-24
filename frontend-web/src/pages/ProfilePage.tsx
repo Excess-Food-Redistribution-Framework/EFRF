@@ -13,14 +13,20 @@ function ProfilePage() {
       const response = await axios.get('/api/Account');
       setUserData(response.data);
     } catch (error) {
-      console.error(error);
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   };
 
   useEffect(() => {
-    isAuth() && fetchUserData();
+    if (isAuth()) {
+      fetchUserData();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* eslint-disable */
   return (
     <Container>
       <h1>Profile</h1>

@@ -21,9 +21,7 @@ function Navbar() {
               <Nav.Link to="/profile" as={NavLink}>
                 Profile
               </Nav.Link>
-              <Nav.Link onClick={logout}>
-                Logout
-              </Nav.Link>
+              <Nav.Link onClick={logout}>Logout</Nav.Link>
             </>
           ) : (
             <>
