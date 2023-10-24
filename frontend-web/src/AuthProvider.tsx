@@ -11,7 +11,7 @@ import { isTokenExpired } from './utils/jwt';
 interface AuthContextProps {
   token: string | null;
   setToken: (token: string | null) => void;
-  isLogged: () => boolean;
+  isAuth: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -21,7 +21,7 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     localStorage.getItem('token')
   );
 
-  const isLogged = () => {
+  const isAuth = () => {
     if (isTokenExpired(token)) {
       setToken(null);
     }
@@ -43,7 +43,7 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     () => ({
       token,
       setToken,
-      isLogged,
+      isAuth,
     }),
     [token]
   );

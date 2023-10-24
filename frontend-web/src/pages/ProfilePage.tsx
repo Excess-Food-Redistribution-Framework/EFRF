@@ -6,27 +6,25 @@ import { useAuth } from '../AuthProvider';
 function ProfilePage() {
   const [userData, setUserData] = React.useState(null);
 
-  const { isLogged } = useAuth();
+  const { isAuth } = useAuth();
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('/api/Account');
+      setUserData(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get('/api/Account');
-        setUserData(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    if (isLogged()) {
-      fetchUserData();
-    }
-  });
+    isAuth() && fetchUserData();
+  }, []);
 
   return (
     <Container>
       <h1>Profile</h1>
-      {isLogged() ? (
+      {isAuth() ? (
         <>
           {userData ? (
             <>

@@ -8,7 +8,7 @@ function getTokenExpiration(jwtToken: string | null): number {
 
   const base64Url = jwtToken.split('.')[1] || '';
   const base64 = base64Url.replace('-', '+').replace('_', '/');
-  return JSON.parse(window.atob(base64) || '{}').exp || 0;
+  return JSON.parse(window.atob(base64) || '{}').exp * 1000 || 0;
 }
 
 /**
@@ -17,7 +17,7 @@ function getTokenExpiration(jwtToken: string | null): number {
  * @returns boolean True if the jwtToken is expired, false otherwise
  */
 function isTokenExpired(jwtToken: string | null) {
-  return getTokenExpiration(jwtToken) < Date.now() / 1000;
+  return getTokenExpiration(jwtToken) < Date.now();
 }
 
-export { isTokenExpired };
+export { getTokenExpiration, isTokenExpired };

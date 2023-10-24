@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 
 function Navbar() {
-  const { setToken, isLogged } = useAuth();
+  const { setToken, isAuth } = useAuth();
 
   const logout = () => {
     setToken('');
@@ -16,17 +16,21 @@ function Navbar() {
           <Nav.Link to="/" as={NavLink}>
             Home
           </Nav.Link>
-          {isLogged() ? (
+          {isAuth() ? (
+            <>
+              <Nav.Link to="/profile" as={NavLink}>
+                Profile
+              </Nav.Link>
+              <Nav.Link onClick={logout}>
+                Logout
+              </Nav.Link>
+            </>
+          ) : (
             <>
               <Nav.Link to="/login" as={NavLink}>
                 Login
               </Nav.Link>
-              <Nav.Link to="/profile" as={NavLink}>
-                Profile
-              </Nav.Link>
             </>
-          ) : (
-            <Nav.Link onClick={logout}>Logout</Nav.Link>
           )}
         </Nav>
       </Container>
