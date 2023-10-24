@@ -1,20 +1,35 @@
-import { Routes, Route } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import { Home } from './pages/Home';
-import { Navbar } from './components/Navbar';
-import { Contact } from './pages/Contact';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import axios from 'axios';
+import React from 'react';
+import Layout from './pages/Layout';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import AuthProvider from './AuthProvider';
+import NotFoundPage from './pages/NotFoundPage';
+import ProfilePage from './pages/ProfilePage';
+import RegistrationPage from './pages/RegistrationPage';
 
 function App() {
+  // Set axios defaults
+  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL as string;
+  axios.defaults.timeout = 2000;
+
   return (
-    <>
-      <Navbar />
-      <Container>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registration" element={<RegistrationPage />} />
+
+            {/* Not Found */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Routes>
-      </Container>
-    </>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
