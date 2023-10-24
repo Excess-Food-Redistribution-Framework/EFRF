@@ -3,9 +3,11 @@ using FRF.DAL;
 using FRF.DAL.Interfaces;
 using FRF.DAL.Repositories;
 using FRF.Domain.Entities;
+using FRF.Services.Implementations;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -34,20 +36,45 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 
+// Auto Mapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Dependency Injection (DI).
 builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
-builder.Services.AddScoped<IBaseRepository<FoodDonation>, FoodDonationRepository>();
+builder.Services.AddScoped<IBaseRepository<FoodRequest>, FoodRequestRepository>();
+builder.Services.AddScoped<IBaseRepository<Organization>, OrganizationRepository>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IFoodDonationService, FoodDonationService>();
-builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<IFoodRequestService, FoodRequestService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 // Auth configuration:
 builder.Services.AddIdentity<User, IdentityRole>()
         .AddRoleManager<RoleManager<IdentityRole>>()
         .AddEntityFrameworkStores<DatabaseContext>()
         .AddDefaultTokenProviders();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Password settings.
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+    // Default SignIn settings.
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    // Default User settings.
+    options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = false;
+});
+
+
 
 builder.Services.AddAuthentication(x =>
 {
@@ -91,6 +118,24 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Roles initialization
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+    string role = "Provider";
+    if (!(await roleManager.RoleExistsAsync(role)))
+    {
+        await roleManager.CreateAsync(new IdentityRole(role));
+    }
+    role = "Distributer";
+    if (!(await roleManager.RoleExistsAsync(role)))
+    {
+        await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

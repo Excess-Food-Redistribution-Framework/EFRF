@@ -38,7 +38,6 @@ namespace FRF.API.Controllers
 
         // POST api/<ProductController>
         [HttpPost]
-        [Authorize] // Now post product is available only with valid JWT Token
         public async Task Post([FromBody] Product product)
         {
             await _productService.AddProduct(product);
@@ -48,7 +47,8 @@ namespace FRF.API.Controllers
         [HttpPut("{id}")]
         public async Task Put(Guid id, [FromBody] Product product)
         {
-            await _productService.AddProduct(product);
+            product.Id = id;
+            await _productService.UpdateProduct(product);
         }
 
         // DELETE api/<ProductController>/5
