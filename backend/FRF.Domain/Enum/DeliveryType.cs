@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace FRF.Domain.Enum
 {
-    public enum StateFoodDonation
+    public enum DeliveryType
     {
         [Description("Someone can take donate")]
         WaitForTakeDonate,
+
         [Description("Donor can deliver")]
         DonorCanDeliver,
 

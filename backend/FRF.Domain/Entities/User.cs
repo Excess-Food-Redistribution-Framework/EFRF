@@ -9,6 +9,5 @@ namespace FRF.Domain.Entities
 {
     public class User : IdentityUser
     {
-        // To add custom fields (Provider/Distributor)
     }
 }
