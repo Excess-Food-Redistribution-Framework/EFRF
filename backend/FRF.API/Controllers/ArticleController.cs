@@ -1,7 +1,5 @@
-
 using AutoMapper;
 using FRF.API.Dto;
-using FRF.DAL.Interfaces;
 using FRF.Domain.Entities;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -13,25 +11,29 @@ namespace FRF.API.Controllers
     [ApiController]
     public class ArticleController : ControllerBase
     {
-        // private readonly ArticleService _articleService;
         private readonly IMapper _mapper;
-        private readonly IBaseRepository<Article> _articleRepository;
         private readonly IArticleService _articleService;
         
-        public ArticleController(IArticleService articleService, IMapper mapper, IBaseRepository<Article> articleRepository)
+        public ArticleController(IArticleService articleService, IMapper mapper)
         {
             _articleService = articleService;
             _mapper = mapper;
-            _articleRepository = articleRepository;
         }
         
         [HttpGet]
         [SwaggerOperation("Get Articles")]
-        public async Task<ActionResult<IEnumerable<Article>>> Get()
+        public async Task<ActionResult<Pagination<Article>>> Get(int page = 1, int pageSize = 10)
         {
-            return Ok(await _articleService.GetAll());
+            var queryable = await _articleService.GetAll();
+            
+            return Ok(new Pagination<Article>()
+            {
+                Page = page,
+                PageSize = pageSize,
+                Count = queryable.Count(),
+                Data = queryable.Skip((page - 1) * pageSize).Take(pageSize).ToList()
+            });
         }
-        
         
         [HttpGet("{id}")]
         [SwaggerOperation("Get Article by Id")]
@@ -40,9 +42,10 @@ namespace FRF.API.Controllers
             return Ok(await _articleService.GetById(id));
         }
         
-        
         [HttpPost]
         [SwaggerOperation("Create Article")]
+        [SwaggerResponse(200)]
+        [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
         public async Task<ActionResult<Article>> Post([FromBody] CreateUpdateArticleDto articleBody)
         {
             var article = _mapper.Map<Article>(articleBody);
@@ -52,6 +55,8 @@ namespace FRF.API.Controllers
         
         [HttpPatch("{id}")]
         [SwaggerOperation("Update Article")]
+        [SwaggerResponse(200)]
+        [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
         public async Task<ActionResult<Article>> Patch(Guid id, [FromBody] CreateUpdateArticleDto articleBody)
         {
             var article = await _articleService.GetById(id);
