@@ -15,7 +15,7 @@ public class ArticleService: IArticleService
 
     public async Task<IQueryable<Article>> GetAll()
     {
-        return _articleRepository.GetAll();
+        return _articleRepository.GetAll().OrderByDescending(x => x.CreatedAt);
     }
 
     public async Task<Article> GetById(Guid id)
