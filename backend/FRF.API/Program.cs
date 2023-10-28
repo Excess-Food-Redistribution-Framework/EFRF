@@ -7,7 +7,6 @@ using FRF.Services.Implementations;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -45,10 +44,12 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IBaseRepository<FoodRequest>, FoodRequestRepository>();
 builder.Services.AddScoped<IBaseRepository<Organization>, OrganizationRepository>();
+builder.Services.AddScoped<IBaseRepository<Article>, ArticleRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFoodRequestService, FoodRequestService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
 
 // Auth configuration:
 builder.Services.AddIdentity<User, IdentityRole>()
