@@ -21,12 +21,15 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<Product>> GetAllProducts()
     {
-        return await _productRepository.GetAll().ToListAsync();
+        return await _productRepository.GetAll()
+            .Where(p => p.ExpirationDate >= DateTime.Now)
+            .ToListAsync();
     }
 
     public async Task<Product> GetProductByType(ProductType type)
     {
-        var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Type == type);
+        var product = await _productRepository.GetAll()
+            .FirstOrDefaultAsync(p => p.Type == type);
         if (product == null)
         {
             throw new Exception("Product not found");
