@@ -8,7 +8,7 @@ namespace FRF.DAL.Interfaces
 {
     // Define a generic interface IBaseRepository for data access operations.
     // Use it for all new repos like: public class EntityRepository : IBaseRepository<Entity>
-    public interface IBaseRepository<T>
+    public interface IBaseRepository<T> where T : class
     {
         Task Add(T entity);
         IQueryable<T> GetAll();

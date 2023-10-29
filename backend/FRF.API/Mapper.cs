@@ -9,5 +9,6 @@ public class Mapper : Profile
     public Mapper()
     {
         CreateMap<User, UserDto>();
+        CreateMap<CreateUpdateArticleDto, Article>();
     }
 }
