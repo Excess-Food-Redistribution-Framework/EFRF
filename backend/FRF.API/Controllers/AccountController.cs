@@ -115,7 +115,7 @@ namespace FRF.API.Controllers
             }
             else
             {
-                return BadRequest(new MessageResponseDto() { Message = "Username or password is incorrect" });
+                return BadRequest(new MessageResponseDto() { Message = "Email or password is incorrect" });
             }
         }
 
