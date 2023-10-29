@@ -136,56 +136,5 @@ namespace FRF.API.Controllers
             User user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             return Ok(_mapper.Map<UserDto>(user));
         }
-
-        [HttpPost]
-        [Authorize]
-        [Route("JoinOrganization")]
-        [SwaggerOperation("Join to the organization")]
-        [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> JoinOrganization(Guid organizationId)
-        {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            try
-            {
-                await _organizationService.AddUserToOrganization(userId, organizationId);
-
-                return Ok("User joined organization");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-
-        [HttpPost]
-        [Authorize]
-        [Route("LeaveOrganization")]
-        [SwaggerOperation("Leave the organization")]
-        public async Task<Object> LeaveOrganization(Guid organizationId)
-        {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            try
-            {
-                await _organizationService.RemoveUserFromOrganization(userId, organizationId);
-
-                return Ok("User leaved organization");
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
     }
 }
