@@ -5,8 +5,12 @@ namespace FRF.API.ViewModels
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "Username")]
-        public string? UserName { get; set; }
+        [Display(Name = "Firstname")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Lastname")]
+        public string LastName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]

@@ -9,7 +9,6 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using FRF.API.Dto;
-using FRF.API.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
@@ -47,10 +46,15 @@ namespace FRF.API.Controllers
         [HttpPost]
         [Route("Register")]
         [SwaggerOperation("Registration")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
         public async Task<Object> Register(RegisterViewModel model)
         {
-            var user = new User { 
-                UserName = model.UserName,
+            var user = new User {
+                // Now UserName is set on Email value.
+                UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 Email = model.Email,
             };
             
@@ -67,10 +71,71 @@ namespace FRF.API.Controllers
             }
         }
 
+
+
+        [HttpPost]
+        [Route("Login")]
+        [SwaggerOperation("Login")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
+        public async Task<ActionResult<LoginResponseDto>> Login(LoginViewModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Audience = _config.GetValue<string>("JwtSettings:Audience"),
+                    Issuer = _config.GetValue<string>("JwtSettings:Issuer"),
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim("UserId", user.Id.ToString()),
+                        new Claim("Email", user.Email.ToString()),
+                        new Claim("Name", user.UserName.ToString())
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(_config.GetValue<string>("JwtSettings:Key"))),
+                        SecurityAlgorithms.HmacSha256
+                        )
+                };
+                foreach (var role in userRoles)
+                {
+                    tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, role));
+                }
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+                var token = tokenHandler.WriteToken(securityToken);
+
+                return Ok(new LoginResponseDto() { Token = token, User = _mapper.Map<UserDto>(user) });
+            }
+            else
+            {
+                return BadRequest(new MessageResponseDto() { Message = "Username or password is incorrect" });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        [SwaggerOperation("Get current user")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<UserDto>> GetAccount()
+        {
+            User user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            return Ok(_mapper.Map<UserDto>(user));
+        }
+
         [HttpPost]
         [Authorize]
         [Route("JoinOrganization")]
         [SwaggerOperation("Join to the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
         public async Task<Object> JoinOrganization(Guid organizationId)
         {
             var userId = User.FindFirst("UserId")?.Value;
@@ -114,62 +179,6 @@ namespace FRF.API.Controllers
             {
                 return BadRequest(e.Message);
             }
-        }
-
-        [HttpPost]
-        [Route("Login")]
-        [SwaggerOperation("Login")]
-        [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
-        public async Task<ActionResult<LoginResponseDto>> Login(LoginViewModel model)
-        {
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                var userRoles = await _userManager.GetRolesAsync(user);
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Audience = _config.GetValue<string>("JwtSettings:Audience"),
-                    Issuer = _config.GetValue<string>("JwtSettings:Issuer"),
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim("UserId", user.Id.ToString()),
-                        new Claim("Name", user.UserName.ToString())
-                    }),
-                    Expires = DateTime.UtcNow.AddDays(1),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(_config.GetValue<string>("JwtSettings:Key"))),
-                        SecurityAlgorithms.HmacSha256
-                        )
-                };
-                foreach (var role in userRoles)
-                {
-                    tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, role));
-                }
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-                var token = tokenHandler.WriteToken(securityToken);
-
-                return Ok(new LoginResponseDto() { Token = token, User = _mapper.Map<UserDto>(user) });
-            }
-            else
-            {
-                return BadRequest(new MessageResponseDto() { Message = "Username or password is incorrect" });
-            }
-        }
-        
-        [HttpGet]
-        [Authorize]
-        [SwaggerOperation("Get current user")]
-        [SwaggerResponse(StatusCodes.Status200OK)]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<UserDto>> GetAccount()
-        {
-            User user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            return Ok(_mapper.Map<UserDto>(user));
         }
     }
 }
