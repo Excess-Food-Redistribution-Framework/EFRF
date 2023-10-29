@@ -63,7 +63,14 @@ namespace FRF.API.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 //result = await _userManager.SetUserNameAsync(user, model.UserName);
                 //result = await _userManager.SetEmailAsync(user, model.Email);
-                return Ok(result);
+                if (result.Succeeded)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                };
             }
             catch (Exception ex)
             {
