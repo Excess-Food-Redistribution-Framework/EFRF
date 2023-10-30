@@ -38,7 +38,7 @@ jobs:
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'FRF-FE'
+          app-name: 'FRF-Frontend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0794F158E83F440485AA1A6165050248 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_28547F13775A4BDAB180231FA163A6DF }}
           package: dist
