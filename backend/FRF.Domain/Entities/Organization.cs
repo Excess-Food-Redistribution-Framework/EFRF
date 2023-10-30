@@ -19,6 +19,9 @@ namespace FRF.Domain.Entities
         public List<FoodRequest> FoodRequests { get; set; } = new List<FoodRequest>();
         public List<Product> Products { get; set; } = new List<Product>();
 
+        public Guid CreatorId { get; set; }
         public List<User> Users { get; set; } = new List<User>();
+
+        public string Password { get; set; } = String.Empty;
     }
 }

@@ -1,5 +1,4 @@
-﻿using FRF.API.ViewModels;
-using FRF.Domain.Entities;
+﻿using FRF.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +7,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using FRF.API.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
+using FRF.API.Dto.User;
 
 namespace FRF.API.Controllers
 {
@@ -48,7 +47,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Registration")]
         [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> Register(RegisterViewModel model)
+        public async Task<Object> Register(RegisterDto model)
         {
             var user = new User {
                 // Now UserName is set on Email value.
@@ -85,7 +84,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
-        public async Task<ActionResult<LoginResponseDto>> Login(LoginViewModel model)
+        public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))

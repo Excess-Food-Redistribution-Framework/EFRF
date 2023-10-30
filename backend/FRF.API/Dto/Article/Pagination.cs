@@ -1,4 +1,4 @@
-﻿namespace FRF.API.Dto;
+﻿namespace FRF.API.Dto.Article;
 
 public class Pagination<T>
 {
@@ -6,5 +6,5 @@ public class Pagination<T>
     public int PageSize { get; set; }
     public int Count { get; set; }
     public List<T> Data { get; set; } = new List<T>();
-    
+
 }

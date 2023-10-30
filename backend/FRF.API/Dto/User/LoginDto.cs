@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FRF.API.ViewModels
+namespace FRF.API.Dto.User
 {
-    public class LoginViewModel
+    public class LoginDto
     {
         [Required]
         [Display(Name = "Email")]

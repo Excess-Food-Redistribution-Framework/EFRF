@@ -43,7 +43,12 @@ namespace FRF.DAL.Repositories
 
         public async Task<Organization?> GetById(Guid id)
         {
-            return await _context.Organizations.FirstOrDefaultAsync(p => p.Id == id);
+            var organization = await _context.Organizations.FirstOrDefaultAsync(p => p.Id == id);
+            if (organization != null)
+            {
+                var users = _context.Entry<Organization>(organization).Collection(o => o.Users);
+            }
+            return organization;
         }
 
         public async Task Update(Organization entity)

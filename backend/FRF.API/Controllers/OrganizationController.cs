@@ -1,7 +1,11 @@
-﻿using FRF.Domain.Entities;
+﻿using AutoMapper;
+using FRF.API.Dto.Organization;
+using FRF.Domain.Entities;
+using FRF.Domain.Enum;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
@@ -16,50 +20,201 @@ namespace FRF.API.Controllers
     {
         // Controller uses services
         private readonly IOrganizationService _organizationService;
+        private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
 
         // Dependency Injection (DI).
-        public OrganizationController(IOrganizationService organizationService)
+        public OrganizationController(
+            IOrganizationService organizationService,
+            IMapper mapper,
+            UserManager<User> userManager
+            )
         {
             _organizationService = organizationService;
+            _mapper = mapper;
+            _userManager = userManager;
         }
 
         // GET: api/<OrganizationController>
         [HttpGet]
-        public async Task<IEnumerable<Organization>> Get()
+        public async Task<IEnumerable<Organization>?> Get()
         {
-            return await _organizationService.GetAllOrganizations();
+            var getResponse = await _organizationService.GetAllOrganizations();
+            return getResponse.Data;
         }
 
-        // GET api/<OrganizationController>/5
-        [HttpGet("{id}")]
-        public async Task<Organization> Get(Guid id)
-        {
-            return await _organizationService.GetOrganizationById(id);
-        }
-
-        // POST api/<OrganizationController>
         [HttpPost]
-        public async Task Post([FromBody] Organization organization)
+        [Authorize]
+        [Route("CreateOrganization")]
+        [SwaggerOperation("Create to the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User created the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User created organization - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> CreateOrganization([FromBody] CreateOrganizationDto createOrganizationDto)
         {
-            await _organizationService.AddOrganization(organization);
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var organization = _mapper.Map<Organization>(createOrganizationDto);
+            organization.CreatorId = Guid.Parse(user.Id);
+
+            string salt = BCrypt.Net.BCrypt.GenerateSalt();
+            organization.Password = BCrypt.Net.BCrypt.HashPassword(organization.Password, salt);
+
+            var createOrganizationResponse = await _organizationService.CreateOrganization(organization);
+            if (createOrganizationResponse.Data == true)
+            {
+                // Add role depending on organization type
+                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                await _userManager.AddToRoleAsync(user, role.ToString());
+
+                var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                return Ok(organizationDto);
+            }
+            else
+            {
+                return BadRequest(createOrganizationResponse.Message);
+            }
         }
 
-        // PUT api/<OrganizationController>/5
-        [HttpPut("{id}")]
-        public async Task Put(Guid id, [FromBody] Organization organization)
+        [HttpPut]
+        [Authorize]
+        [Route("UpdateOrganization")]
+        [SwaggerOperation("Update to the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User updated the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User updated organization - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> UpdateOrganization([FromBody] UpdateOrganizationDto updateOrganizationDto)
         {
-            organization.Id = id;
-            await _organizationService.UpdateOrganization(organization);
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
+            
+            if (organization == null)
+            {
+                return BadRequest(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User isn't the organization's creator");
+            }
+
+            if (updateOrganizationDto.Name != String.Empty)
+                organization.Name = updateOrganizationDto.Name;
+            if (updateOrganizationDto.Information != String.Empty)
+                organization.Information = updateOrganizationDto.Information;
+            if (updateOrganizationDto.Password != String.Empty)
+            {
+                string salt = BCrypt.Net.BCrypt.GenerateSalt();
+                organization.Password = BCrypt.Net.BCrypt.HashPassword(updateOrganizationDto.Password, salt);
+            }
+
+            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
+            if (updateOrganizationResponse.Data == true)
+            {
+                var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                return Ok(organizationDto);
+            }
+            else
+            {
+                return BadRequest(updateOrganizationResponse.Message);
+            }
         }
 
-        // DELETE api/<OrganizationController>/5
-        [HttpDelete("{id}")]
-        public async Task Delete(Guid id)
+        [HttpDelete]
+        [Authorize]
+        [Route("DeleteOrganization")]
+        [SwaggerOperation("Delete to the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User deleted the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User delete organization - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> DeleteOrganization()
         {
-            await _organizationService.DeleteOrganization(id);
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user.Id == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            if (getOrganizationResponse.Data == null)
+            {
+                return BadRequest(getOrganizationResponse.Message);
+            }
+
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
+            {
+                return BadRequest(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User isn't the organization's creator");
+            }
+
+            // Remove all roles depending on organization type
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+            // Copu users list
+            var users = organization.Users.ToList();
+
+            var deleteOrganizationResponse = await _organizationService.DeleteOrganization(organization.Id);
+            if (deleteOrganizationResponse.Data == true)
+            {
+                if (users != null)
+                {
+                    foreach (User u in users)
+                    {
+                        await _userManager.RemoveFromRoleAsync(u, role.ToString());
+                    }
+                }
+                return Ok(deleteOrganizationResponse.Message);
+            }
+            else
+            {
+                return BadRequest(deleteOrganizationResponse.Message);
+            }
         }
 
+        [HttpDelete]
+        [Authorize]
+        [Route("KickUserFromOrganization")]
+        [SwaggerOperation("Kick user from organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User kicked from organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User kicked from organization - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> KickUserFromOrganization(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user.Id == null)
+            {
+                return BadRequest("User not found");
+            }
 
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            if (getOrganizationResponse.Data == null)
+            {
+                return BadRequest(getOrganizationResponse.Message);
+            }
+
+            var organization = getOrganizationResponse.Data;
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User isn't the organization's creator");
+            }
+            // Remove all roles depending on organization type
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+
+            var userForDelete = await _userManager.FindByIdAsync(userId);
+
+            var deleteOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
+            if (deleteOrganizationResponse.StatusCode == Domain.Enum.StatusCode.Ok)
+            {
+                await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
+                return Ok(deleteOrganizationResponse.Message);
+            }
+            else
+            {
+                return BadRequest(deleteOrganizationResponse.Message);
+            }
+        }
 
 
         [HttpPost]
@@ -68,17 +223,25 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Join to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> JoinOrganization(Guid organizationId)
+        public async Task<Object> JoinOrganization(JoinOrganizationDto joinOrganizationDto)
         {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user.Id == null)
             {
                 return BadRequest("User not found");
             }
 
             try
             {
-                await _organizationService.AddUserToOrganization(userId, organizationId);
+                // Add role depending on organization type
+                var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId, joinOrganizationDto.Password);
+
+                if (joinResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                {
+                    return BadRequest(joinResponse.Message);
+                }
+                OrganizationType role = joinResponse?.Data?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                await _userManager.AddToRoleAsync(user, role.ToString());
 
                 return Ok("User joined organization");
             }
@@ -95,15 +258,24 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Leave the organization")]
         public async Task<Object> LeaveOrganization(Guid organizationId)
         {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user.Id == null)
             {
                 return BadRequest("User not found");
             }
 
             try
             {
-                await _organizationService.RemoveUserFromOrganization(userId, organizationId);
+                var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organizationId);
+
+                if (leaveResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                {
+                    return BadRequest(leaveResponse.Message);
+                }
+
+                // Remove role depending on organization type
+                OrganizationType role = leaveResponse?.Data?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
                 return Ok("User leaved organization");
             }

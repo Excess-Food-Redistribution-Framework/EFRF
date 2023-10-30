@@ -1,4 +1,4 @@
-﻿namespace FRF.API.Dto;
+﻿namespace FRF.API.Dto.User;
 
 public class LoginResponseDto
 {
