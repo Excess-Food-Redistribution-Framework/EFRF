@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 interface ILoginRequest {
@@ -44,34 +44,46 @@ function LoginPage() {
   return (
     <Container>
       <Row className="justify-content-center">
-        <Col lg="6">
-          <h1 className="mb-3 text-center">Login</h1>
+        <Col lg="10">
+          <Row className="primary_color">
+            <Col lg="7" className="secondary_color diagonal-bg">
+              {/* <Image src="../assets/img/login.svg" /> */}
+            </Col>
+            <Col lg="5" className="p-5">
+              <h1 className="mb-3 text-white">Log in</h1>
 
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formUsername" className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </Form.Group>
+              <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formUsername" className="mb-3">
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Form.Group>
 
-            <Form.Group controlId="formBasicPassword" className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form.Group>
+                <Form.Group controlId="formBasicPassword" className="mb-3">
+                  <Form.Control
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </Form.Group>
 
-            <Button variant="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </Form>
+                <Row>
+                  <Col className="d-flex justify-content-between">
+                    <Button variant="secondary" onClick={handleSubmit}>
+                      Submit
+                    </Button>
+                    <AlertLink href="" className="align-self-end text-white">
+                      Cant Log In?
+                    </AlertLink>
+                  </Col>
+                </Row>
+              </Form>
+            </Col>
+          </Row>
         </Col>
       </Row>
     </Container>

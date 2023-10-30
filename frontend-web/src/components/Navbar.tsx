@@ -10,12 +10,17 @@ function Navbar() {
   };
 
   return (
-    <NavbarBootstrap className="bg-white shadow-sm mb-3">
+    <NavbarBootstrap className="bg-white shadow-sm mb-5 sticky-top">
       <Container>
         <Nav>
           <Nav.Link to="/" as={NavLink}>
+            LOGO
+          </Nav.Link>
+          <Nav.Link to="/" as={NavLink}>
             Home
           </Nav.Link>
+        </Nav>
+        <Nav>
           {isAuth() ? (
             <>
               <Nav.Link to="/profile" as={NavLink}>
