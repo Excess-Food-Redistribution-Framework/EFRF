@@ -29,49 +29,59 @@ namespace FRF.Services.Implementations
             _roleManager = roleManager;
         }
 
-        public async Task<BaseResponse<Organization>> AddUserToOrganization(string userId, Guid organizationId, string password)
+        public async Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user is null)
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.NotFound,
                         Message = "User not found",
-                        Data = null
+                        Data = false
                     };
                 }
 
                 var organization = await _organizationRepository.GetById(organizationId);
                 if (organization is null)
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.NotFound,
                         Message = "Organization not found",
-                        Data = null
+                        Data = false
                     };
                 }
 
-                if (!BCrypt.Net.BCrypt.Verify(password, organization.Password))
+                //if (!BCrypt.Net.BCrypt.Verify(password, organization.Password))
+                //{
+                //    return new BaseResponse<Organization>
+                //    {
+                //        StatusCode = StatusCode.BadRequest,
+                //        Message = "Incorrect password",
+                //        Data = null
+                //    };
+                //}
+
+                if (!organization.AllowedEmails.Contains(user.Email))
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.BadRequest,
-                        Message = "Incorrect password",
-                        Data = null
+                        StatusCode = StatusCode.InternalServerError,
+                        Message = "You are not in invited users list",
+                        Data = false
                     };
                 }
 
                 if (organization.Users.Any(u => u.Id == userId))
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.InternalServerError,
                         Message = "User already is in organization",
-                        Data = null
+                        Data = false
                     };
                 }
 
@@ -82,87 +92,87 @@ namespace FRF.Services.Implementations
                 OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
-                return new BaseResponse<Organization>
+                return new BaseResponse<bool>
                 {
                     StatusCode = StatusCode.Ok,
                     Message = "User was successfuly added to the organization",
-                    Data = organization
+                    Data = true
                 };
             }
             catch (Exception e)
             {
-                return new BaseResponse<Organization>
+                return new BaseResponse<bool>
                 {
                     StatusCode = StatusCode.InternalServerError,
                     Message = "User wasn't added to the organization: " + e.Message,
-                    Data = null
+                    Data = false
                 };
             }
         }
 
-        public async Task<BaseResponse<Organization>> RemoveUserFromOrganization(string userId, Guid organizationId)
+        public async Task<BaseResponse<bool>> RemoveUserFromOrganization(string userId, Guid organizationId)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user is null)
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.NotFound,
                         Message = "User not found",
-                        Data = null
+                        Data = false
                     };
                 }
 
                 var organization = await _organizationRepository.GetById(organizationId);
                 if (organization is null)
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.NotFound,
                         Message = "Organization not found",
-                        Data = null
+                        Data = false
                     };
                 }
 
                 if (!organization.Users.Any(u => u.Id == user.Id))
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.InternalServerError,
                         Message = "User not in Organization",
-                        Data = null
+                        Data = false
                     };
                 }
 
                 if (organization.CreatorId.ToString() == user.Id)
                 {
-                    return new BaseResponse<Organization>
+                    return new BaseResponse<bool>
                     {
                         StatusCode = StatusCode.InternalServerError,
                         Message = "Creator can't be removed",
-                        Data = null
+                        Data = false
                     };
                 }
 
                 organization.Users.Remove(user);
                 await _organizationRepository.Update(organization);
 
-                return new BaseResponse<Organization>
+                return new BaseResponse<bool>
                 {
                     StatusCode = StatusCode.Ok,
                     Message = "User was successfuly removed from the organization",
-                    Data = organization
+                    Data = true
                 };
             }
             catch (Exception e)
             {
-                return new BaseResponse<Organization>
+                return new BaseResponse<bool>
                 {
                     StatusCode = StatusCode.InternalServerError,
                     Message = "User wasn't removed from the organization: " + e.Message,
-                    Data = null
+                    Data = false
                 };
             }
         }

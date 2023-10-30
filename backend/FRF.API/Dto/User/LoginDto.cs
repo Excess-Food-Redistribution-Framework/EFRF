@@ -5,6 +5,7 @@ namespace FRF.API.Dto.User
     public class LoginDto
     {
         [Required]
+        [EmailAddress]
         [Display(Name = "Email")]
         public string? Email { get; set; }
 

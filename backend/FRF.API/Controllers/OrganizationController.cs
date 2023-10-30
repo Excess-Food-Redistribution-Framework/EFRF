@@ -55,8 +55,8 @@ namespace FRF.API.Controllers
             var organization = _mapper.Map<Organization>(createOrganizationDto);
             organization.CreatorId = Guid.Parse(user.Id);
 
-            string salt = BCrypt.Net.BCrypt.GenerateSalt();
-            organization.Password = BCrypt.Net.BCrypt.HashPassword(organization.Password, salt);
+            //string salt = BCrypt.Net.BCrypt.GenerateSalt();
+            //organization.Password = BCrypt.Net.BCrypt.HashPassword(organization.Password, salt);
 
             var createOrganizationResponse = await _organizationService.CreateOrganization(organization);
             if (createOrganizationResponse.Data == true)
@@ -100,17 +100,97 @@ namespace FRF.API.Controllers
                 organization.Name = updateOrganizationDto.Name;
             if (updateOrganizationDto.Information != String.Empty)
                 organization.Information = updateOrganizationDto.Information;
-            if (updateOrganizationDto.Password != String.Empty)
-            {
-                string salt = BCrypt.Net.BCrypt.GenerateSalt();
-                organization.Password = BCrypt.Net.BCrypt.HashPassword(updateOrganizationDto.Password, salt);
-            }
+            //if (updateOrganizationDto.Password != String.Empty)
+            //{
+            //    string salt = BCrypt.Net.BCrypt.GenerateSalt();
+            //    organization.Password = BCrypt.Net.BCrypt.HashPassword(updateOrganizationDto.Password, salt);
+            //}
 
             var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
             if (updateOrganizationResponse.Data == true)
             {
                 var organizationDto = _mapper.Map<OrganizationDto>(organization);
                 return Ok(organizationDto);
+            }
+            else
+            {
+                return BadRequest(updateOrganizationResponse.Message);
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("AddEmailToInvitedOrganization")]
+        [SwaggerOperation("Add email to the list of allowed emails in organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Email added to allowed successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Email added to allowed - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> AddEmailToAllowed([FromBody] AllowedEmailDto email)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
+            {
+                return BadRequest(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User isn't the organization's creator");
+            }
+
+            if (email.Email != String.Empty)
+                if (organization.AllowedEmails.Contains(email.Email))
+                {
+                    return BadRequest("This email is already in allowed list");
+                }
+            organization.AllowedEmails = string.Join(";", organization.AllowedEmails, email.Email);
+
+            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
+            if (updateOrganizationResponse.Data == true)
+            {
+                return Ok(organization.AllowedEmails.Split(';').ToList());
+            }
+            else
+            {
+                return BadRequest(updateOrganizationResponse.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Authorize]
+        [Route("RemoveEmailToInvitedOrganization")]
+        [SwaggerOperation("Remove email to the list of allowed emails in organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Email removed to allowed successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Email removed to allowed - failed", Type = typeof(MessageResponseDto))]
+        public async Task<Object> RemoveEmailFromAllowed([FromBody] AllowedEmailDto email)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
+            {
+                return BadRequest(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User isn't the organization's creator");
+            }
+
+            if (email.Email != String.Empty)
+                if (!organization.AllowedEmails.Contains(email.Email))
+                {
+                    return BadRequest("This email not found in allowed list");
+                }
+            organization.AllowedEmails = string.Join(";", organization.AllowedEmails.Split(';').Where(e => e != email.Email));
+
+            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
+            if (updateOrganizationResponse.Data == true)
+            {
+                return Ok(organization.AllowedEmails.Split(';').ToList());
             }
             else
             {
@@ -165,7 +245,8 @@ namespace FRF.API.Controllers
                         await _userManager.RemoveFromRoleAsync(u, role.ToString());
                     }
                 }
-                return Ok(deleteOrganizationResponse.Message);
+                var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                return Ok(organizationDto);
             }
             else
             {
@@ -204,15 +285,17 @@ namespace FRF.API.Controllers
 
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
-            var deleteOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
-            if (deleteOrganizationResponse.StatusCode == Domain.Enum.StatusCode.Ok)
+            var deleteFromOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
+            if (deleteFromOrganizationResponse.StatusCode == Domain.Enum.StatusCode.Ok)
             {
                 await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
-                return Ok(deleteOrganizationResponse.Message);
+
+                var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                return Ok(organizationDto);
             }
             else
             {
-                return BadRequest(deleteOrganizationResponse.Message);
+                return BadRequest(deleteFromOrganizationResponse.Message);
             }
         }
 
@@ -234,13 +317,15 @@ namespace FRF.API.Controllers
             try
             {
                 // Add role depending on organization type
-                var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId, joinOrganizationDto.Password);
+                var getOrganizationResponse = await _organizationService.GetOrganizationById(joinOrganizationDto.OrganizationId);
+                var organization = getOrganizationResponse.Data;
+                var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId/*, joinOrganizationDto.Password */);
 
                 if (joinResponse.StatusCode != Domain.Enum.StatusCode.Ok)
                 {
                     return BadRequest(joinResponse.Message);
                 }
-                OrganizationType role = joinResponse?.Data?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
                 return Ok("User joined organization");
@@ -256,7 +341,7 @@ namespace FRF.API.Controllers
         [Authorize]
         [Route("LeaveOrganization")]
         [SwaggerOperation("Leave the organization")]
-        public async Task<Object> LeaveOrganization(Guid organizationId)
+        public async Task<Object> LeaveOrganization()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -266,7 +351,9 @@ namespace FRF.API.Controllers
 
             try
             {
-                var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organizationId);
+                var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+                var organization = getOrganizationResponse.Data;
+                var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organization.Id);
 
                 if (leaveResponse.StatusCode != Domain.Enum.StatusCode.Ok)
                 {
@@ -274,7 +361,7 @@ namespace FRF.API.Controllers
                 }
 
                 // Remove role depending on organization type
-                OrganizationType role = leaveResponse?.Data?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
                 await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
                 return Ok("User leaved organization");

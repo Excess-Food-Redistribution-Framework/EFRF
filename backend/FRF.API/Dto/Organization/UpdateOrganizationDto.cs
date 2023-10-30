@@ -11,7 +11,7 @@ namespace FRF.API.Dto.Organization
         [Display(Name = "Information")]
         public string Information { get; set; } = string.Empty;
 
-        [Display(Name = "Password")]
-        public string Password { get; set; } = string.Empty;
+        //[Display(Name = "Password")]
+        //public string Password { get; set; } = string.Empty;
     }
 }

@@ -22,6 +22,6 @@ namespace FRF.Domain.Entities
         public DeliveryType Delivery { get; set; } = DeliveryType.WaitForTakeDonate;
         public FoodRequestState State { get; set; } = FoodRequestState.Waiting;
 
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
     }
 }

@@ -6,10 +6,6 @@ namespace FRF.API.Dto.Organization
     public class CreateOrganizationDto
     {
         [Required]
-        [Display(Name = "Password")]
-        public string Password { get; set; } = string.Empty;
-
-        [Required]
         [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
 
@@ -19,5 +15,9 @@ namespace FRF.API.Dto.Organization
 
         [Display(Name = "Information")]
         public string Information { get; set; } = string.Empty;
+
+        //[Required]
+        //[Display(Name = "Password")]
+        //public string Password { get; set; } = string.Empty;
     }
 }

@@ -22,7 +22,7 @@ public class ProductService : IProductService
     public async Task<IEnumerable<Product>> GetAllProducts()
     {
         return await _productRepository.GetAll()
-            .Where(p => p.ExpirationDate >= DateTime.Now)
+            .Where(p => p.ExpirationDate >= DateTime.UtcNow)
             .ToListAsync();
     }
 

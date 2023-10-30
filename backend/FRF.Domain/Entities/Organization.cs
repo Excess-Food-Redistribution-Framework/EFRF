@@ -22,6 +22,7 @@ namespace FRF.Domain.Entities
         public Guid CreatorId { get; set; }
         public List<User> Users { get; set; } = new List<User>();
 
-        public string Password { get; set; } = String.Empty;
+        //public string Password { get; set; } = String.Empty;
+        public string AllowedEmails { get; set; } = String.Empty;
     }
 }

@@ -10,9 +10,8 @@ namespace FRF.Services.Interfaces
 {
     public interface IOrganizationService
     {
-        Task<BaseResponse<Organization>> AddUserToOrganization(string userId, Guid organizationId, string password);
-        Task<BaseResponse<Organization>> RemoveUserFromOrganization(string userId, Guid organizationId);
-
+        Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password */);
+        Task<BaseResponse<bool>> RemoveUserFromOrganization(string userId, Guid organizationId);
         Task<BaseResponse<IEnumerable<Organization>>> GetAllOrganizations();
         Task<BaseResponse<Organization>> GetOrganizationById(Guid id);
         Task<BaseResponse<Organization>> GetOrganizationByUser(string id);

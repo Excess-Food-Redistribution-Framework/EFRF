@@ -8,9 +8,9 @@ namespace FRF.API.Dto.Organization
         [Display(Name = "Title")]
         public Guid OrganizationId { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string? Password { get; set; }
+        //[Required]
+        //[DataType(DataType.Password)]
+        //[Display(Name = "Password")]
+        //public string? Password { get; set; }
     }
 }

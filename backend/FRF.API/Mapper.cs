@@ -14,8 +14,6 @@ public class Mapper : Profile
         CreateMap<CreateUpdateArticleDto, Article>();
 
         CreateMap<CreateOrganizationDto, Organization>();
-        CreateMap<Organization, CreateOrganizationDto>();
-        CreateMap<OrganizationDto, Organization>();
         CreateMap<Organization, OrganizationDto>();
     }
 }
