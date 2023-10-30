@@ -1,63 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 function ProfilePage() {
-  const [userData, setUserData] = React.useState(null);
+  const [userData, setUserData] = useState<any>(null); 
+  const [loading, setLoading] = useState(true);
 
   const { isAuth } = useAuth();
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/Account');
+      const response = await axios.get('https://frf-api.azurewebsites.net/api/Account');
       setUserData(response.data);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     if (isAuth()) {
       fetchUserData();
     }
+  }, [isAuth]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* eslint-disable */
   return (
     <Container>
       <h1>Profile</h1>
       {isAuth() ? (
         <>
-          {userData ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : userData ? (
             <>
-              <p>
-                Id:
-                {/* @ts-ignore */}
-                {userData.id}
-              </p>
-              {/* @ts-ignore */}
-              <p>
-                Username:
-                {/* @ts-ignore */}
-                {userData.userName}
-              </p>
-              {/* @ts-ignore */}
-              <p>
-                Email:
-                {/* @ts-ignore */}
-                {userData.email}
-              </p>
+              <p>Id:  {/* @ts-ignore */} {userData.id}</p>
+              <p>FirstName:  {/* @ts-ignore */} {userData.firstName}</p>
+              <p>LastName: {/* @ts-ignore */} {userData.lastName}</p>
+              <p>Email: {/* @ts-ignore */} {userData.email}</p>
             </>
           ) : (
-            <p>Loading...</p>
+            <p>No data available</p>
           )}
         </>
       ) : (
-        <p>To show your profile, please login</p>
+        <p>To view your profile, please log in</p>
       )}
     </Container>
   );

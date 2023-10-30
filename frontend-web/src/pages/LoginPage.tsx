@@ -5,7 +5,7 @@ import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 interface ILoginRequest {
-  userName: string;
+  email: string;
   password: string;
 }
 
@@ -16,19 +16,20 @@ interface ILoginResponse {
 function LoginPage() {
   const navigate = useNavigate();
 
-  const [username, setUsername] = React.useState('');
+  const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
   const { setToken, isAuth } = useAuth();
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post<ILoginResponse>('api/Account/Login', {
-        userName: username,
+      const response = await axios.post<ILoginResponse>('https://frf-api.azurewebsites.net/api/Account/Login', {
+        email: email,
         password,
       } as ILoginRequest);
 
       setToken(response.data.token);
+      navigate('/');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -57,8 +58,8 @@ function LoginPage() {
                   <Form.Control
                     type="text"
                     placeholder="Enter Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Form.Group>
 

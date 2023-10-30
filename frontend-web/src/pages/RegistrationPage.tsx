@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
@@ -8,31 +8,36 @@ function RegistrationPage() {
   const navigate = useNavigate();
   const { isAuth } = useAuth();
 
-  const [username, setUsername] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = React.useState({});
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => { 
+    e.preventDefault();
+
     try {
-      const response = await axios.post('api/Account/Register', {
-        userName: username,
-        email,
-        password,
+      const response = await axios.post('https://frf-api.azurewebsites.net/api/Account/Register', {
+        FirstName: firstName,
+        LastName: lastName,
+        Email: email,
+        Password: password,
       });
 
+
       setResponseMessage(response.data);
+      navigate('./Login');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      console.error(error);
     }
-  };
+  }
 
   useEffect(() => {
     if (isAuth()) {
       navigate('/');
     }
-  });
+  }, [isAuth, navigate]);
 
   return (
     <Container>
@@ -46,12 +51,21 @@ function RegistrationPage() {
               <h1 className="mb-3 text-white">Registration</h1>
 
               <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formUsername" className="mb-3">
+                <Form.Group controlId="formFirstName" className="mb-3">
                   <Form.Control
                     type="text"
-                    placeholder="Enter Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="formLastName" className="mb-3">
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </Form.Group>
 
@@ -64,7 +78,7 @@ function RegistrationPage() {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="formBasicPassword" className="mb-3">
+                <Form.Group controlId="formPassword" className="mb-3">
                   <Form.Control
                     type="password"
                     placeholder="Password"
@@ -87,9 +101,10 @@ function RegistrationPage() {
                   </Col>
                 </Row>
               </Form>
+              {/*
               <p className="mt-4">
                 Response Message: {JSON.stringify(responseMessage)}
-              </p>
+              </p>*/}
             </Col>
           </Row>
         </Col>
