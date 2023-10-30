@@ -1,0 +1,44 @@
+name: Publish frontend 🚀
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Production'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Build and Deploy
+        run: |
+          cd ./frontend-web
+          npm install
+          npm run build --if-present
+          npm run test --if-present
+          mv dist ../dist
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifact
+          path: dist
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'FRF-Frontend'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_28547F13775A4BDAB180231FA163A6DF }}
+          package: dist
