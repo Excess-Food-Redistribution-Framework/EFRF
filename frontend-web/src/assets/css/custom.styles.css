@@ -1,0 +1,15 @@
+.primary_color{
+    background-color: #6C63FF;
+}
+
+.secondary_color{
+    background-color: #5B5F66;
+}
+
+.diagonal-bg {
+    /*background: linear-gradient(110deg, #5B5F66 80%, transparent 50%, transparent 100%);*/
+    background-color: #5B5F66;
+    background-size: 100% 100%;
+}
+
+
