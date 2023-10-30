@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FRF.API.Dto.Article;
 using FRF.API.Dto.Organization;
+using FRF.API.Dto.Product;
 using FRF.API.Dto.User;
 using FRF.Domain.Entities;
 
@@ -15,5 +16,8 @@ public class Mapper : Profile
 
         CreateMap<CreateOrganizationDto, Organization>();
         CreateMap<Organization, OrganizationDto>();
+
+        CreateMap<ProductDto, Product>();
+        CreateMap<Product, ProductDto> ();
     }
 }

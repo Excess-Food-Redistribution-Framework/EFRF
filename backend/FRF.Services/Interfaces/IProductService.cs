@@ -1,5 +1,6 @@
 ﻿using FRF.Domain.Entities;
 using FRF.Domain.Enum;
+using FRF.Domain.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,12 @@ namespace FRF.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProducts();
-        Task<Product> GetProductById(Guid id);
-        Task<Product> GetProductByType(ProductType name);
-        Task AddProduct(Product product);
-        Task UpdateProduct(Product product);
-        Task DeleteProduct(Guid id);
+        Task<BaseResponse<IEnumerable<Product>>> GetAllProducts();
+        Task<BaseResponse<IEnumerable<Product>>> GetAllUnexpiredProducts();
+        Task<BaseResponse<Product>> GetProductById(Guid productId);
+        Task<BaseResponse<Product>> GetProductByType(ProductType name);
+        Task<BaseResponse<bool>> AddProduct(Product product, Organization? organization);
+        Task<BaseResponse<bool>> UpdateProduct(Product product);
+        Task<BaseResponse<bool>> DeleteProduct(Guid productId);
     }
 }
