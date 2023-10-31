@@ -1,5 +1,4 @@
-﻿using FRF.API.ViewModels;
-using FRF.Domain.Entities;
+﻿using FRF.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +7,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using FRF.API.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
+using FRF.API.Dto.User;
+using FRF.Domain.Enum;
 
 namespace FRF.API.Controllers
 {
@@ -48,7 +48,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Registration")]
         [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> Register(RegisterViewModel model)
+        public async Task<Object> Register(RegisterDto model)
         {
             var user = new User {
                 // Now UserName is set on Email value.
@@ -63,7 +63,14 @@ namespace FRF.API.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 //result = await _userManager.SetUserNameAsync(user, model.UserName);
                 //result = await _userManager.SetEmailAsync(user, model.Email);
-                return Ok(result);
+                if (result.Succeeded)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                };
             }
             catch (Exception ex)
             {
@@ -78,7 +85,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
-        public async Task<ActionResult<LoginResponseDto>> Login(LoginViewModel model)
+        public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
@@ -126,59 +133,27 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserDto>> GetAccount()
         {
-            User user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             return Ok(_mapper.Map<UserDto>(user));
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("GetRole")]
         [Authorize]
-        [Route("JoinOrganization")]
-        [SwaggerOperation("Join to the organization")]
-        [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> JoinOrganization(Guid organizationId)
+        [SwaggerOperation("Get user role")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<string>> GetUserRole()
         {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var role = await _userManager.GetRolesAsync(user);
+            
+            if (role == null)
             {
-                return BadRequest("User not found");
+                return Ok("None");
             }
 
-            try
-            {
-                await _organizationService.AddUserToOrganization(userId, organizationId);
-
-                return Ok("User joined organization");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-
-        [HttpPost]
-        [Authorize]
-        [Route("LeaveOrganization")]
-        [SwaggerOperation("Leave the organization")]
-        public async Task<Object> LeaveOrganization(Guid organizationId)
-        {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            try
-            {
-                await _organizationService.RemoveUserFromOrganization(userId, organizationId);
-
-                return Ok("User leaved organization");
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok(role.FirstOrDefault());
         }
     }
 }

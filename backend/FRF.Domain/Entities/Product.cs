@@ -17,6 +17,6 @@ namespace FRF.Domain.Entities
         public ProductType Type { get; set; }
 
         public int Quantity { get; set; } = 0;
-        public DateTime ExpirationDate { get; set; } = DateTime.Now;
+        public DateTime ExpirationDate { get; set; } = DateTime.UtcNow;
     }
 }
