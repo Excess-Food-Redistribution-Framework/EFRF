@@ -41,9 +41,8 @@ namespace FRF.API.Controllers
 
         [HttpGet]
         //[Authorize(Roles = OrganizationType.Distributer.ToString())]
-        [Route("GetAllProducts")]
         [SwaggerOperation("Get all products")]
-        public async Task<Object> GetAll(bool unexpired)
+        public async Task<Object> Get(bool unexpired)
         {
 
             BaseResponse<IEnumerable<Product>> getResponse;
@@ -66,9 +65,8 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
-        [Route("AddNewProduct")]
         [SwaggerOperation("Add New Product")]
-        public async Task<Object> AddNewProduct(ProductDto productDto)
+        public async Task<Object> Post(ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -92,9 +90,8 @@ namespace FRF.API.Controllers
 
         [HttpPut]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
-        [Route("UpdateProduct")]
         [SwaggerOperation("Update Product")]
-        public async Task<Object> UpdateProduct(Guid productId, ProductDto productDto)
+        public async Task<Object> Put(Guid productId, ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -128,9 +125,8 @@ namespace FRF.API.Controllers
 
         [HttpDelete]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
-        [Route("DeleteProduct")]
         [SwaggerOperation("Delete Product")]
-        public async Task<Object> DeleteProduct(Guid productId)
+        public async Task<Object> Delete(Guid productId)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);

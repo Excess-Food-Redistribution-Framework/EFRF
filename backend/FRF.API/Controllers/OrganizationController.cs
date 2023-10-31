@@ -37,6 +37,7 @@ namespace FRF.API.Controllers
 
         // GET: api/<OrganizationController>
         [HttpGet]
+        [SwaggerOperation("Get all organizations")]
         public async Task<IEnumerable<Organization>?> Get()
         {
             var getResponse = await _organizationService.GetAllOrganizations();
@@ -45,11 +46,10 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [Route("CreateOrganization")]
         [SwaggerOperation("Create to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User created the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User created organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> CreateOrganization([FromBody] CreateOrganizationDto createOrganizationDto)
+        public async Task<Object> Post([FromBody] CreateOrganizationDto createOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var organization = _mapper.Map<Organization>(createOrganizationDto);
@@ -76,11 +76,10 @@ namespace FRF.API.Controllers
 
         [HttpPut]
         [Authorize]
-        [Route("UpdateOrganization")]
         [SwaggerOperation("Update to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User updated the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User updated organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> UpdateOrganization([FromBody] UpdateOrganizationDto updateOrganizationDto)
+        public async Task<Object> Put([FromBody] UpdateOrganizationDto updateOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -120,11 +119,11 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [Route("AddEmailToInvitedOrganization")]
+        [Route("AllowEmail")]
         [SwaggerOperation("Add email to the list of allowed emails in organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "Email added to allowed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Email added to allowed - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> AddEmailToAllowed([FromBody] AllowedEmailDto email)
+        public async Task<Object> AllowEmail([FromBody] AllowedEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -160,11 +159,11 @@ namespace FRF.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("RemoveEmailToInvitedOrganization")]
+        [Route("DeclineEmail")]
         [SwaggerOperation("Remove email to the list of allowed emails in organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "Email removed to allowed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Email removed to allowed - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> RemoveEmailFromAllowed([FromBody] AllowedEmailDto email)
+        public async Task<Object> DeclineEmail([FromBody] AllowedEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -200,11 +199,10 @@ namespace FRF.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("DeleteOrganization")]
         [SwaggerOperation("Delete to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User deleted the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User delete organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> DeleteOrganization()
+        public async Task<Object> Delete()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -256,11 +254,11 @@ namespace FRF.API.Controllers
 
         [HttpDelete]
         [Authorize]
-        [Route("KickUserFromOrganization")]
+        [Route("KickUser")]
         [SwaggerOperation("Kick user from organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User kicked from organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User kicked from organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> KickUserFromOrganization(string userId)
+        public async Task<Object> KickUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -302,11 +300,11 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [Route("JoinOrganization")]
+        [Route("Join")]
         [SwaggerOperation("Join to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> JoinOrganization(JoinOrganizationDto joinOrganizationDto)
+        public async Task<Object> Join(JoinOrganizationDto joinOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -339,9 +337,9 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [Route("LeaveOrganization")]
+        [Route("Leave")]
         [SwaggerOperation("Leave the organization")]
-        public async Task<Object> LeaveOrganization()
+        public async Task<Object> Leave()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
