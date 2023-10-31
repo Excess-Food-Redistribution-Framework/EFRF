@@ -8,7 +8,8 @@ function useArticleApi() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('https://frf-api.azurewebsites.net/api/article', {
+    // TODO: Use axios
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/article`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
