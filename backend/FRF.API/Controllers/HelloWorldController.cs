@@ -10,7 +10,7 @@ namespace FRF.API.Controllers
     {
         [HttpGet(Name = "GetHelloWorld")]
         [SwaggerOperation("Hello World", "Returns a hello world message")]
-        [Authorize(Roles = "Provider")]
+        [Authorize]
         public ActionResult<HelloWorldMessage> Get()
         {
             var userId = User.FindFirst("UserId")?.Value;
