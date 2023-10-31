@@ -23,10 +23,13 @@ function LoginPage() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post<ILoginResponse>('https://frf-api.azurewebsites.net/api/Account/Login', {
-        email: email,
-        password,
-      } as ILoginRequest);
+      const response = await axios.post<ILoginResponse>(
+        'https://frf-api.azurewebsites.net/api/Account/Login',
+        {
+          email,
+          password,
+        } as ILoginRequest
+      );
 
       setToken(response.data.token);
       navigate('/');

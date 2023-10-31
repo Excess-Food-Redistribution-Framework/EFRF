@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
@@ -14,24 +14,26 @@ function RegistrationPage() {
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = React.useState({});
 
-  const handleSubmit = async (e: React.FormEvent) => { 
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://frf-api.azurewebsites.net/api/Account/Register', {
-        FirstName: firstName,
-        LastName: lastName,
-        Email: email,
-        Password: password,
-      });
-
+      const response = await axios.post(
+        'https://frf-api.azurewebsites.net/api/Account/Register',
+        {
+          FirstName: firstName,
+          LastName: lastName,
+          Email: email,
+          Password: password,
+        }
+      );
 
       setResponseMessage(response.data);
       navigate('./Login');
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   useEffect(() => {
     if (isAuth()) {
@@ -104,7 +106,7 @@ function RegistrationPage() {
               {/*
               <p className="mt-4">
                 Response Message: {JSON.stringify(responseMessage)}
-              </p>*/}
+              </p> */}
             </Col>
           </Row>
         </Col>
