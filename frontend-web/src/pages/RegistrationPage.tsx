@@ -19,7 +19,7 @@ function RegistrationPage() {
 
     try {
       const response = await axios.post(
-        'https://frf-api.azurewebsites.net/api/Account/Register',
+        'api/Account/Register',
         {
           FirstName: firstName,
           LastName: lastName,
