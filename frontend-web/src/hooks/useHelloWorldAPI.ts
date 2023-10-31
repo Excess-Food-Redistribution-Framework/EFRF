@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { HelloWorldResponse } from '../types/apiTypes';
-import { useAuth } from '../AuthProvider'; 
+import { useAuth } from '../AuthProvider';
 
 function useHelloWorldAPI() {
   const [helloWorldText, setHelloWorldText] = useState('Trying to connect...');
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setError] = useState<string | null>(null);
 
-  const { token } = useAuth(); 
+  const { token } = useAuth();
 
   useEffect(() => {
     fetch('https://frf-api.azurewebsites.net/api/HelloWorld', {
       headers: {
-        Authorization: `Bearer ${token}`, 
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => {
@@ -28,7 +28,7 @@ function useHelloWorldAPI() {
       });
   }, [token]);
 
-  return { helloWorldText, error };
+  return { helloWorldText, errorMessage };
 }
 
 export default useHelloWorldAPI;

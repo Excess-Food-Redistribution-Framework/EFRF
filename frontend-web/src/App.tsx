@@ -1,6 +1,5 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
-import React from 'react';
 import Layout from './pages/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -8,6 +7,7 @@ import AuthProvider from './AuthProvider';
 import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import RegistrationPage from './pages/RegistrationPage';
+import Blog from './pages/Blog';
 
 function App() {
   // Set axios defaults
@@ -20,6 +20,7 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
