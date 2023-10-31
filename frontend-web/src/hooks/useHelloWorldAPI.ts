@@ -9,7 +9,8 @@ function useHelloWorldAPI() {
   const { token } = useAuth();
 
   useEffect(() => {
-    fetch('https://frf-api.azurewebsites.net/api/HelloWorld', {
+    // TODO: Use axios
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/HelloWorld`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

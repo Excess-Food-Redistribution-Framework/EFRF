@@ -12,7 +12,7 @@ function ProfilePage() {
   const fetchUserData = async () => {
     try {
       const response = await axios.get(
-        'https://frf-api.azurewebsites.net/api/Account'
+        'api/Account'
       );
       setUserData(response.data);
     } catch (error) {
