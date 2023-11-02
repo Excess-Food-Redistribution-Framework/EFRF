@@ -1,4 +1,4 @@
-﻿namespace FRF.API;
+﻿namespace FRF.API.Dto;
 
 public class ErrorResponse
 {
