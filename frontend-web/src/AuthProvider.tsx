@@ -31,9 +31,18 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     localStorage.getItem('token')
   );
 
-  const [user, setUser] = useState<IUserDetail | null>(
+  const [user, setUser_] = useState<IUserDetail | null>(
     JSON.parse(localStorage.getItem('user') || '{}')
   );
+
+  const setUser = (user: IUserDetail | null) => {
+    setUser_(user);
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }
 
   const isAuth = () => {
     if (isTokenExpired(token)) {
@@ -47,11 +56,9 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     if (token) {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
     } else {
       delete axios.defaults.headers.common.Authorization;
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
     }
   }, [token]);
 

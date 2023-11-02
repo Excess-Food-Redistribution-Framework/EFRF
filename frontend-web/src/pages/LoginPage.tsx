@@ -30,7 +30,7 @@ function LoginPage() {
       setToken(response.data.token);
       setUser(response.data.user);
 
-      if (user?.role) {
+      if (response.data.user.role) {
         navigate('/');
       } else {
         navigate('/organization/create')
@@ -46,7 +46,7 @@ function LoginPage() {
     if (isAuth()) {
       navigate('/');
     }
-  });
+  }, [user]);
 
   return (
     <Container>

@@ -7,7 +7,7 @@ import axios from "axios";
 
 function OrganizationFormPage() {
   const navigate = useNavigate();
-  const { isAuth, user } = useAuth();
+  const { isAuth, user, setUser } = useAuth();
 
   const [name, setName] = useState('');
   const [type, setType] = useState('');
@@ -25,6 +25,11 @@ function OrganizationFormPage() {
           information,
         }
       );
+
+      if (response.status === 200) {
+        const currentUser = await axios.get('api/Account');
+        setUser(currentUser.data);
+      }
 
       navigate('/');
     } catch (error) {
