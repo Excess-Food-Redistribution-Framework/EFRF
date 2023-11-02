@@ -9,21 +9,17 @@ interface ILoginRequest {
   password: string;
 }
 
-interface ILoginResponse {
-  token: string;
-}
-
 function LoginPage() {
   const navigate = useNavigate();
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const { setToken, isAuth } = useAuth();
+  const { setToken, setUser, isAuth } = useAuth();
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post<ILoginResponse>(
+      const response = await axios.post(
         'api/Account/Login',
         {
           email,
@@ -32,6 +28,7 @@ function LoginPage() {
       );
 
       setToken(response.data.token);
+      setUser(response.data.user);
       navigate('/');
     } catch (error) {
       // eslint-disable-next-line no-console
