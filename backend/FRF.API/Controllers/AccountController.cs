@@ -1,5 +1,4 @@
 ﻿using FRF.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
 using FRF.API.Dto.User;
-using FRF.Domain.Enum;
+using FRF.API.Exceptions;
 
 namespace FRF.API.Controllers
 {
@@ -69,7 +68,7 @@ namespace FRF.API.Controllers
                 }
                 else
                 {
-                    return BadRequest(result);
+                    throw new BadRequestApiException("User registration failed");
                 };
             }
             catch (Exception ex)
