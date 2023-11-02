@@ -29,7 +29,7 @@ function RegistrationPage() {
       );
 
       setResponseMessage(response.data);
-      navigate('./Login');
+      navigate('/login');
     } catch (error) {
       console.error(error);
     }
