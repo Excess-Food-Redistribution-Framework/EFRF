@@ -117,7 +117,10 @@ namespace FRF.API.Controllers
                 var securityToken = tokenHandler.CreateToken(tokenDescriptor);
                 var token = tokenHandler.WriteToken(securityToken);
 
-                return Ok(new LoginResponseDto() { Token = token, User = _mapper.Map<UserDto>(user) });
+                var userResponse = _mapper.Map<UserDetailDto>(user);
+                userResponse.Role = userRoles.FirstOrDefault() ?? null;
+                
+                return Ok(new LoginResponseDto() { Token = token, User = userResponse });
             }
             else
             {
@@ -130,29 +133,34 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get current user")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<UserDto>> GetAccount()
+        public async Task<ActionResult<UserDetailDto>> GetAccount()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            return Ok(_mapper.Map<UserDto>(user));
-        }
-
-        [HttpGet]
-        [Route("GetRole")]
-        [Authorize]
-        [SwaggerOperation("Get user role")]
-        [SwaggerResponse(StatusCodes.Status200OK)]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<string>> GetUserRole()
-        {
-            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var role = await _userManager.GetRolesAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
             
-            if (role == null)
-            {
-                return Ok("None");
-            }
-
-            return Ok(role.FirstOrDefault());
+            var userResponse = _mapper.Map<UserDetailDto>(user);
+            userResponse.Role = userRoles.FirstOrDefault() ?? null;
+            
+            return Ok(userResponse);
         }
+
+        // [HttpGet]
+        // [Route("GetRole")]
+        // [Authorize]
+        // [SwaggerOperation("Get user role")]
+        // [SwaggerResponse(StatusCodes.Status200OK)]
+        // [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        // public async Task<ActionResult<string>> GetUserRole()
+        // {
+        //     var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+        //     var role = await _userManager.GetRolesAsync(user);
+        //     
+        //     if (role == null)
+        //     {
+        //         return Ok("None");
+        //     }
+        //
+        //     return Ok(role.FirstOrDefault());
+        // }
     }
 }

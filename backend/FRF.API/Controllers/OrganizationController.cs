@@ -46,10 +46,9 @@ namespace FRF.API.Controllers
 
         [HttpPost]
         [Authorize]
-        [SwaggerOperation("Create to the organization")]
+        [SwaggerOperation("Create organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User created the organization successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User created organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> Post([FromBody] CreateOrganizationDto createOrganizationDto)
+        public async Task<ActionResult<OrganizationDto>> Post([FromBody] CreateOrganizationDto createOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var organization = _mapper.Map<Organization>(createOrganizationDto);
@@ -74,12 +73,11 @@ namespace FRF.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("Current")]
         [Authorize]
-        [SwaggerOperation("Update to the organization")]
+        [SwaggerOperation("Update current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User updated the organization successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User updated organization - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> Put([FromBody] UpdateOrganizationDto updateOrganizationDto)
+        public async Task<ActionResult<OrganizationDto>> Put([FromBody] UpdateOrganizationDto updateOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -116,7 +114,25 @@ namespace FRF.API.Controllers
                 return BadRequest(updateOrganizationResponse.Message);
             }
         }
+        
+        [HttpGet("Current")]
+        [Authorize]
+        [SwaggerOperation("Get current user's organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User got the organization successfully")]
+        public async Task<ActionResult<OrganizationDto>> GetUserOrganization()
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
 
+            if (organization == null)
+            {
+                return BadRequest(getOrganizationResponse);
+            }
+
+            return Ok(_mapper.Map<OrganizationDto>(organization));
+        }
+            
         [HttpPost]
         [Authorize]
         [Route("AllowEmail")]
@@ -197,11 +213,10 @@ namespace FRF.API.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("Current")]
         [Authorize]
-        [SwaggerOperation("Delete to the organization")]
+        [SwaggerOperation("Delete current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User deleted the organization successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User delete organization - failed", Type = typeof(MessageResponseDto))]
         public async Task<Object> Delete()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
