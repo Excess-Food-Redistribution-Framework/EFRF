@@ -8,6 +8,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import RegistrationPage from './pages/RegistrationPage';
 import Blog from './pages/Blog';
+import OrganizationFormPage from "./pages/OrganizationFormPage.tsx";
 
 function App() {
   // Set axios defaults
@@ -24,6 +25,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
+            <Route path="/organization/create" element={<OrganizationFormPage />} />
 
             {/* Not Found */}
             <Route path="*" element={<NotFoundPage />} />

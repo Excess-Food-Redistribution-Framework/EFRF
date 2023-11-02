@@ -8,9 +8,19 @@ import React, {
 import axios from 'axios';
 import { isTokenExpired } from './utils/jwt';
 
+interface IUserDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: null | "Provider" | "Distributer";
+}
+
 interface AuthContextProps {
   token: string | null;
   setToken: (token: string | null) => void;
+  user: IUserDetail | null;
+  setUser: (user: IUserDetail | null) => void;
   isAuth: () => boolean;
 }
 
@@ -20,6 +30,19 @@ function AuthProvider({ children }: React.PropsWithChildren) {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token')
   );
+
+  const [user, setUser_] = useState<IUserDetail | null>(
+    JSON.parse(localStorage.getItem('user') || '{}')
+  );
+
+  const setUser = (user: IUserDetail | null) => {
+    setUser_(user);
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }
 
   const isAuth = () => {
     if (isTokenExpired(token)) {
@@ -43,8 +66,10 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     () => ({
       token,
       setToken,
+      user,
+      setUser,
       isAuth,
-    }),
+    } as AuthContextProps),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [token]
   );

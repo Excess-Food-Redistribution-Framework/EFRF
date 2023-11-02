@@ -11,9 +11,8 @@ function ProfilePage() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(
-        'api/Account'
-      );
+      const response = await axios.get('api/Account');
+
       setUserData(response.data);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -49,6 +48,9 @@ function ProfilePage() {
               </p>
               <p>
                 Email: {/* @ts-ignore */} {userData.email}
+              </p>
+              <p>
+                User role: {/* @ts-ignore */} {userData.role}
               </p>
             </>
           ) : (
