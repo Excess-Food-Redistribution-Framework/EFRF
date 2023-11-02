@@ -15,7 +15,7 @@ function LoginPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const { setToken, setUser, isAuth } = useAuth();
+  const { setToken, setUser, user, isAuth } = useAuth();
 
   const handleSubmit = async () => {
     try {
@@ -29,7 +29,13 @@ function LoginPage() {
 
       setToken(response.data.token);
       setUser(response.data.user);
-      navigate('/');
+
+      if (user?.role) {
+        navigate('/');
+      } else {
+        navigate('/organization/create')
+      }
+
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
