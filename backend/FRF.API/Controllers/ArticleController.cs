@@ -53,11 +53,11 @@ namespace FRF.API.Controllers
             return Ok(article);
         }
         
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [SwaggerOperation("Update Article")]
         [SwaggerResponse(200)]
         [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
-        public async Task<ActionResult<Article>> Patch(Guid id, [FromBody] CreateUpdateArticleDto articleBody)
+        public async Task<ActionResult<Article>> Put(Guid id, [FromBody] CreateUpdateArticleDto articleBody)
         {
             var article = await _articleService.GetById(id);
             _mapper.Map(articleBody, article);
