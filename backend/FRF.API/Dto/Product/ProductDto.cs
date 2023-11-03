@@ -19,7 +19,7 @@ namespace FRF.API.Dto.Product
         public int Quantity { get; set; } = 0;
         
         [Required]
-        [DataType(DataType.Time)]
+        // [DataType(DataType.Time)]
         [Display(Name = "ExpirationDate")]
         public DateTime ExpirationDate { get; set; } = DateTime.UtcNow;
     }

@@ -66,7 +66,7 @@ namespace FRF.API.Controllers
         [HttpPost]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Add New Product")]
-        public async Task<Object> Post(ProductDto productDto)
+        public async Task<ActionResult<Product>> Post(ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -87,11 +87,27 @@ namespace FRF.API.Controllers
 
             return Ok(organization?.Products);
         }
+        
+        [HttpGet("{id}")]
+        [SwaggerOperation("Get Product by Id")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Product>> Get(Guid id)
+        {
+            var product = (await _productService.GetProductById(id)).Data;
 
-        [HttpPut]
+            if (product == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(product);
+        }
+        
+        [HttpPut("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Update Product")]
-        public async Task<Object> Put(Guid productId, ProductDto productDto)
+        public async Task<ActionResult<Product>> Put(Guid id, ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -102,7 +118,7 @@ namespace FRF.API.Controllers
             }
 
             var organization = getOrganizationResponse.Data;
-            var product = organization?.Products.Find(p => p.Id == productId);
+            var product = organization?.Products.Find(p => p.Id == id);
             if (product == null)
             {
                 return BadRequest("No such product in your organization");
@@ -123,10 +139,10 @@ namespace FRF.API.Controllers
             return Ok(organization.Products);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Delete Product")]
-        public async Task<Object> Delete(Guid productId)
+        public async Task<Object> Delete(Guid id)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -137,12 +153,12 @@ namespace FRF.API.Controllers
             }
 
             var organization = getOrganizationResponse.Data;
-            if (!organization.Products.Any(p => p.Id == productId))
+            if (!organization.Products.Any(p => p.Id == id))
             {
                 return BadRequest("No such product in your organization");
             }
 
-            var deleteProductResponse = await _productService.DeleteProduct(productId);
+            var deleteProductResponse = await _productService.DeleteProduct(id);
 
             if (deleteProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
