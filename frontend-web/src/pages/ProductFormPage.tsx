@@ -1,19 +1,9 @@
-import {Button, Col, Container, Form, Row} from "react-bootstrap";
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {useAuth} from "../AuthProvider.tsx";
-import axios from "axios";
-
-enum ProductType {
-  FreshProduce = 'FreshProduce',
-  CannedGoods = 'CannedGoods',
-  DairyProducts = 'DairyProducts',
-  BakeryItems = 'BakeryItems',
-  MeatAndPoultry = 'MeatAndPoultry',
-  FrozenFoods = 'FrozenFoods',
-  NonPerishables= 'NonPerishable',
-  Other = 'Other',
-}
+import {Button, Col, Container, Form, Row} from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../AuthProvider';
+import axios from 'axios';
+import {Product, ProductType} from '../types/productTypes';
 
 function ProductFormPage() {
   const navigate = useNavigate();
@@ -37,13 +27,8 @@ function ProductFormPage() {
           type,
           quantity,
           expirationDate,
-        }
+        } as Product
       );
-
-      if (response.status === 200) {
-        const currentUser = await axios.get('api/Account');
-        setUser(currentUser.data);
-      }
 
       navigate('/');
     } catch (error) {
