@@ -7,20 +7,13 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import { isTokenExpired } from './utils/jwt';
-
-interface IUserDetail {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: null | "Provider" | "Distributer";
-}
+import { UserDetail } from './types/userTypes';
 
 interface AuthContextProps {
   token: string | null;
   setToken: (token: string | null) => void;
-  user: IUserDetail | null;
-  setUser: (user: IUserDetail | null) => void;
+  user: UserDetail | null;
+  setUser: (user: UserDetail | null) => void;
   isAuth: () => boolean;
 }
 
@@ -31,11 +24,11 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     localStorage.getItem('token')
   );
 
-  const [user, setUser_] = useState<IUserDetail | null>(
+  const [user, setUser_] = useState<UserDetail | null>(
     JSON.parse(localStorage.getItem('user') || '{}')
   );
 
-  const setUser = (user: IUserDetail | null) => {
+  const setUser = (user: UserDetail | null) => {
     setUser_(user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
