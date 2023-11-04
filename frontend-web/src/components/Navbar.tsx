@@ -14,7 +14,7 @@ function Navbar() {
   };
 
   return (
-    <NavbarBootstrap className="bg-white shadow-sm mb-5 sticky-top">
+    <NavbarBootstrap className="bg-white shadow-sm sticky-top">
       <Container>
         <Nav>
           <Nav.Link to="/" as={NavLink}>
