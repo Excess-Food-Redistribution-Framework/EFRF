@@ -47,7 +47,7 @@ function RegistrationPage() {
   }, [isAuth, navigate]);
 
   return (
-    <Container>
+    <Container className="pt-5">
       <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
           <Row className="primary_color">
