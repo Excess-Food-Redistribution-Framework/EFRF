@@ -54,7 +54,7 @@ function LoginPage() {
 
   return (
     <Container>
-      <Row className="justify-content-center rounded-4 overflow-hidden custom-shadow">
+      <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
           <Row className="primary_color">
             <Col lg="7" className="secondary_color diagonal-bg d-flex">
