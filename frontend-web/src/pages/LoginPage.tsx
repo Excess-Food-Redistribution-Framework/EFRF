@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  AlertLink,
+  Button,
+  Col,
+  Container,
+  Form,
+  Image,
+  Row,
+} from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 interface ILoginRequest {
@@ -19,13 +27,10 @@ function LoginPage() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        'api/Account/Login',
-        {
-          email,
-          password,
-        } as ILoginRequest
-      );
+      const response = await axios.post('api/Account/Login', {
+        email,
+        password,
+      } as ILoginRequest);
 
       setToken(response.data.token);
       setUser(response.data.user);
@@ -33,9 +38,8 @@ function LoginPage() {
       if (response.data.user.role) {
         navigate('/');
       } else {
-        navigate('/organization/create')
+        navigate('/organization/create');
       }
-
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -52,9 +56,15 @@ function LoginPage() {
     <Container>
       <Row className="justify-content-center">
         <Col lg="10">
-          <Row className="primary_color">
-            <Col lg="7" className="secondary_color diagonal-bg">
-              {/* <Image src="../assets/img/login.svg" /> */}
+          <Row className="primary_color rounded-4 overflow-hidden">
+            <Col
+              lg="7"
+              className="secondary_color diagonal-bg d-flex justify-content-center"
+            >
+              <Image
+                src="/assets/img/login.svg"
+                className="img-fluid p-4 pb-0"
+              />
             </Col>
             <Col lg="5" className="p-5">
               <h1 className="mb-3 text-white">Log in</h1>
@@ -83,7 +93,10 @@ function LoginPage() {
                     <Button variant="secondary" onClick={handleSubmit}>
                       Submit
                     </Button>
-                    <AlertLink href="" className="align-self-end text-white">
+                    <AlertLink
+                      href="/registration"
+                      className="align-self-end text-white"
+                    >
                       Cant Log In?
                     </AlertLink>
                   </Col>

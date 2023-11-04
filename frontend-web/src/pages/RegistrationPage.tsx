@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  AlertLink,
+  Button,
+  Col,
+  Container,
+  Form,
+  Image,
+  Row,
+} from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 function RegistrationPage() {
@@ -18,15 +26,12 @@ function RegistrationPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        'api/Account/Register',
-        {
-          FirstName: firstName,
-          LastName: lastName,
-          Email: email,
-          Password: password,
-        }
-      );
+      const response = await axios.post('api/Account/Register', {
+        FirstName: firstName,
+        LastName: lastName,
+        Email: email,
+        Password: password,
+      });
 
       setResponseMessage(response.data);
       navigate('/login');
@@ -45,11 +50,17 @@ function RegistrationPage() {
     <Container>
       <Row className="justify-content-center">
         <Col lg="10">
-          <Row className="primary_color">
-            <Col lg="6" className="secondary_color diagonal-bg">
-              {/* <Image src="../assets/img/login.svg" /> */}
+          <Row className="primary_color rounded-4 overflow-hidden">
+            <Col
+              lg="7"
+              className="secondary_color diagonal-bg d-flex justify-content-center"
+            >
+              <Image
+                src="/assets/img/register.svg"
+                className="img-fluid p-4 pb-0"
+              />
             </Col>
-            <Col lg="6" className="p-5">
+            <Col lg="5" className="p-4 p-xl-5">
               <h1 className="mb-3 text-white">Registration</h1>
 
               <Form onSubmit={handleSubmit}>
@@ -90,11 +101,11 @@ function RegistrationPage() {
                 </Form.Group>
 
                 <Row>
-                  <Col className="d-flex justify-content-between">
+                  <Col className="d-flex justify-content-between text-white">
                     <Button variant="secondary" onClick={handleSubmit}>
                       Submit
                     </Button>
-                    <p>
+                    <p className="m-0 align-self-end">
                       Already Registered?
                       <AlertLink href="./login" className="ms-2">
                         Log In
