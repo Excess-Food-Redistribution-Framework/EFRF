@@ -48,19 +48,19 @@ function RegistrationPage() {
 
   return (
     <Container>
-      <Row className="justify-content-center">
-        <Col lg="10">
-          <Row className="primary_color rounded-4 overflow-hidden">
-            <Col
-              lg="7"
-              className="secondary_color diagonal-bg d-flex justify-content-center"
-            >
+      <Row className="justify-content-center rounded-4 overflow-hidden custom-shadow">
+        <Col lg="12">
+          <Row className="primary_color">
+            <Col lg="7" className="secondary_color diagonal-bg d-flex">
               <Image
                 src="/assets/img/register.svg"
                 className="img-fluid p-4 pb-0"
               />
             </Col>
-            <Col lg="5" className="p-4 p-xl-5">
+            <Col
+              lg="5"
+              className="px-4 px-xl-5 d-flex flex-column justify-content-evenly"
+            >
               <h1 className="mb-3 text-white">Registration</h1>
 
               <Form onSubmit={handleSubmit}>
@@ -99,21 +99,20 @@ function RegistrationPage() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </Form.Group>
-
-                <Row>
-                  <Col className="d-flex justify-content-between text-white">
-                    <Button variant="secondary" onClick={handleSubmit}>
-                      Submit
-                    </Button>
-                    <p className="m-0 align-self-end">
-                      Already Registered?
-                      <AlertLink href="./login" className="ms-2">
-                        Log In
-                      </AlertLink>
-                    </p>
-                  </Col>
-                </Row>
               </Form>
+              <Row>
+                <Col className="d-flex justify-content-between text-white">
+                  <Button variant="light" onClick={handleSubmit}>
+                    Submit
+                  </Button>
+                  <p className="m-0 align-self-end">
+                    Already Registered?
+                    <AlertLink href="./login" className="ms-2">
+                      Log In
+                    </AlertLink>
+                  </p>
+                </Col>
+              </Row>
               {/*
               <p className="mt-4">
                 Response Message: {JSON.stringify(responseMessage)}
