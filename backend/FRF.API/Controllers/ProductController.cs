@@ -42,10 +42,13 @@ namespace FRF.API.Controllers
         [HttpGet]
         //[Authorize(Roles = OrganizationType.Distributer.ToString())]
         [SwaggerOperation("Get all products")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> Get(bool unexpired)
         {
 
             BaseResponse<IEnumerable<Product>> getResponse;
+
             if (unexpired)
             {
                 getResponse = await _productService.GetAllUnexpiredProducts();
@@ -57,7 +60,7 @@ namespace FRF.API.Controllers
 
             if (getResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
-                return BadRequest(getResponse.Message);
+                return NotFound(getResponse.Message);
             }
 
             return Ok(getResponse.Data);
@@ -66,6 +69,9 @@ namespace FRF.API.Controllers
         [HttpPost]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Add New Product")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Product>> Post(ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -73,7 +79,7 @@ namespace FRF.API.Controllers
 
             if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
@@ -107,6 +113,9 @@ namespace FRF.API.Controllers
         [HttpPut("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Update Product")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Product>> Put(Guid id, ProductDto productDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -114,14 +123,17 @@ namespace FRF.API.Controllers
             
             if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
+
+
+
             var product = organization?.Products.Find(p => p.Id == id);
             if (product == null)
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
             product.Name = productDto.Name;
@@ -142,6 +154,9 @@ namespace FRF.API.Controllers
         [HttpDelete("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Delete Product")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> Delete(Guid id)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -149,13 +164,13 @@ namespace FRF.API.Controllers
             
             if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
             if (!organization.Products.Any(p => p.Id == id))
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
             var deleteProductResponse = await _productService.DeleteProduct(id);
@@ -172,6 +187,9 @@ namespace FRF.API.Controllers
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [Route("DeleteAllExpiredProducts")]
         [SwaggerOperation("Delete All Expired Products in organization")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> DeleteAllExpiredProducts()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -179,14 +197,14 @@ namespace FRF.API.Controllers
             
             if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
             var products = organization?.Products.FindAll(p => p.ExpirationDate < DateTime.UtcNow);
             if (products == null)
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
             foreach (var product in products)
