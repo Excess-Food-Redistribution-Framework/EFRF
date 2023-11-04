@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using FRF.Domain.Responses;
 using FRF.API.Dto.Product;
 using AutoMapper;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -58,7 +59,7 @@ namespace FRF.API.Controllers
                 getResponse = await _productService.GetAllProducts();
             }
 
-            if (getResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getResponse.StatusCode != HttpStatusCode.OK)
             {
                 return NotFound(getResponse.Message);
             }
@@ -77,7 +78,7 @@ namespace FRF.API.Controllers
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
             {
                 return NotFound(getOrganizationResponse.Message);
             }
@@ -86,7 +87,7 @@ namespace FRF.API.Controllers
             var product = _mapper.Map<Product>(productDto);
             var createProductResponse = await _productService.AddProduct(product, organization);
 
-            if (createProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (createProductResponse.StatusCode != HttpStatusCode.OK)
             {
                 return BadRequest(createProductResponse.Message);
             }
@@ -121,7 +122,7 @@ namespace FRF.API.Controllers
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
             
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
             {
                 return NotFound(getOrganizationResponse.Message);
             }
@@ -143,12 +144,12 @@ namespace FRF.API.Controllers
 
             var updateProductResponse = await _productService.UpdateProduct(product);
 
-            if (updateProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (updateProductResponse.StatusCode != HttpStatusCode.OK)
             {
                 return BadRequest(updateProductResponse.Message);
             }
 
-            return Ok(organization.Products);
+            return Ok(organization?.Products);
         }
 
         [HttpDelete("{id}")]
@@ -161,13 +162,13 @@ namespace FRF.API.Controllers
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
             {
-                return NotFound(getOrganizationResponse.Message);
+                return NotFound("Organization not found");
             }
 
-            var organization = getOrganizationResponse.Data;
             if (!organization.Products.Any(p => p.Id == id))
             {
                 return NotFound("No such product in your organization");
@@ -175,7 +176,7 @@ namespace FRF.API.Controllers
 
             var deleteProductResponse = await _productService.DeleteProduct(id);
 
-            if (deleteProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
             {
                 return BadRequest(deleteProductResponse.Message);
             }
@@ -195,7 +196,7 @@ namespace FRF.API.Controllers
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
             
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
             {
                 return NotFound(getOrganizationResponse.Message);
             }
@@ -211,7 +212,7 @@ namespace FRF.API.Controllers
             {
                 var deleteProductResponse = await _productService.DeleteProduct(product.Id);
 
-                if (deleteProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return BadRequest(deleteProductResponse.Message);
                 }

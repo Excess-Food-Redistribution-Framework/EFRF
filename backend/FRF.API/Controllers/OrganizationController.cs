@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace FRF.API.Controllers
@@ -304,7 +305,7 @@ namespace FRF.API.Controllers
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
             var deleteFromOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
-            if (deleteFromOrganizationResponse.StatusCode == Domain.Enum.StatusCode.Ok)
+            if (deleteFromOrganizationResponse.StatusCode == HttpStatusCode.OK)
             {
                 await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
 
@@ -340,14 +341,14 @@ namespace FRF.API.Controllers
                 var organization = getOrganizationResponse.Data;
                 var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId/*, joinOrganizationDto.Password */);
 
-                if (joinResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (joinResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return BadRequest(joinResponse.Message);
-                }
-                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
-                await _userManager.AddToRoleAsync(user, role.ToString());
+                    OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                    await _userManager.AddToRoleAsync(user, role.ToString());
 
-                return Ok("User joined organization");
+                    return Ok("User joined organization");
+                }
+                return BadRequest(joinResponse.Message);
             }
             catch (Exception e)
             {
@@ -375,9 +376,15 @@ namespace FRF.API.Controllers
             {
                 var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
                 var organization = getOrganizationResponse.Data;
+
+                if (organization == null)
+                {
+                    return NotFound("Organization not found");
+                }
+
                 var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organization.Id);
 
-                if (leaveResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (leaveResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return BadRequest(leaveResponse.Message);
                 }

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,7 +39,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = false
                     };
@@ -49,7 +50,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = false
                     };
@@ -69,7 +70,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "You are not in invited users list",
                         Data = false
                     };
@@ -79,7 +80,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "User already is in organization",
                         Data = false
                     };
@@ -94,7 +95,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "User was successfuly added to the organization",
                     Data = true
                 };
@@ -103,7 +104,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "User wasn't added to the organization: " + e.Message,
                     Data = false
                 };
@@ -119,7 +120,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = false
                     };
@@ -130,7 +131,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = false
                     };
@@ -140,7 +141,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "User not in Organization",
                         Data = false
                     };
@@ -150,7 +151,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "Creator can't be removed",
                         Data = false
                     };
@@ -161,7 +162,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "User was successfuly removed from the organization",
                     Data = true
                 };
@@ -170,7 +171,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "User wasn't removed from the organization: " + e.Message,
                     Data = false
                 };
@@ -190,7 +191,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<IEnumerable<Organization>>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Get all Organizations successfuly",
                     Data = organizations
                 };
@@ -199,7 +200,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<IEnumerable<Organization>>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Get all Organizations error: " + e.Message,
                     Data = null
                 };
@@ -221,7 +222,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = null
                     };
@@ -229,7 +230,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was found",
                     Data = organization
                 };
@@ -238,7 +239,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Get Organizations by id error: " + e.Message,
                     Data = null
                 };
@@ -254,7 +255,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = null
                     };
@@ -271,7 +272,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not in any organization",
                         Data = null
                     };
@@ -279,7 +280,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Get Organization succesfully",
                     Data = organization
                 };
@@ -288,7 +289,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Organization not found - " + e.Message,
                     Data = null
                 };
@@ -304,7 +305,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Creator User not found",
                         Data = false
                     };
@@ -322,7 +323,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "Creator already is in the organization",
                         Data = false
                     };
@@ -333,7 +334,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly created",
                     Data = true
                 };
@@ -342,7 +343,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "AddOrganization error: " + e.Message,
                     Data = false
                 };
@@ -357,7 +358,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly updated",
                     Data = true
                 };
@@ -366,7 +367,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "UpdateOrganization error: " + e.Message,
                     Data = false
                 };
@@ -379,7 +380,7 @@ namespace FRF.Services.Implementations
             {
                 var getOrganizationResponse = await GetOrganizationById(id);
                 var organization = getOrganizationResponse.Data;
-                if (getOrganizationResponse.StatusCode != StatusCode.Ok)
+                if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return new BaseResponse<bool>
                     {
@@ -399,7 +400,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly deleted",
                     Data = true
                 };
@@ -408,7 +409,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "DeleteOrganization error: " + e.Message,
                     Data = false
                 };

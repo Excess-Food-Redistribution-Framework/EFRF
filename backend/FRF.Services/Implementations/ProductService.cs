@@ -8,6 +8,7 @@ using FRF.Services.Interfaces;
 using FRF.DAL.Interfaces;
 using FRF.Domain.Enum;
 using FRF.Domain.Responses;
+using System.Net;
 
 public class ProductService : IProductService
 {
@@ -34,7 +35,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<IEnumerable<Product>>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Get all products - success",
                 Data = products
             };
@@ -43,7 +44,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<IEnumerable<Product>>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = null
             };
@@ -60,7 +61,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<IEnumerable<Product>>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Get all products - success",
                 Data = products
             };
@@ -69,7 +70,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<IEnumerable<Product>>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = null
             };
@@ -87,7 +88,7 @@ public class ProductService : IProductService
             {
                 return new BaseResponse<Product>
                 {
-                    StatusCode = StatusCode.NotFound,
+                    StatusCode = HttpStatusCode.NotFound,
                     Message = "Product not found",
                     Data = null
                 };
@@ -95,7 +96,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<Product>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Product found",
                 Data = product
             };
@@ -104,7 +105,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<Product>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = null
             };
@@ -121,7 +122,7 @@ public class ProductService : IProductService
             {
                 return new BaseResponse<Product>
                 {
-                    StatusCode = StatusCode.NotFound,
+                    StatusCode = HttpStatusCode.NotFound,
                     Message = "Product not found",
                     Data = null
                 };
@@ -129,7 +130,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<Product>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Product found",
                 Data = product
             };
@@ -138,7 +139,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<Product>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = null
             };
@@ -153,7 +154,7 @@ public class ProductService : IProductService
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.NotFound,
+                    StatusCode = HttpStatusCode.NotFound,
                     Message = "Organization not found",
                     Data = false
                 };
@@ -164,7 +165,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Product updated",
                 Data = true
             };
@@ -173,7 +174,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = false
             };
@@ -188,7 +189,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Product updated",
                 Data = true
             };
@@ -197,7 +198,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = false
             };
@@ -212,7 +213,7 @@ public class ProductService : IProductService
 
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.Ok,
+                StatusCode = HttpStatusCode.OK,
                 Message = "Product updated",
                 Data = true
             };
@@ -221,7 +222,7 @@ public class ProductService : IProductService
         {
             return new BaseResponse<bool>
             {
-                StatusCode = StatusCode.InternalServerError,
+                StatusCode = HttpStatusCode.InternalServerError,
                 Message = e.Message,
                 Data = false
             };
