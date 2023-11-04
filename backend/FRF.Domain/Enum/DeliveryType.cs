@@ -9,14 +9,11 @@ namespace FRF.Domain.Enum
 {
     public enum DeliveryType
     {
-        [Description("Someone can take donate")]
-        WaitForTakeDonate,
+        [Description("Provider can deliver")]
+        ProviderCanDeliver,
 
-        [Description("Donor can deliver")]
-        DonorCanDeliver,
-
-        [Description("Receiver needs to take it away")]
-        ReceiverNeedsToTakeAway,
+        [Description("Distributor needs to take it away")]
+        DistributorNeedsToTakeAway,
 
         [Description("Use 3rd party delivery service")]
         Use3rdPartyDeliveryService

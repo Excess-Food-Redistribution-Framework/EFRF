@@ -9,9 +9,13 @@ namespace FRF.Domain.Enum
 {
     public enum FoodRequestState
     {
-        [Description("Waiting on donor side")]
+        [Description("Requested by Distributor")]
+        Requested,
+        [Description("Provider prepare products")]
+        Preparing,
+        [Description("Waiting on Provider side")]
         Waiting,
-        [Description("Food is on road to the receiver")]
+        [Description("Food is on road to the Distributor")]
         Deliviring,
         [Description("Succesful received")]
         Received,

@@ -19,9 +19,10 @@ namespace FRF.Domain.Entities
         public Guid ProviderId { get; set; }
         public Guid DistributerId { get; set; }
 
-        public DeliveryType Delivery { get; set; } = DeliveryType.WaitForTakeDonate;
-        public FoodRequestState State { get; set; } = FoodRequestState.Waiting;
+        public DeliveryType Delivery { get; set; } = DeliveryType.DistributorNeedsToTakeAway;
+        public FoodRequestState State { get; set; } = FoodRequestState.Preparing;
 
+        public DateTime EstPickUpTime { get; set; } = DateTime.UtcNow;
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
     }
 }
