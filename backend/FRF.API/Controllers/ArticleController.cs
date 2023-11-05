@@ -1,5 +1,4 @@
 using AutoMapper;
-using FRF.API.Dto;
 using FRF.API.Dto.Article;
 using FRF.Domain.Entities;
 using FRF.Services.Interfaces;
