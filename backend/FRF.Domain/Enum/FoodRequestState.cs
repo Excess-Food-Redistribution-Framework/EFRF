@@ -9,8 +9,8 @@ namespace FRF.Domain.Enum
 {
     public enum FoodRequestState
     {
-        [Description("Requested by Distributor")]
-        Requested,
+        [Description("Created but not assigned to other organization")]
+        NotAssing,
         [Description("Provider prepare products")]
         Preparing,
         [Description("Waiting on Provider side")]

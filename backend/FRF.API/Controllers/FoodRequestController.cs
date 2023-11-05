@@ -23,21 +23,23 @@ namespace FRF.API.Controllers
         [HttpGet]
         public async Task<IEnumerable<FoodRequest>> Get()
         {
-            return await _foodRequestService.GetAllFoodRequests();
+            var response = await _foodRequestService.GetAllFoodRequests();
+            return response.Data;
         }
 
         // GET api/<FoodDonationController>/5
         [HttpGet("{id}")]
         public async Task<FoodRequest> Get(Guid id)
         {
-            return await _foodRequestService.GetFoodRequestById(id);
+            var response = await _foodRequestService.GetFoodRequestById(id);
+            return response.Data;
         }
 
         // POST api/<FoodDonationController>
         [HttpPost]
         public async Task Post([FromBody] FoodRequest foodDonation)
         {
-            await _foodRequestService.AddFoodRequest(foodDonation);
+            //await _foodRequestService.CreateFoodRequest(foodDonation);
         }
 
 
@@ -53,7 +55,7 @@ namespace FRF.API.Controllers
         [HttpDelete("{id}")]
         public async Task Delete(Guid id)
         {
-            await _foodRequestService.DeleteFoodRequest(id);
+            await _foodRequestService.DeleteFoodRequests(id);
         }
     }
 }

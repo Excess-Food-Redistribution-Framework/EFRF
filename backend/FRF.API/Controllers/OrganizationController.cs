@@ -161,17 +161,21 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
 
-            if (email.Email != String.Empty)
-                if (organization.AllowedEmails.Contains(email.Email))
-                {
-                    return BadRequest("This email is already in allowed list");
-                }
-            organization.AllowedEmails = string.Join(";", organization.AllowedEmails, email.Email);
+            if (organization.AllowedEmails.Any(a => a.Email == email.Email))
+            {
+                return BadRequest("This email is already in allowed list");
+            }
+
+            var allowedEmail = new AllowedEmail
+            {
+                Email = email.Email,
+            };
+            organization.AllowedEmails.Add(allowedEmail);
 
             var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
             if (updateOrganizationResponse.Data == true)
             {
-                return Ok(organization.AllowedEmails.Split(';').ToList());
+                return Ok(organization.AllowedEmails);
             }
             else
             {
@@ -202,17 +206,18 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
 
-            if (email.Email != String.Empty)
-                if (!organization.AllowedEmails.Contains(email.Email))
-                {
-                    return BadRequest("This email not found in allowed list");
-                }
-            organization.AllowedEmails = string.Join(";", organization.AllowedEmails.Split(';').Where(e => e != email.Email));
+            var allowedEmail = organization.AllowedEmails.Find(a => a.Email == email.Email);
+            if (allowedEmail == null)
+            {
+                return NotFound("This email not found in allowed list");
+            }
+
+            organization.AllowedEmails.Remove(allowedEmail);
 
             var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
             if (updateOrganizationResponse.Data == true)
             {
-                return Ok(organization.AllowedEmails.Split(';').ToList());
+                return Ok(organization.AllowedEmails);
             }
             else
             {
@@ -304,8 +309,8 @@ namespace FRF.API.Controllers
 
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
-            var deleteFromOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
-            if (deleteFromOrganizationResponse.StatusCode == HttpStatusCode.OK)
+            var kickResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
+            if (kickResponse.StatusCode == HttpStatusCode.OK)
             {
                 await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
 
@@ -314,7 +319,7 @@ namespace FRF.API.Controllers
             }
             else
             {
-                return BadRequest(deleteFromOrganizationResponse.Message);
+                return BadRequest(kickResponse.Message);
             }
         }
 

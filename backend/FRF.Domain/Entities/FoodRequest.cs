@@ -16,8 +16,12 @@ namespace FRF.Domain.Entities
 
         public List<Product> Products { get; set; } = new List<Product>();
 
-        public Guid ProviderId { get; set; }
-        public Guid DistributerId { get; set; }
+        public Guid CreatorOrganizationId { get; set; }
+        public Guid AcceptorOrganizationId { get; set; } = Guid.Empty;
+
+        public List<InvitedOrganization> InvitedOrganizations { get; set; } = new List<InvitedOrganization>();
+
+        public string UserId { get; set; } = String.Empty;
 
         public DeliveryType Delivery { get; set; } = DeliveryType.DistributorNeedsToTakeAway;
         public FoodRequestState State { get; set; } = FoodRequestState.Preparing;

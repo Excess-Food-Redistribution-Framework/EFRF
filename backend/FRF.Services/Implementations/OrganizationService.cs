@@ -19,15 +19,26 @@ namespace FRF.Services.Implementations
     {
         // Sercice uses repositories to work with datas
         private readonly IBaseRepository<Organization> _organizationRepository;
+
+        private readonly IFoodRequestService _foodRequestService;
+        private readonly IProductService _productService;
+
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         // Dependency Injection (DI).
-        public OrganizationService(IBaseRepository<Organization> organizationRepository, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public OrganizationService(
+            IBaseRepository<Organization> organizationRepository,
+            UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IFoodRequestService foodRequestService,
+            IProductService productService)
         {
             _organizationRepository = organizationRepository;
             _userManager = userManager;
             _roleManager = roleManager;
+            _foodRequestService = foodRequestService;
+            _productService = productService;
         }
 
         public async Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
@@ -66,7 +77,7 @@ namespace FRF.Services.Implementations
                 //    };
                 //}
 
-                if (!organization.AllowedEmails.Contains(user.Email))
+                if (!organization.AllowedEmails.Any(a => a.Email == user.Email))
                 {
                     return new BaseResponse<bool>
                     {
@@ -186,7 +197,7 @@ namespace FRF.Services.Implementations
                 var organizations = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .ToListAsync();
 
                 return new BaseResponse<IEnumerable<Organization>>
@@ -215,7 +226,7 @@ namespace FRF.Services.Implementations
                 var organization = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .Where(o => o.Id == id)
                     .FirstOrDefaultAsync();
                 if (organization is null)
@@ -264,7 +275,7 @@ namespace FRF.Services.Implementations
                 var organization = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .Where(o => o.Users.Any(u => u.Id == id))
                     .FirstOrDefaultAsync();
 
@@ -390,11 +401,33 @@ namespace FRF.Services.Implementations
                     };
                 }
 
-                if (organization != null)
+                var getFoodRequestsResponse = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
+                if (getFoodRequestsResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    organization?.Users.Clear();
-                    await _organizationRepository.Update(organization);
+                    return new BaseResponse<bool>
+                    {
+                        StatusCode = getFoodRequestsResponse.StatusCode,
+                        Message = getFoodRequestsResponse.Message,
+                        Data = false
+                    };
                 }
+                if (getFoodRequestsResponse.Data?.Count() > 0)
+                {
+                    return new BaseResponse<bool>
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Organization's requests list is not empty",
+                        Data = false
+                    };
+                }
+
+                organization.Products.ForEach(async p =>
+                {
+                    var deleteProductResponse = await _productService.DeleteProduct(p.Id);
+                });
+                
+                organization?.Users.Clear();
+                await _organizationRepository.Update(organization);
 
                 await _organizationRepository.Delete(id);
 

@@ -16,13 +16,13 @@ namespace FRF.Domain.Entities
         // (PLACEHOLDER) Instead of Information field add other specific fields (f.e. email/address/certification/....)
         public string Information { get; set; } = String.Empty;
 
-        public List<FoodRequest> FoodRequests { get; set; } = new List<FoodRequest>();
         public List<Product> Products { get; set; } = new List<Product>();
 
         public Guid CreatorId { get; set; }
         public List<User> Users { get; set; } = new List<User>();
 
         //public string Password { get; set; } = String.Empty;
-        public string AllowedEmails { get; set; } = String.Empty;
+        //public string AllowedEmails { get; set; } = String.Empty;
+        public List<AllowedEmail> AllowedEmails { get; set; } = new List<AllowedEmail>();
     }
 }

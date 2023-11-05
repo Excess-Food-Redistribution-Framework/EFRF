@@ -31,6 +31,7 @@ public class ProductService : IProductService
         try
         {
             var products = await _productRepository.GetAll()
+                .Where(p => p.State == ProductState.Available)
                 .ToListAsync();
 
             return new BaseResponse<IEnumerable<Product>>
@@ -56,7 +57,7 @@ public class ProductService : IProductService
         try
         {
             var products = await _productRepository.GetAll()
-                .Where(p => p.ExpirationDate > DateTime.UtcNow)
+                .Where(p => p.ExpirationDate > DateTime.UtcNow && p.State == ProductState.Available)
                 .ToListAsync();
 
             return new BaseResponse<IEnumerable<Product>>
@@ -82,7 +83,8 @@ public class ProductService : IProductService
         try
         {
             var product = await _productRepository.GetAll()
-            .FirstOrDefaultAsync(p => p.Type == type);
+                .Where(p => p.State == ProductState.Available)
+                .FirstOrDefaultAsync(p => p.Type == type);
 
             if (product == null)
             {
