@@ -1,4 +1,3 @@
-
 export enum ProductType {
   FreshProduce = 'FreshProduce',
   CannedGoods = 'CannedGoods',
@@ -6,7 +5,7 @@ export enum ProductType {
   BakeryItems = 'BakeryItems',
   MeatAndPoultry = 'MeatAndPoultry',
   FrozenFoods = 'FrozenFoods',
-  NonPerishables= 'NonPerishable',
+  NonPerishables = 'NonPerishable',
   Other = 'Other',
 }
 

@@ -1,9 +1,9 @@
-import {Button, Col, Container, Form, Row} from 'react-bootstrap';
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {useAuth} from '../AuthProvider';
+import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {Product, ProductType} from '../types/productTypes';
+import { useAuth } from '../AuthProvider';
+import { Product, ProductType } from '../types/productTypes';
 
 function ProductFormPage() {
   const navigate = useNavigate();
@@ -20,15 +20,12 @@ function ProductFormPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        'api/Product',
-        {
-          name,
-          type,
-          quantity,
-          expirationDate,
-        } as Product
-      );
+      const response = await axios.post('api/Product', {
+        name,
+        type,
+        quantity,
+        expirationDate,
+      } as Product);
 
       navigate('/');
     } catch (error) {
@@ -69,7 +66,9 @@ function ProductFormPage() {
                     step="1"
                     placeholder="Guantity"
                     value={quantity}
-                    onChange={(e) => setQuantity(Number.parseInt(e.target.value))}
+                    onChange={(e) =>
+                      setQuantity(Number.parseInt(e.target.value))
+                    }
                   />
                 </Form.Group>
 
@@ -78,10 +77,12 @@ function ProductFormPage() {
                   <Form.Select
                     aria-label="Type"
                     value={type}
-                    onChange={e => setType(e.target.value as ProductType)}
+                    onChange={(e) => setType(e.target.value as ProductType)}
                   >
                     {Object.keys(ProductType).map((key) => (
-                      <option key={key} value={key}>{key}</option>
+                      <option key={key} value={key}>
+                        {key}
+                      </option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -93,7 +94,11 @@ function ProductFormPage() {
                     min={today}
                     placeholder="Guantity"
                     value={expirationDate}
-                    onChange={(e) => setExpirationDate(new Date(e.target.value).toLocaleDateString('en-CA'))}
+                    onChange={(e) =>
+                      setExpirationDate(
+                        new Date(e.target.value).toLocaleDateString('en-CA')
+                      )
+                    }
                   />
                 </Form.Group>
 

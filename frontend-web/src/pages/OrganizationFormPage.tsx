@@ -1,9 +1,8 @@
-import {Button, Col, Container, Form, Row} from "react-bootstrap";
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {useAuth} from "../AuthProvider.tsx";
-import axios from "axios";
-
+import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../AuthProvider.tsx';
 
 function OrganizationFormPage() {
   const navigate = useNavigate();
@@ -17,14 +16,11 @@ function OrganizationFormPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        'api/Organization',
-        {
-          name,
-          type,
-          information,
-        }
-      );
+      const response = await axios.post('api/Organization', {
+        name,
+        type,
+        information,
+      });
 
       if (response.status === 200) {
         const currentUser = await axios.get('api/Account');
@@ -62,7 +58,11 @@ function OrganizationFormPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formType" className="mb-3">
-                  <Form.Select aria-label="Type" value={type} onChange={e => setType(e.target.value)}>
+                  <Form.Select
+                    aria-label="Type"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                  >
                     <option value="Provider">Provider</option>
                     <option value="Distributer">Distributer</option>
                   </Form.Select>
