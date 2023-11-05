@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { ListOfArticles } from '../types/articleTypes';
+import { ListOfArticles, Article } from '../types/articleTypes';
 
-function GetListOfArticles(page: number, pageSize: number) {
+export function GetListOfArticles(page: number, pageSize: number) {
   const [listOfArticles, setListOfArticles] = useState<ListOfArticles>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchArticlesData() {
+    async function fetchListOfArticles() {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/api/article`,
@@ -34,11 +34,39 @@ function GetListOfArticles(page: number, pageSize: number) {
       }
     }
 
-    // Zavolajte fetchData() len pri zmene page alebo pageSize
-    fetchArticlesData();
+    fetchListOfArticles();
   }, [page, pageSize]);
 
   return { listOfArticles, errorMessage };
 }
 
-export default GetListOfArticles;
+export function GetArticleById(articleId: string) {
+  const [article, setArticle] = useState<Article>();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchArticleById() {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/article/${articleId}`
+        );
+
+        if (response.status !== 200) {
+          throw new Error(response.statusText);
+        }
+
+        const data = response.data as Article;
+        setArticle(data);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('An unknown error occurred');
+        }
+      }
+    }
+    fetchArticleById();
+  }, [articleId]);
+
+  return { article, errorMessage };
+}

@@ -1,9 +1,10 @@
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import ArticlesCards from '../components/ArticlesCards';
+import ProductCards from '../components/ProductCards';
 
 function HomePage() {
   return (
-    <Container fluid className="px-0">
+    <Container fluid>
       <Container fluid className="secondary_color px-0">
         <Row className="justify-content-center diagonal-bg mh-400px p-5">
           <Col
@@ -40,6 +41,7 @@ function HomePage() {
         <h5>Available Food</h5>
         <h2>Find What You Need</h2>
         <h2>And Sign for A Supply</h2>
+        <ProductCards page={1} pageSize={4} />
       </Container>
     </Container>
   );

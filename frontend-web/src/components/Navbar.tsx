@@ -25,6 +25,9 @@ function Navbar() {
           <Nav.Link to="/blog" as={NavLink}>
             Blog
           </Nav.Link>
+          <Nav.Link to="/products" as={NavLink}>
+            Products
+          </Nav.Link>
         </Nav>
         <Nav>
           {isAuth() ? (

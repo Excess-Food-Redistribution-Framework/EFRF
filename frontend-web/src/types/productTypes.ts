@@ -16,3 +16,9 @@ export interface Product {
   type: ProductType;
   expirationDate: string;
 }
+
+// Pre parametre komponentu articlesCards
+export type ProductCardsProps = {
+  page: number;
+  pageSize: number;
+};

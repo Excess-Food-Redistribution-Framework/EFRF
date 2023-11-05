@@ -15,6 +15,10 @@ export interface Article {
   content: string;
 }
 
+export type ArticleByIdProps = {
+  articleId: string;
+};
+
 // Pre parametre komponentu articlesCards
 export type ArticleCardsProps = {
   page: number;
