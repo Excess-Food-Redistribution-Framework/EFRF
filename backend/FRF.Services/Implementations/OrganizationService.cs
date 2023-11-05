@@ -101,7 +101,7 @@ namespace FRF.Services.Implementations
                 await _organizationRepository.Update(organization);
 
                 // Add role depending on organization type
-                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
                 return new BaseResponse<bool>

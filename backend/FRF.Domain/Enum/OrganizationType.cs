@@ -12,7 +12,7 @@ namespace FRF.Domain.Enum
         [Description("Provider")]
         Provider,
 
-        [Description("Distributer")]
-        Distributer
+        [Description("Distributor")]
+        Distributor
     }
 }

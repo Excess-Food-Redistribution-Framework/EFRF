@@ -63,7 +63,7 @@ namespace FRF.API.Controllers
             if (createOrganizationResponse.Data == true)
             {
                 // Add role depending on organization type
-                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
                 var organizationDto = _mapper.Map<OrganizationDto>(organization);
@@ -254,7 +254,7 @@ namespace FRF.API.Controllers
             }
 
             // Remove all roles depending on organization type
-            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
             // Copu users list
             var users = organization.Users.ToList();
 
@@ -305,7 +305,7 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
             // Remove all roles depending on organization type
-            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
 
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
@@ -348,7 +348,7 @@ namespace FRF.API.Controllers
 
                 if (joinResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                    OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                     await _userManager.AddToRoleAsync(user, role.ToString());
 
                     return Ok("User joined organization");
@@ -395,7 +395,7 @@ namespace FRF.API.Controllers
                 }
 
                 // Remove role depending on organization type
-                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
                 return Ok("User leaved organization");
