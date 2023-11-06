@@ -1,33 +1,53 @@
-.primary_color{
-    background-color: #4c654d;
+.primary_color {
+  background-color: #4c654d;
 }
 
-.secondary_color{
-    background-color: #AFBAAE;
+.secondary_color {
+  background-color: #afbaae;
 }
 
 .diagonal-bg {
-    background: linear-gradient(110deg, #AFBAAE 78%, transparent 50%, transparent 100%);
-    background-color: transparent;
-    background-size: 100% 100%;
+  background: linear-gradient(
+    110deg,
+    #afbaae 78%,
+    transparent 50%,
+    transparent 100%
+  );
+  background-color: transparent;
+  background-size: 100% 100%;
 }
 .diagonal-bg {
-    background: linear-gradient(110deg, #4c654d 45%, transparent 30%, transparent 100%);
-    background-color: transparent;
-    background-size: 100% 100%;
+  background: linear-gradient(
+    110deg,
+    #4c654d 45%,
+    transparent 30%,
+    transparent 100%
+  );
+  background-color: transparent;
+  background-size: 100% 100%;
 }
 
 .custom-shadow {
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .text-shadow {
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.mh-400px{
-    min-height: 400px;
+.mh-400px {
+  min-height: 400px;
 }
-body{
-    background-color: #EBEEE8;
+body {
+  background-color: #ebeee8;
+}
+
+.zoom-card {
+  transform: scale(1);
+  transition: transform 0.5s;
+}
+
+.zoom-card:hover {
+  transform: scale(1.1);
+  transition: transform 0.7s;
 }

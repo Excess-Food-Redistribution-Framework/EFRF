@@ -41,7 +41,7 @@ function HomePage() {
         <h5>Available Food</h5>
         <h2>Find What You Need</h2>
         <h2>And Sign for A Supply</h2>
-        <ProductCards page={1} pageSize={4} />
+        <ProductCards page={1} pageSize={8} />
       </Container>
     </Container>
   );
