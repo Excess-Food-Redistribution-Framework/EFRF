@@ -21,9 +21,50 @@ function RegistrationPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [responseMessage, setResponseMessage] = React.useState({});
+  const [error, setError] = React.useState('');
+
+  const [firstNameError, setFirstNameError] = useState('');
+  const [lastNameError, setLastNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleInputChange = () => {
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let isValid = true;
+    if(firstName === ''){
+      setFirstNameError('First Name is required');
+      isValid = false;
+    }else{
+      setFirstNameError('');
+    }
+    if(lastName === ''){
+      setLastNameError('Last Name is required');
+      isValid = false;
+    }else{
+      setLastNameError('');
+    }
+    if (email === '') {
+      setEmailError('Email is required');
+      isValid = false;
+    } else {
+      setEmailError('');
+    }
+  
+    if (password === '') {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+  
+    if (!isValid) {
+      return;
+    }
 
     try {
       const response = await axios.post('api/Account/Register', {
@@ -35,8 +76,9 @@ function RegistrationPage() {
 
       setResponseMessage(response.data);
       navigate('/login');
-    } catch (error) {
+    } catch (error : any) {
       console.error(error);
+      setError('Registration failed. Please try again.');
     }
   };
 
@@ -62,15 +104,27 @@ function RegistrationPage() {
               className="px-4 px-xl-5 d-flex flex-column justify-content-evenly"
             >
               <h1 className="mb-3 text-white">Registration</h1>
-
+              <Row>
+              {error && (
+                <p className="error-message">
+                  {error}
+                </p>
+              )}
+              </Row>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formFirstName" className="mb-3">
                   <Form.Control
                     type="text"
                     placeholder="Enter First Name"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      handleInputChange();
+                      setFirstNameError('');
+                    }}
+                    isInvalid={firstNameError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{firstNameError}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formLastName" className="mb-3">
@@ -78,8 +132,13 @@ function RegistrationPage() {
                     type="text"
                     placeholder="Enter Last Name"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e) => {setLastName(e.target.value);
+                      handleInputChange();
+                      setLastNameError('');
+                    }}
+                    isInvalid={lastNameError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{lastNameError}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formEmail" className="mb-3">
@@ -87,8 +146,13 @@ function RegistrationPage() {
                     type="email"
                     placeholder="Enter Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value)
+                      handleInputChange();
+                      setEmailError('');
+                    }}
+                    isInvalid={emailError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{emailError}</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formPassword" className="mb-3">
@@ -96,32 +160,29 @@ function RegistrationPage() {
                     type="password"
                     placeholder="Password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value);
+                      handleInputChange();
+                      setPasswordError('');
+                    }}
+                    isInvalid={passwordError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
                 </Form.Group>
+                <Button variant="primary" onClick={handleSubmit}>
+                  Submit
+                </Button>
               </Form>
-              <Row>
-                <Col className="d-flex justify-content-between text-white">
-                  <Button variant="light" onClick={handleSubmit}>
-                    Submit
-                  </Button>
-                  <p className="m-0 align-self-end">
-                    Already Registered?
-                    <AlertLink href="./login" className="ms-2">
-                      Log In
-                    </AlertLink>
+              <p className="text-white mt-3">
+                    Already Registered?{' '}
+                    <a className="text-light" href="/login">
+                     Log In
+                    </a>
                   </p>
                 </Col>
               </Row>
-              {/*
-              <p className="mt-4">
-                Response Message: {JSON.stringify(responseMessage)}
-              </p> */}
             </Col>
           </Row>
-        </Col>
-      </Row>
-    </Container>
+      </Container>
   );
 }
 
