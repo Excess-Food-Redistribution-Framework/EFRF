@@ -307,6 +307,45 @@ namespace FRF.Services.Implementations
             }
         }
 
+        public async Task<BaseResponse<Organization>> GetOrganizationByProduct(Guid productId)
+        {
+            try
+            {
+                var organization = await _organizationRepository.GetAll()
+                    .Include(o => o.Users)
+                    .Include(o => o.Products)
+                    .Include(o => o.AllowedEmails)
+                    .Where(o => o.Products.Any(u => u.Id == productId))
+                    .FirstOrDefaultAsync();
+
+                if (organization is null)
+                {
+                    return new BaseResponse<Organization>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "User not in any organization",
+                        Data = null
+                    };
+                }
+
+                return new BaseResponse<Organization>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Get Organization succesfully",
+                    Data = organization
+                };
+            }
+            catch (Exception e)
+            {
+                return new BaseResponse<Organization>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = "Organization not found - " + e.Message,
+                    Data = null
+                };
+            }
+        }
+
         public async Task<BaseResponse<bool>> CreateOrganization(Organization organization)
         {
             try

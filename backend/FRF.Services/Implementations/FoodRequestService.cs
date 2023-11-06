@@ -25,20 +25,43 @@ public class FoodRequestService : IFoodRequestService
         _organizationRepository = organizationRepository;
     }
 
-    public async Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization creatorOrganization)
+    public async Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization)
     {
         try
         {
+            if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No such organization in food request",
+                    Data = false
+                };
+            }
+
             if (
-            (request.State == FoodRequestState.Preparing && state == FoodRequestState.Waiting) ||
-            (request.State == FoodRequestState.Waiting && state == FoodRequestState.Preparing) ||
+            (request.State == FoodRequestState.NotAccepted && state == FoodRequestState.Preparing && organization.Type == OrganizationType.Provider) ||
+            (request.State == FoodRequestState.Preparing && state == FoodRequestState.NotAccepted && organization.Type == OrganizationType.Provider) ||
 
-            (request.State == FoodRequestState.Waiting && state == FoodRequestState.Deliviring) ||
-            (request.State == FoodRequestState.Deliviring && state == FoodRequestState.Waiting) ||
+            (request.State == FoodRequestState.Preparing && state == FoodRequestState.Waiting && organization.Type == OrganizationType.Provider) ||
+            (request.State == FoodRequestState.Waiting && state == FoodRequestState.Preparing && organization.Type == OrganizationType.Provider) ||
 
-            (request.State == FoodRequestState.Deliviring && state == FoodRequestState.Received)
+            (request.State == FoodRequestState.Waiting && state == FoodRequestState.Deliviring && organization.Type == OrganizationType.Provider) ||
+            (request.State == FoodRequestState.Deliviring && state == FoodRequestState.Waiting && organization.Type == OrganizationType.Provider) ||
+
+            (request.State == FoodRequestState.Deliviring && state == FoodRequestState.Received && organization.Type == OrganizationType.Distributor)
             )
             {
+                if (request.State == FoodRequestState.NotAccepted && state == FoodRequestState.Preparing)
+                {
+                    request.Products.ForEach(p => p.State = ProductState.Blocked);
+                }
+
+                if (request.State == FoodRequestState.Preparing && state == FoodRequestState.NotAccepted)
+                {
+                    request.Products.ForEach(p => p.State = ProductState.Available);
+                }
+
                 request.State = state;
                 await _foodRequestRepository.Update(request);
 
@@ -54,7 +77,7 @@ public class FoodRequestService : IFoodRequestService
                 return new BaseResponse<bool>
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't change to this state from previous state",
+                    Message = "Can't change to this state",
                     Data = false
                 };
             }
@@ -70,249 +93,34 @@ public class FoodRequestService : IFoodRequestService
         }
     }
 
-    public async Task<BaseResponse<bool>> AddToInvitedList(FoodRequest request, Organization invitedOrganization)
+    public async Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor)
     {
         try
         {
-            if (request.State != FoodRequestState.NotAssing)
+            if (provider.Type != OrganizationType.Provider || distributor.Type != OrganizationType.Distributor)
             {
                 return new BaseResponse<bool>
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't edit request in this state",
+                    Message = "Incorrect organization types",
                     Data = false
                 };
             }
 
-            if (request.CreatorOrganizationId == invitedOrganization.Id)
+            if (!request.Products.All(p => provider.Products.Contains(p)))
             {
                 return new BaseResponse<bool>
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't add creator organization",
+                    Message = "Some products not exist in provider list",
                     Data = false
                 };
             }
 
-            var invitation = new InvitedOrganization
-            {
-                Organization = invitedOrganization
-            };
-            request.InvitedOrganizations.Add(invitation);
-            await _foodRequestRepository.Update(request);
-
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Organization is invited",
-                Data = true
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "CreateFoodRequest error: " + e.Message,
-                Data = false
-            };
-        }
-    }
-
-    public async Task<BaseResponse<bool>> RemoveFromInvitedList(FoodRequest request, Organization invitedOrganization)
-    {
-        try
-        {
-            if (request.State != FoodRequestState.NotAssing)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't edit request in this state",
-                    Data = false
-                };
-            }
-
-            var invitation = request.InvitedOrganizations.Find(i => i.Organization?.Id == invitedOrganization.Id);
-
-            if (invitation == null)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Organization not found in invited list",
-                    Data = false
-                };
-            }
-
-            request.InvitedOrganizations.Remove(invitation);
-            await _foodRequestRepository.Update(request);
-
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Organization is removed from invited list",
-                Data = true
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "RemoveFromInvitedList error: " + e.Message,
-                Data = false
-            };
-        }
-    }
-
-    public async Task<BaseResponse<bool>> AssignInvited(FoodRequest request, Organization creatorOrganization, Organization invitedOrganization)
-    {
-        try
-        {
-            if (request.State != FoodRequestState.NotAssing)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Request is already assigned",
-                    Data = false
-                };
-            }
-            
-            if (creatorOrganization.Type == invitedOrganization.Type)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Error: Identical organization types",
-                    Data = false
-                };
-            }
-
-            var invitation = request.InvitedOrganizations.Find(i => i.Organization?.Id == invitedOrganization.Id);
-
-            if (invitation == null)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Organization not found in invited list",
-                    Data = false
-                };
-            }
-
-            request.AcceptorOrganizationId = invitedOrganization.Id;
-            request.State = FoodRequestState.Preparing;
-
-            // Block products for listing
-            request.Products.ForEach(p => p.State = ProductState.Blocked);
+            request.ProviderId = provider.Id;
+            request.DistributorId = distributor.Id;
 
             await _foodRequestRepository.Update(request);
-
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Organization is assigned to food request",
-                Data = true
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "AcceptInvited error: " + e.Message,
-                Data = false
-            };
-        }
-    }
-
-    public async Task<BaseResponse<bool>> UnassignInvited(FoodRequest request, Organization creatorOrganization, Organization invitedOrganization)
-    {
-        try
-        {
-            if (request.State != FoodRequestState.Preparing)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Cannot unassign in this state",
-                    Data = false
-                };
-            }
-
-            if (request.AcceptorOrganizationId != invitedOrganization.Id)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Error: not an assigned organization",
-                    Data = false
-                };
-            }
-
-            var invitation = request.InvitedOrganizations.Find(i => i.Organization?.Id == invitedOrganization.Id);
-
-            if (invitation != null)
-            {
-                request.InvitedOrganizations.Remove(invitation);
-            }
-
-            request.AcceptorOrganizationId = Guid.Empty;
-            request.State = FoodRequestState.NotAssing;
-
-
-            // Unblock products for listing
-            request.Products.ForEach(p => p.State = ProductState.Available);
-
-            await _foodRequestRepository.Update(request);
-
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Organization is unassigned from food request",
-                Data = true
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "RemoveInvited error: " + e.Message,
-                Data = false
-            };
-        }
-    }
-
-    public async Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization organization)
-    {
-        try
-        {
-            if (!organization.Users.Any(u => u.Id == request.UserId))
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "User not in organization",
-                    Data = false
-                };
-            }
-
-            if (!request.Products.All(p => organization.Products.Contains(p)))
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Some products not exist in your Organization",
-                    Data = false
-                };
-            }
-
-            request.CreatorOrganizationId = organization.Id;
-
-            await _organizationRepository.Update(organization);
 
             return new BaseResponse<bool>
             {
@@ -332,18 +140,104 @@ public class FoodRequestService : IFoodRequestService
         }
     }
 
-    public async Task<BaseResponse<bool>> DeleteFoodRequests(Guid id)
+    public async Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request, Organization organization)
+    {
+        try
+        {
+            if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No such organization in food request",
+                    Data = false
+                };
+            }
+
+            if (request.State != FoodRequestState.NotAccepted)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Can't edit request in this state",
+                    Data = false
+                };
+            }
+
+            var provider = await _organizationRepository.GetById(request.ProviderId);
+            if (provider == null)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Provider not found",
+                    Data = false
+                };
+            }
+
+            if (!request.Products.All(p => provider.Products.Contains(p)))
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Some products not exist in provider list",
+                    Data = false
+                };
+            }
+
+            await _foodRequestRepository.Update(request);
+
+            return new BaseResponse<bool>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "FoodRequest was succesfuly updated",
+                Data = true
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<bool>
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                Message = "UpdateFoodRequest error: " + e.Message,
+                Data = false
+            };
+        }
+    }
+
+    public async Task<BaseResponse<bool>> DeleteFoodRequests(Guid id, Organization organization)
     {
         try
         {
             var getFoodRequestResponse = await GetFoodRequestById(id);
             var foodRequest = getFoodRequestResponse.Data;
-            if (getFoodRequestResponse.StatusCode != HttpStatusCode.OK)
+
+            if (foodRequest == null)
             {
                 return new BaseResponse<bool>
                 {
                     StatusCode = getFoodRequestResponse.StatusCode,
                     Message = getFoodRequestResponse.Message,
+                    Data = false
+                };
+            }
+
+            if (foodRequest.State != FoodRequestState.NotAccepted)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Can't delete request in this state",
+                    Data = false
+                };
+            }
+
+            if (organization.Id != foodRequest.ProviderId && organization.Id != foodRequest.DistributorId)
+            {
+                return new BaseResponse<bool>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No such organization in food request",
                     Data = false
                 };
             }
@@ -374,7 +268,6 @@ public class FoodRequestService : IFoodRequestService
         {
             var foodRequests = await _foodRequestRepository.GetAll()
                 .Include(f => f.Products)
-                .Include(f => f.InvitedOrganizations)
                 .ToListAsync();
 
             return new BaseResponse<IEnumerable<FoodRequest>>
@@ -401,8 +294,7 @@ public class FoodRequestService : IFoodRequestService
         {
             var foodRequests = await _foodRequestRepository.GetAll()
                 .Include(f => f.Products)
-                .Include(f => f.InvitedOrganizations)
-                .Where(f => f.CreatorOrganizationId == organizationId || f.AcceptorOrganizationId == organizationId)
+                .Where(f => f.ProviderId == organizationId || f.DistributorId == organizationId)
                 .ToListAsync();
 
             return new BaseResponse<IEnumerable<FoodRequest>>
@@ -435,7 +327,6 @@ public class FoodRequestService : IFoodRequestService
         {
             var foodRequest = await _foodRequestRepository.GetAll()
                 .Include(f => f.Products)
-                .Include(f => f.InvitedOrganizations)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (foodRequest == null)
@@ -470,39 +361,5 @@ public class FoodRequestService : IFoodRequestService
     public async Task<BaseResponse<FoodRequest>> GetFoodRequestByTitle(string title)
     {
         throw new NotImplementedException();
-    }
-
-    public async Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request)
-    {
-        try
-        {
-            if (request.State != FoodRequestState.NotAssing)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't edit request in this state",
-                    Data = false
-                };
-            }
-
-            await _foodRequestRepository.Update(request);
-
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequest was succesfuly updated",
-                Data = true
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "UpdateFoodRequest error: " + e.Message,
-                Data = false
-            };
-        }
     }
 }

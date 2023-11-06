@@ -10,7 +10,7 @@ namespace FRF.Domain.Enum
     public enum FoodRequestState
     {
         [Description("Created but not assigned to other organization")]
-        NotAssing,
+        NotAccepted,
         [Description("Provider prepare products")]
         Preparing,
         [Description("Waiting on Provider side")]

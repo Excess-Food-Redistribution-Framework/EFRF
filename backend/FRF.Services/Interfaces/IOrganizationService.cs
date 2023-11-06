@@ -16,6 +16,7 @@ namespace FRF.Services.Interfaces
         Task<BaseResponse<IEnumerable<Organization>>> GetAllOrganizations();
         Task<BaseResponse<Organization>> GetOrganizationById(Guid id);
         Task<BaseResponse<Organization>> GetOrganizationByUser(string id);
+        Task<BaseResponse<Organization>> GetOrganizationByProduct(Guid productId);
 
         Task<BaseResponse<bool>> CreateOrganization(Organization organization);
         Task<BaseResponse<bool>> UpdateOrganization(Organization organization);

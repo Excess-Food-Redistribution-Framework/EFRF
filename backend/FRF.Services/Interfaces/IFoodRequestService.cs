@@ -18,16 +18,10 @@ namespace FRF.Services.Interfaces
         Task<BaseResponse<FoodRequest>> GetFoodRequestById(Guid id);
         Task<BaseResponse<FoodRequest>> GetFoodRequestByTitle(string title);
 
-        Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization creatorOrganization);
+        Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization);
 
-        Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization organization);
-        Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request);
-        Task<BaseResponse<bool>> DeleteFoodRequests(Guid id);
-
-        Task<BaseResponse<bool>> AddToInvitedList(FoodRequest request, Organization invitedOrganization);
-        Task<BaseResponse<bool>> RemoveFromInvitedList(FoodRequest request, Organization invitedOrganization);
-
-        Task<BaseResponse<bool>> AssignInvited(FoodRequest request, Organization creatorOrganization, Organization invitedOrganization);
-        Task<BaseResponse<bool>> UnassignInvited(FoodRequest request, Organization creatorOrganization, Organization invitedOrganization);
+        Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor);
+        Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request, Organization organization);
+        Task<BaseResponse<bool>> DeleteFoodRequests(Guid id, Organization organization);
     }
 }

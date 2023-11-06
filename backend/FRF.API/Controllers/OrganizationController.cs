@@ -137,7 +137,33 @@ namespace FRF.API.Controllers
 
             return Ok(_mapper.Map<OrganizationDto>(organization));
         }
-            
+
+        [HttpGet]
+        [Route("AllowedEmails")]
+        [Authorize]
+        [SwaggerOperation("Get current user's organization AllowedEmails")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User got the AllowedEmails successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<AllowedEmail>>> GetAllowedEmails()
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
+            {
+                return NotFound(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User not organization creator");
+            }
+
+            return Ok(organization.AllowedEmails);
+        }
+
         [HttpPost]
         [Authorize]
         [Route("AllowEmail")]
@@ -145,7 +171,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Email added to allowed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Email added to allowed - failed", Type = typeof(MessageResponseDto))]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<Object> AllowEmail([FromBody] AllowedEmailDto email)
+        public async Task<Object> AllowEmail([FromBody] OrganizationEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -190,7 +216,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Email removed to allowed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Email removed to allowed - failed", Type = typeof(MessageResponseDto))]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<Object> DeclineEmail([FromBody] AllowedEmailDto email)
+        public async Task<Object> DeclineEmail([FromBody] OrganizationEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -225,7 +251,7 @@ namespace FRF.API.Controllers
             }
         }
 
-        [HttpDelete("Current")]
+        [HttpDelete]
         [Authorize]
         [SwaggerOperation("Delete current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User deleted the organization successfully")]
@@ -351,7 +377,8 @@ namespace FRF.API.Controllers
                     OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                     await _userManager.AddToRoleAsync(user, role.ToString());
 
-                    return Ok("User joined organization");
+                    var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                    return Ok(organizationDto);
                 }
                 return BadRequest(joinResponse.Message);
             }

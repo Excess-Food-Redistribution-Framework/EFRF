@@ -16,15 +16,13 @@ namespace FRF.Domain.Entities
 
         public List<Product> Products { get; set; } = new List<Product>();
 
-        public Guid CreatorOrganizationId { get; set; }
-        public Guid AcceptorOrganizationId { get; set; } = Guid.Empty;
-
-        public List<InvitedOrganization> InvitedOrganizations { get; set; } = new List<InvitedOrganization>();
+        public Guid ProviderId { get; set; }
+        public Guid DistributorId { get; set; } = Guid.Empty;
 
         public string UserId { get; set; } = String.Empty;
 
         public DeliveryType Delivery { get; set; } = DeliveryType.DistributorNeedsToTakeAway;
-        public FoodRequestState State { get; set; } = FoodRequestState.Preparing;
+        public FoodRequestState State { get; set; } = FoodRequestState.NotAccepted;
 
         public DateTime EstPickUpTime { get; set; } = DateTime.UtcNow;
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;

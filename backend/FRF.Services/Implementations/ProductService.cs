@@ -16,6 +16,7 @@ public class ProductService : IProductService
     private readonly IBaseRepository<Product> _productRepository;
     private readonly IBaseRepository<Organization> _organizationRepository;
 
+
     // Dependency Injection (DI).
     public ProductService(
         IBaseRepository<Product> productRepository,
@@ -168,7 +169,7 @@ public class ProductService : IProductService
             return new BaseResponse<bool>
             {
                 StatusCode = HttpStatusCode.OK,
-                Message = "Product updated",
+                Message = "Product added",
                 Data = true
             };
         }

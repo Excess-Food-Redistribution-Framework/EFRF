@@ -140,7 +140,7 @@ using (var scope = app.Services.CreateScope())
     {
         await roleManager.CreateAsync(new IdentityRole(role));
     }
-    role = "Distributer";
+    role = "Distributor";
     if (!(await roleManager.RoleExistsAsync(role)))
     {
         await roleManager.CreateAsync(new IdentityRole(role));
