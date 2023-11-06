@@ -47,7 +47,17 @@ body {
   transition: transform 0.5s;
 }
 
+@keyframes changeBackgroundColor {
+  0% {
+    background-color: white;
+  }
+  100% {
+    background-color: bisque;
+  }
+}
+
 .zoom-card:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
   transition: transform 0.7s;
+  animation: changeBackgroundColor 0.7s linear forwards;
 }
