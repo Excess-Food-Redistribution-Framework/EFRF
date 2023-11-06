@@ -26,16 +26,16 @@ function HomePage() {
             </p>
             {isAuth() ? (
               <Row>
-                <Col>
-                  <Button variant="primary" href="./profile">
-                    Show Profile
-                  </Button>
-                </Col>
-                <Col>
-                  <Button variant="primary" href="./createOrganization">
-                    Create Organization
-                  </Button>
-                </Col>
+                {/*<Col>*/}
+                {/*  <Button variant="primary" href="./profile">*/}
+                {/*    Show Profile*/}
+                {/*  </Button>*/}
+                {/*</Col>*/}
+                {/*<Col>*/}
+                {/*  <Button variant="primary" href="./createOrganization">*/}
+                {/*    Create Organization*/}
+                {/*  </Button>*/}
+                {/*</Col>*/}
               </Row>
             ) : (
               <Row>

@@ -37,9 +37,13 @@ function Navbar() {
                   Create organization
                 </Nav.Link>
               ) : (
-                <Nav.Link to="/organizations" as={NavLink}>
-                  Organization
-                </Nav.Link>
+                <>
+                  {user?.role === 'Provider' && (
+                    <Nav.Link to="/product/create" as={NavLink}>
+                      Create product
+                    </Nav.Link>
+                  )}
+                </>
               )}
               <Nav.Link to="/profile" as={NavLink}>
                 Profile
