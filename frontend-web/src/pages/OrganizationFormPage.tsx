@@ -9,7 +9,7 @@ function OrganizationFormPage() {
   const { isAuth, user, setUser } = useAuth();
 
   const [name, setName] = useState('');
-  const [type, setType] = useState('Provider');
+  const [type, setType] = useState('');
   const [information, setInformation] = useState('');
 
   const [nameError, setNameError] = useState('');
@@ -121,10 +121,10 @@ function OrganizationFormPage() {
                   Submit
                 </Button>
                 </Form>
-                  </Col>
-                </Row>
-            </Col>
-          </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
     </Container>
   );
 }
