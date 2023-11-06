@@ -109,6 +109,7 @@ function LoginPage() {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       handleInputChange();
+                      setEmailError('');
                     }}
                     isInvalid={emailError !== ''}
                   />
@@ -123,6 +124,7 @@ function LoginPage() {
                     onChange={(e) => {
                       setPassword(e.target.value);
                       handleInputChange();
+                      setPasswordError('');
                     }}
                     isInvalid={passwordError !== ''}
                   />
