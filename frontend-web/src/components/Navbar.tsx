@@ -1,13 +1,12 @@
 import { Container, Nav, Navbar as NavbarBootstrap } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
-import {useEffect} from 'react';
 
 function Navbar() {
   const { setToken, isAuth, user } = useAuth();
 
-  useEffect(() => {
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   const logout = () => {
     setToken('');
@@ -26,6 +25,9 @@ function Navbar() {
           <Nav.Link to="/blog" as={NavLink}>
             Blog
           </Nav.Link>
+          <Nav.Link to="/products" as={NavLink}>
+            Products
+          </Nav.Link>
         </Nav>
         <Nav>
           {isAuth() ? (
@@ -38,8 +40,7 @@ function Navbar() {
                 <Nav.Link to="/organizations" as={NavLink}>
                   Organization
                 </Nav.Link>
-              )
-              }
+              )}
               <Nav.Link to="/profile" as={NavLink}>
                 Profile
               </Nav.Link>

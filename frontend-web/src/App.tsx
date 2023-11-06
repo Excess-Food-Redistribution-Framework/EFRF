@@ -8,8 +8,10 @@ import NotFoundPage from './pages/NotFoundPage';
 import ProfilePage from './pages/ProfilePage';
 import RegistrationPage from './pages/RegistrationPage';
 import Blog from './pages/Blog';
-import OrganizationFormPage from "./pages/OrganizationFormPage.tsx";
-import ProductFormPage from "./pages/ProductFormPage.tsx";
+import Products from './pages/Products';
+import ArticleDetail from './pages/ArticleDetail';
+import OrganizationFormPage from './pages/OrganizationFormPage';
+import ProductFormPage from './pages/ProductFormPage';
 
 function App() {
   // Set axios defaults
@@ -23,10 +25,15 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:articleId" element={<ArticleDetail />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
-            <Route path="/organization/create" element={<OrganizationFormPage />} />
+            <Route
+              path="/organization/create"
+              element={<OrganizationFormPage />}
+            />
             <Route path="/product/create" element={<ProductFormPage />} />
 
             {/* Not Found */}
