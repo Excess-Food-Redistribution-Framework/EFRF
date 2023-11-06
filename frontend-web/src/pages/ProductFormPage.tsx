@@ -1,4 +1,4 @@
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import {Button, Card, Col, Container, Form, Row} from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -42,9 +42,9 @@ function ProductFormPage() {
   return (
     <Container>
       <Row className="justify-content-center">
-        <Col lg="10">
-          <Row>
-            <Col lg="12" className="p-5">
+        <Col lg="10" className="pt-4">
+          <Card className="p-4">
+            <Card.Body>
               <h1 className="mb-3">Create new product</h1>
 
               <Form onSubmit={handleSubmit}>
@@ -52,7 +52,6 @@ function ProductFormPage() {
                   <Form.Label>Name</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -110,8 +109,8 @@ function ProductFormPage() {
                   </Col>
                 </Row>
               </Form>
-            </Col>
-          </Row>
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
     </Container>
