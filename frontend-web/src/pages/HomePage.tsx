@@ -1,8 +1,11 @@
 import { Badge, Button, Col, Container, Row } from 'react-bootstrap';
 import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
+import { useAuth } from '../AuthProvider';
 
 function HomePage() {
+  const { isAuth } = useAuth();
+
   return (
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
@@ -21,18 +24,33 @@ function HomePage() {
               We Seek out world changers and difference makers around the
               globe,and equip them to fulfill their unique purpose.
             </p>
-            <Row className="">
-              <Col>
-                <Button variant="primary" href="./login">
-                  Login
-                </Button>
-              </Col>
-              <Col>
-                <Button variant="primary" href="./registration">
-                  Register
-                </Button>
-              </Col>
-            </Row>
+            {isAuth() ? (
+              <Row>
+                <Col>
+                  <Button variant="primary" href="./profile">
+                    Show Profile
+                  </Button>
+                </Col>
+                <Col>
+                  <Button variant="primary" href="./createOrganization">
+                    Create Organization
+                  </Button>
+                </Col>
+              </Row>
+            ) : (
+              <Row>
+                <Col>
+                  <Button variant="primary" href="./login">
+                    Login
+                  </Button>
+                </Col>
+                <Col>
+                  <Button variant="primary" href="./registration">
+                    Register
+                  </Button>
+                </Col>
+              </Row>
+            )}
           </Col>
         </Row>
       </Container>
