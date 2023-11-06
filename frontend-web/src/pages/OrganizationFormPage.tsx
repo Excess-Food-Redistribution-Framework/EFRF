@@ -9,24 +9,48 @@ function OrganizationFormPage() {
   const { isAuth, user, setUser } = useAuth();
 
   const [name, setName] = useState('');
-  const [type, setType] = useState('Provider');
+  const [type, setType] = useState('');
   const [information, setInformation] = useState('');
+
+  const [nameError, setNameError] = useState('');
+  const [typeError, setTypeError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    let isValid = true;
+  
+    if (name === '') {
+      setNameError('Name is required');
+      isValid = false;
+    } else {
+      setNameError('');
+    }
+  
+    if (type === '') {
+      setTypeError('Type is required');
+      isValid = false;
+    } else {
+      setTypeError('');
+    }
+  
+    if (!isValid) {
+      return;
+    }
+    
+  
     try {
       const response = await axios.post('api/Organization', {
         name,
         type,
         information,
       });
-
+  
       if (response.status === 200) {
         const currentUser = await axios.get('api/Account');
         setUser(currentUser.data);
       }
-
+  
       navigate('/');
     } catch (error) {
       console.error(error);
@@ -48,26 +72,40 @@ function OrganizationFormPage() {
               <h1 className="mb-3">Create new organization</h1>
 
               <Form onSubmit={handleSubmit}>
+              <Form.Group controlId="formName" className="mb-3">
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Name"
+                  value={name}
+                  onChange={(e) => { 
+                    setName(e.target.value);
+                    setNameError('');
+                  }}
+                  isInvalid={nameError !== ''}
+                />
+                <Form.Control.Feedback type="invalid">{nameError}</Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group controlId="formName" className="mb-3">
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </Form.Group>
+              <Form.Group controlId="formType" className="mb-3">
+                <Form.Select
+                  aria-label="Type"
+                  value={type}
+                  onChange={(e) => { 
+                    setType(e.target.value);
+                    setTypeError('');
+                  }}
+                  style={{
+                    color: type === '' ? '#495057' : 'black'
+                    }}
+                  isInvalid={typeError !== ''}
+                >
+                  <option value="" style={{ color: '#6c757d' }}>Select Type Organization</option>
+                  <option value="Provider" style={{ color: 'black' }}>Provider</option>
+                  <option value="Distributer" style={{ color: 'black' }}>Distributer</option>
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">{typeError}</Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group controlId="formType" className="mb-3">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                  >
-                    <option value="Provider">Provider</option>
-                    <option value="Distributer">Distributer</option>
-                  </Form.Select>
-                </Form.Group>
 
                 <Form.Group controlId="formInformation" className="mb-3">
                   <Form.Label>Information</Form.Label>
@@ -79,19 +117,14 @@ function OrganizationFormPage() {
                   />
                 </Form.Group>
 
-                <Row>
-                  <Col className="d-flex justify-content-between">
-                    <Button variant="secondary" onClick={handleSubmit}>
-                      Submit
-                    </Button>
-                  </Col>
-                </Row>
-
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+                <Button variant="primary" onClick={handleSubmit}>
+                  Submit
+                </Button>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
     </Container>
   );
 }

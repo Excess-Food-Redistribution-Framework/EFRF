@@ -1,12 +1,13 @@
 import { Badge, Button, Col, Container, Row } from 'react-bootstrap';
 import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
-import { useAuth } from '../AuthProvider';
+import { useAuth } from '../AuthProvider.tsx';
 
 function HomePage() {
-  const { isAuth } = useAuth();
+  const { isAuth, user } = useAuth();
 
   return (
+    <>
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
         <Row className="justify-content-center diagonal-bg mh-400px p-5">
@@ -24,33 +25,22 @@ function HomePage() {
               We Seek out world changers and difference makers around the
               globe,and equip them to fulfill their unique purpose.
             </p>
-            {isAuth() ? (
-              <Row>
-                {/*<Col>*/}
-                {/*  <Button variant="primary" href="./profile">*/}
-                {/*    Show Profile*/}
-                {/*  </Button>*/}
-                {/*</Col>*/}
-                {/*<Col>*/}
-                {/*  <Button variant="primary" href="./createOrganization">*/}
-                {/*    Create Organization*/}
-                {/*  </Button>*/}
-                {/*</Col>*/}
-              </Row>
-            ) : (
-              <Row>
-                <Col>
-                  <Button variant="primary" href="./login">
-                    Login
-                  </Button>
-                </Col>
-                <Col>
-                  <Button variant="primary" href="./registration">
-                    Register
-                  </Button>
-                </Col>
-              </Row>
-            )}
+            {!isAuth() ? (
+                user ? (
+            <Row className="">
+              <Col>
+                <Button variant="primary" href="/login">
+                  Login
+                </Button>
+              </Col>
+              <Col>
+                <Button variant="primary" href="/registration">
+                  Register
+                </Button>
+              </Col>
+            </Row>
+            ) : ("")
+            ) : null}
           </Col>
         </Row>
       </Container>
@@ -88,6 +78,7 @@ function HomePage() {
         </Container>
       </Container>
     </Container>
+    </>
   );
 }
 
