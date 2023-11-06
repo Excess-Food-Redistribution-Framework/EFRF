@@ -22,7 +22,6 @@ export function GetListOfArticles(page: number, pageSize: number) {
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-
         const data = response.data as ListOfArticles;
         setListOfArticles(data);
       } catch (error: unknown) {
@@ -54,7 +53,6 @@ export function GetArticleById(articleId: string) {
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-
         const data = response.data as Article;
         setArticle(data);
       } catch (error: unknown) {

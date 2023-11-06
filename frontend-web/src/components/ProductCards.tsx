@@ -1,7 +1,15 @@
-import { Card, Col, Container, ProgressBar, Row } from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  ProgressBar,
+  Row,
+} from 'react-bootstrap';
 // import { useNavigate } from 'react-router-dom';
 import { ProductCardsProps } from '../types/productTypes';
-// import { GetListOfArticles } from '../hooks/useArticle';
+// import Product from '../pages/Products';
+// import { GetListOfProducts } from '../hooks/useProduct';
 
 function ProductCards({ pageSize }: ProductCardsProps) {
   // const { listOfProducts, errorMessage } = GetListOfProducts();
@@ -41,21 +49,62 @@ function ProductCards({ pageSize }: ProductCardsProps) {
           // eslint-disable-next-line react/no-array-index-key
           <Col key={idx}>
             <Card className="h-100 zoom-card">
-              <Card.Img variant="top" src="https://placehold.co/286x160" />
+              <Card.Img
+                variant="top"
+                src="https://hicaps.com.ph/wp-content/uploads/2022/12/bakery-products.jpg"
+              />
               <Card.Body className="d-flex flex-column justify-content-between h-100">
                 <Row>
-                  <Col>Type</Col>
-                  <Col className="text-right">Location</Col>
+                  <Col className="d-flex justify-content-start">
+                    <Card.Text>Bakery Product</Card.Text>
+                  </Col>
+                  <Col className="d-flex justify-content-end">
+                    <Card.Text>Košice</Card.Text>
+                  </Col>
                 </Row>
-                <h4 className="my-3">Title</h4>
-                <p>Text with a short description</p>
-                <ProgressBar
-                  animated
-                  min={0}
-                  max={100}
-                  now={50}
-                  label={`${50}`}
-                />
+                <Card.Title>Bread</Card.Title>
+                <Card.Text>White salt bread from Vamex bakery</Card.Text>
+                <Row>
+                  <Col>
+                    <Card.Subtitle className="d-flex justify-content-center">
+                      Quantity
+                    </Card.Subtitle>
+                  </Col>
+                  <Col>
+                    <Card.Subtitle className="d-flex justify-content-center">
+                      Expiration
+                    </Card.Subtitle>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col className="d-flex justify-content-center">
+                    <Card.Text>50</Card.Text>
+                  </Col>
+                  <Col className="d-flex justify-content-center">
+                    <Card.Text>09.11.2023</Card.Text>
+                  </Col>
+                </Row>
+                <ProgressBar className="m-3 ">
+                  <ProgressBar
+                    variant="secondary"
+                    animated
+                    min={0}
+                    max={50}
+                    now={12}
+                    label={`${12}`}
+                    key={1}
+                  />
+                  <ProgressBar
+                    variant="primary"
+                    animated
+                    min={0}
+                    max={50}
+                    now={38}
+                    label={`${38}`}
+                    key={2}
+                  />
+                </ProgressBar>
+                <Button>Check Product</Button>
               </Card.Body>
             </Card>
           </Col>

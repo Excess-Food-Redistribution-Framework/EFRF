@@ -40,11 +40,16 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
           {listOfArticles.data.map((article: Article) => (
             <Col key={article.id} className="px-4">
               <Card className="h-100">
-                <Card.Img variant="top" src="https://placehold.co/286x160" />
+                <Card.Img
+                  variant="top"
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN4x7ayRXH93w1ZWcZeixVtzAdRcunrTI1Pw&usqp=CAU"
+                />
 
                 <Card.Body className="d-flex flex-column justify-content-between h-100">
                   <Card.Title>{article.title}</Card.Title>
-                  <Card.Text>{article.content}</Card.Text>
+                  <Card.Text className="text-limit">
+                    {article.content}
+                  </Card.Text>
                   <Button
                     variant="primary"
                     className="mt-auto align-self-start"

@@ -6,8 +6,8 @@ function Blog() {
   const pageSize: number = 9;
 
   return (
-    <Container fluid>
-      <Container fluid className="px-0 secondary_color">
+    <Container fluid className="px-0">
+      <Container fluid className="secondary_color">
         <Row className="justify-content-center diagonal-bg p-5">
           <Col className="text-center d-flex flex-column justify-content-center">
             <h1 className="text-white text-shadow pb-2">Blog</h1>
