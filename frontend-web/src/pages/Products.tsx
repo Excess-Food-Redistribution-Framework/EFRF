@@ -11,7 +11,7 @@ function Product() {
           </Col>
         </Row>
       </Container>
-      <ProductCards page={1} pageSize={20} />
+      <ProductCards pageSize={20} />
     </Container>
   );
 }

@@ -1,11 +1,16 @@
 import { Badge, Button, Col, Container, Row } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthProvider';
 import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
-import { useAuth } from '../AuthProvider';
 
 function HomePage() {
   const { isAuth } = useAuth();
+  const navigate = useNavigate();
 
+  const handleClickButton = (path: string) => {
+    navigate(`./${path}`);
+  };
   return (
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
@@ -27,26 +32,38 @@ function HomePage() {
             {isAuth() ? (
               <Row>
                 <Col>
-                  <Button variant="primary" href="./profile">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleClickButton('profile')}
+                  >
                     Show Profile
                   </Button>
                 </Col>
                 <Col>
-                  <Button variant="primary" href="./createOrganization">
-                    Create Organization
+                  <Button
+                    variant="primary"
+                    onClick={() => handleClickButton('products')}
+                  >
+                    Products
                   </Button>
                 </Col>
               </Row>
             ) : (
               <Row>
                 <Col>
-                  <Button variant="primary" href="./login">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleClickButton('login')}
+                  >
                     Login
                   </Button>
                 </Col>
                 <Col>
-                  <Button variant="primary" href="./registration">
-                    Register
+                  <Button
+                    variant="primary"
+                    onClick={() => handleClickButton('registration')}
+                  >
+                    Registration
                   </Button>
                 </Col>
               </Row>
@@ -54,9 +71,9 @@ function HomePage() {
           </Col>
         </Row>
       </Container>
-      <Container>
-        <Container className="pt-4">
-          <h5 style={{ display: 'inline' }}>Blog</h5>
+      <Container className="mt-4">
+        <Container>
+          <h5 style={{ display: 'inline' }}>Articles</h5>
           <hr
             style={{
               display: 'inline-block',
@@ -67,6 +84,8 @@ function HomePage() {
               width: '5%',
             }}
           />
+          <h2>Learn How To</h2>
+          <h2>Reduce Food Waste</h2>
           <ArticlesCards page={1} pageSize={3} />
         </Container>
 
@@ -83,8 +102,8 @@ function HomePage() {
             }}
           />
           <h2>Find What You Need</h2>
-          <h2>And Sign for A Supply</h2>
-          <ProductCards page={1} pageSize={8} />
+          <h2>And Sign For A Supply</h2>
+          <ProductCards pageSize={8} />
         </Container>
       </Container>
     </Container>

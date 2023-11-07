@@ -12,6 +12,7 @@ export interface Article {
   updatedAt: string;
   id: string;
   title: string;
+  teaser: string;
   content: string;
 }
 
