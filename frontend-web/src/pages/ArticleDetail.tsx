@@ -40,7 +40,7 @@ function ArticleDetail() {
           </Col>
         </Row>
       </Container>
-      <Container fluid className="px-0">
+      <Container className="py-5">
         {article.content}
       </Container>
     </Container>

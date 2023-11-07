@@ -87,3 +87,12 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.error-message {
+  color: #e70606; 
+  font-size: 18px;
+  border: 1px;
+  text-align: center; 
+  margin: 0;
+  display: block;
+}

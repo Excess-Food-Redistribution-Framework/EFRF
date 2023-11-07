@@ -12,6 +12,7 @@ function HomePage() {
     navigate(`./${path}`);
   };
   return (
+    <>
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
         <Row className="justify-content-center diagonal-bg mh-400px p-5">
@@ -107,6 +108,7 @@ function HomePage() {
         </Container>
       </Container>
     </Container>
+    </>
   );
 }
 
