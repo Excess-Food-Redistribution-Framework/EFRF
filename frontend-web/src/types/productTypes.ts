@@ -9,6 +9,10 @@ export enum ProductType {
   Other = 'Other',
 }
 
+export interface ListOfProducts {
+  data: Product[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -17,8 +21,7 @@ export interface Product {
   expirationDate: string;
 }
 
-// Pre parametre komponentu articlesCards
+// Pre parametre komponentu ProductCards
 export type ProductCardsProps = {
-  page: number;
   pageSize: number;
 };

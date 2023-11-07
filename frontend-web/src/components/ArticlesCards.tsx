@@ -35,7 +35,7 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
 
   if (listOfArticles.data) {
     return (
-      <Container className="p-5">
+      <Container className="p-4">
         <Row xs={1} md={3} className="g-4 justify-content-center">
           {listOfArticles.data.map((article: Article) => (
             <Col key={article.id} className="px-4">
@@ -47,9 +47,7 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
 
                 <Card.Body className="d-flex flex-column justify-content-between h-100">
                   <Card.Title>{article.title}</Card.Title>
-                  <Card.Text className="text-limit">
-                    {article.content}
-                  </Card.Text>
+                  <Card.Text>{article.teaser}</Card.Text>
                   <Button
                     variant="primary"
                     className="mt-auto align-self-start"
