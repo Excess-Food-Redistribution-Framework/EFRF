@@ -1,5 +1,6 @@
 using AutoMapper;
 using FRF.API.Dto.Article;
+using FRF.API.Dto.Pagination;
 using FRF.Domain.Entities;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;

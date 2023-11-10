@@ -1,4 +1,4 @@
-﻿namespace FRF.API.Dto.Article;
+﻿namespace FRF.API.Dto.Pagination;
 
 public class Pagination<T>
 {

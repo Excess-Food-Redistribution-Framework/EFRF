@@ -11,6 +11,7 @@ using FRF.API.Dto.Product;
 using AutoMapper;
 using System.Net;
 using FRF.API.Dto.Organization;
+using FRF.API.Dto.Pagination;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,7 +49,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get all products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Get(ProductFilter productFilter)
+        public async Task<ActionResult<List<ProductDto>>> Get(ProductFilter productFilter, int page, int pageSize)
         {
 
             var getResponse = await _productService.GetAllProducts();
@@ -102,7 +103,14 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
-            return Ok(productsDto);
+
+            return Ok(new Pagination<ProductDto>()
+            {
+                Page = page,
+                PageSize = pageSize,
+                Count = products.Count(),
+                Data = _mapper.Map<List<ProductDto>>(products.Skip((page - 1) * pageSize).Take(pageSize).ToList())
+            });
         }
 
 
