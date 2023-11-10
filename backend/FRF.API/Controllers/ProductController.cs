@@ -49,7 +49,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get all products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Get(ProductFilter productFilter, int page, int pageSize)
+        public async Task<ActionResult<List<ProductDto>>> Get(int page, int pageSize, bool notExpired = false, bool notBlocked = true, Guid organizationId = new Guid(), Guid foodRequestId = new Guid())
         {
 
             var getResponse = await _productService.GetAllProducts();
@@ -59,19 +59,19 @@ namespace FRF.API.Controllers
                 return NotFound(getResponse.Message);
             }
 
-            if (productFilter.NotExpired)
+            if (notExpired)
             {
                 products = products.Where(p => p.ExpirationDate >= DateTime.UtcNow);
             }
 
-            if (productFilter.NotBlocked)
+            if (notBlocked)
             {
                 products = products.Where(p => p.State == ProductState.Available);
             }
 
-            if (productFilter.OrganizationId != Guid.Empty)
+            if (organizationId != Guid.Empty)
             {
-                var getOrganizationResponse = await _organizationService.GetOrganizationById(productFilter.OrganizationId);
+                var getOrganizationResponse = await _organizationService.GetOrganizationById(organizationId);
 
                 var organization = getOrganizationResponse.Data;
                 if (organization == null)
@@ -81,9 +81,9 @@ namespace FRF.API.Controllers
                 products = products.Where(p => organization.Products.Contains(p));
             }
 
-            if (productFilter.FoodRequestId != Guid.Empty)
+            if (foodRequestId != Guid.Empty)
             {
-                var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(productFilter.FoodRequestId);
+                var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(foodRequestId);
 
                 var foodRequest = getFoodRequestResponse.Data;
                 if (foodRequest == null)
@@ -99,7 +99,11 @@ namespace FRF.API.Controllers
                 var productDto = _mapper.Map<ProductDto>(product);
                 if (product != null)
                 {
-                    productDto.Organization = _mapper.Map<OrganizationDto>(product);
+                    var getOrganizationByProductResponse = await _organizationService.GetOrganizationByProduct(product.Id);
+                    if (getOrganizationByProductResponse.Data != null)
+                    {
+                        productDto.Organization = _mapper.Map<OrganizationDto>(getOrganizationByProductResponse.Data);
+                    }
                 }
                 productsDto.Add(productDto);
             }
@@ -109,7 +113,7 @@ namespace FRF.API.Controllers
                 Page = page,
                 PageSize = pageSize,
                 Count = products.Count(),
-                Data = _mapper.Map<List<ProductDto>>(products.Skip((page - 1) * pageSize).Take(pageSize).ToList())
+                Data = productsDto.Skip((page - 1) * pageSize).Take(pageSize).ToList()
             });
         }
 
