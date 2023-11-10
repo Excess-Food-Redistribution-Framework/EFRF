@@ -48,83 +48,59 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get all products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Get(bool unexpired)
+        public async Task<ActionResult<List<ProductDto>>> Get(ProductFilter productFilter)
         {
 
-            BaseResponse<IEnumerable<Product>> getResponse;
-
-            if (unexpired)
-            {
-                getResponse = await _productService.GetAllUnexpiredProducts();
-            }
-            else
-            {
-                getResponse = await _productService.GetAllProducts();
-            }
-
-            if (getResponse.Data == null)
+            var getResponse = await _productService.GetAllProducts();
+            var products = getResponse.Data;
+            if (products == null)
             {
                 return NotFound(getResponse.Message);
             }
 
-            var products = new List<ProductDto>();
-            foreach (var product in getResponse.Data)
+            if (productFilter.NotExpired)
             {
-                products.Add(_mapper.Map<ProductDto>(product));
-            }
-            return Ok(products);
-        }
-        
-
-        [HttpGet]
-        [Route("GetByOrganization")]
-        //[Authorize(Roles = OrganizationType.Distributer.ToString())]
-        [SwaggerOperation("Get all products by organization")]
-        [SwaggerResponse(StatusCodes.Status200OK)]
-        [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> GetByOrganization(Guid id)
-        {
-            var getOrganizationResponse = await _organizationService.GetOrganizationById(id);
-
-            var organization = getOrganizationResponse.Data;
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
+                products = products.Where(p => p.ExpirationDate >= DateTime.UtcNow);
             }
 
-            var products = organization.Products;
+            if (productFilter.NotBlocked)
+            {
+                products = products.Where(p => p.State == ProductState.Available);
+            }
+
+            if (productFilter.OrganizationId != Guid.Empty)
+            {
+                var getOrganizationResponse = await _organizationService.GetOrganizationById(productFilter.OrganizationId);
+
+                var organization = getOrganizationResponse.Data;
+                if (organization == null)
+                {
+                    return NotFound(getOrganizationResponse);
+                }
+                products = products.Where(p => organization.Products.Contains(p));
+            }
+
+            if (productFilter.FoodRequestId != Guid.Empty)
+            {
+                var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(productFilter.FoodRequestId);
+
+                var foodRequest = getFoodRequestResponse.Data;
+                if (foodRequest == null)
+                {
+                    return NotFound(getFoodRequestResponse);
+                }
+                products = products.Where(p => foodRequest.Products.Contains(p));
+            }
 
             var productsDto = new List<ProductDto>();
             foreach (var product in products)
             {
-                productsDto.Add(_mapper.Map<ProductDto>(product));
-            }
-            return Ok(productsDto);
-        }
-
-
-        [HttpGet]
-        [Route("GetByFoodRequest")]
-        //[Authorize(Roles = OrganizationType.Distributer.ToString())]
-        [SwaggerOperation("Get all products by FoodRequest")]
-        [SwaggerResponse(StatusCodes.Status200OK)]
-        [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> GetByFoodRequest(Guid id)
-        {
-            var getFodRequestResponse = await _foodRequestService.GetFoodRequestById(id);
-
-            var foodRequest = getFodRequestResponse.Data;
-            if (foodRequest == null)
-            {
-                return NotFound(getFodRequestResponse);
-            }
-
-            var products = foodRequest.Products;
-
-            var productsDto = new List<ProductDto>();
-            foreach (var product in products)
-            {
-                productsDto.Add(_mapper.Map<ProductDto>(product));
+                var productDto = _mapper.Map<ProductDto>(product);
+                if (product != null)
+                {
+                    productDto.Organization = _mapper.Map<OrganizationDto>(product);
+                }
+                productsDto.Add(productDto);
             }
             return Ok(productsDto);
         }
@@ -134,7 +110,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get Product by Id")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProductDtoDetailed>> Get(Guid id)
+        public async Task<ActionResult<ProductDto>> Get(Guid id)
         {
             var product = (await _productService.GetProductById(id)).Data;
 
@@ -143,7 +119,7 @@ namespace FRF.API.Controllers
                 return NotFound();
             }
 
-            var productDto = _mapper.Map<ProductDtoDetailed>(product);
+            var productDto = _mapper.Map<ProductDto>(product);
             var organizationResponse = await _organizationService.GetOrganizationByProduct(product.Id);
             if (organizationResponse.Data != null)
             {
@@ -183,9 +159,10 @@ namespace FRF.API.Controllers
                 return BadRequest(createProductResponse.Message);
             }
 
-            var products = new List<ProductDto>();
-            organization?.Products.ForEach(p => products.Add(_mapper.Map<ProductDto>(p)));
-            return Ok(products);
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            productDto.Organization = _mapper.Map<OrganizationDto>(organization);
+            return Ok(productDto);
         }
         
         [HttpPut("{id}")]
@@ -194,7 +171,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Put(UpdateProductDto updateProductDto)
+        public async Task<ActionResult<ProductDto>> Put(UpdateProductDto updateProductDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -226,9 +203,9 @@ namespace FRF.API.Controllers
                 return BadRequest(updateProductResponse.Message);
             }
 
-            var products = new List<ProductDto>();
-            organization?.Products.ForEach(p => products.Add(_mapper.Map<ProductDto>(p)));
-            return Ok(products);
+            var productDto = _mapper.Map<ProductDto>(product);
+            productDto.Organization = _mapper.Map<OrganizationDto>(organization);
+            return Ok(productDto);
         }
 
         [HttpDelete("{id}")]
@@ -237,7 +214,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Delete(Guid id)
+        public async Task<ActionResult<bool>> Delete(Guid id)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -260,9 +237,7 @@ namespace FRF.API.Controllers
                 return BadRequest(deleteProductResponse.Message);
             }
 
-            var products = new List<ProductDto>();
-            organization?.Products.ForEach(p => products.Add(_mapper.Map<ProductDto>(p)));
-            return Ok(products);
+            return Ok("Product deleted");
         }
 
         [HttpDelete]
@@ -272,7 +247,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> DeleteAllExpiredProducts()
+        public async Task<ActionResult<bool>> DeleteAllExpiredProducts()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -299,9 +274,7 @@ namespace FRF.API.Controllers
                 }
             }
 
-            var productsDto = new List<ProductDto>();
-            organization?.Products.ForEach(p => productsDto.Add(_mapper.Map<ProductDto>(p)));
-            return Ok(productsDto);
+            return Ok("Expired products are deleted");
         }
     }
 }

@@ -13,6 +13,10 @@ namespace FRF.API.Dto.Product
         [Display(Name = "Name")]
         public string Name { get; set; } = String.Empty;
 
+        [Required]
+        [Display(Name = "Description")]
+        string Description { get; set; } = String.Empty;
+
         // IN FUTURE?: Change product type to the database Entity instead of Enum
         [Required]
         [Display(Name = "Type")]

@@ -12,7 +12,6 @@ namespace FRF.Services.Interfaces
     public interface IProductService
     {
         Task<BaseResponse<IEnumerable<Product>>> GetAllProducts();
-        Task<BaseResponse<IEnumerable<Product>>> GetAllUnexpiredProducts();
 
         Task<BaseResponse<Product>> GetProductById(Guid productId);
         Task<BaseResponse<Product>> GetProductByType(ProductType name);
