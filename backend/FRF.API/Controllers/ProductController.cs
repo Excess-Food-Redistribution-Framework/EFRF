@@ -107,14 +107,20 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
-
-            return Ok(new Pagination<ProductDto>()
+            var pagination = new Pagination<ProductDto>()
             {
                 Page = page,
                 PageSize = pageSize,
                 Count = products.Count(),
                 Data = productsDto.Skip((page - 1) * pageSize).Take(pageSize).ToList()
-            });
+            };
+
+            if (pagination.Data == null)
+            {
+                return BadRequest("No content on this page");
+            }
+
+            return Ok(pagination);
         }
 
 

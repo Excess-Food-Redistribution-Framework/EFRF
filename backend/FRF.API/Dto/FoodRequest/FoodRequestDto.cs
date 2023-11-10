@@ -12,7 +12,7 @@ namespace FRF.API.Dto.FoodRequest
 
 
         public Guid ProviderId { get; set; }
-        public Guid OrganizationId { get; set; }
+        public Guid DistributorId { get; set; }
 
         public DeliveryType Delivery { get; set; }
 
