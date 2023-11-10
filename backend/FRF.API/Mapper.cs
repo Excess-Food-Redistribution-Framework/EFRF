@@ -23,7 +23,6 @@ public class Mapper : Profile
         CreateMap<CreateProductDto, Product>();
         CreateMap<Product, CreateProductDto>();
         CreateMap<Product, ProductDto>();
-        CreateMap<Product, ProductDtoDetailed>();
 
         CreateMap<FoodRequest, FoodRequestDto>();
     }
