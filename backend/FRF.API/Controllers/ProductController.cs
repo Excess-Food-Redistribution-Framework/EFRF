@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Domain.Enum;
 using Microsoft.AspNetCore.Identity;
-using FRF.Domain.Responses;
 using FRF.API.Dto.Product;
 using AutoMapper;
 using System.Net;
 using FRF.API.Dto.Organization;
 using FRF.API.Dto;
+using FRF.Domain.Exceptions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -52,12 +52,7 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<List<ProductDto>>> Get(int page, int pageSize, bool notExpired = false, bool notBlocked = true, Guid organizationId = new Guid(), Guid foodRequestId = new Guid())
         {
 
-            var getResponse = await _productService.GetAllProducts();
-            var products = getResponse.Data;
-            if (products == null)
-            {
-                return NotFound(getResponse.Message);
-            }
+            var products = await _productService.GetAllProducts();
 
             if (notExpired)
             {
@@ -71,25 +66,13 @@ namespace FRF.API.Controllers
 
             if (organizationId != Guid.Empty)
             {
-                var getOrganizationResponse = await _organizationService.GetOrganizationById(organizationId);
-
-                var organization = getOrganizationResponse.Data;
-                if (organization == null)
-                {
-                    return NotFound(getOrganizationResponse);
-                }
+                var organization = await _organizationService.GetOrganizationById(organizationId);
                 products = products.Where(p => organization.Products.Contains(p));
             }
 
             if (foodRequestId != Guid.Empty)
             {
-                var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(foodRequestId);
-
-                var foodRequest = getFoodRequestResponse.Data;
-                if (foodRequest == null)
-                {
-                    return NotFound(getFoodRequestResponse);
-                }
+                var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
                 products = products.Where(p => foodRequest.Products.Contains(p));
             }
 
@@ -99,11 +82,8 @@ namespace FRF.API.Controllers
                 var productDto = _mapper.Map<ProductDto>(product);
                 if (product != null)
                 {
-                    var getOrganizationByProductResponse = await _organizationService.GetOrganizationByProduct(product.Id);
-                    if (getOrganizationByProductResponse.Data != null)
-                    {
-                        productDto.Organization = _mapper.Map<OrganizationDto>(getOrganizationByProductResponse.Data);
-                    }
+                    var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
+                    productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
                 }
                 productsDto.Add(productDto);
             }
@@ -117,7 +97,7 @@ namespace FRF.API.Controllers
 
             if (pagination.Data == null)
             {
-                return BadRequest("No content on this page");
+                throw new BadRequestApiException("No content on this page");
             }
 
             return Ok(pagination);
@@ -130,19 +110,12 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductDto>> Get(Guid id)
         {
-            var product = (await _productService.GetProductById(id)).Data;
-
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var product = await _productService.GetProductById(id);
 
             var productDto = _mapper.Map<ProductDto>(product);
-            var organizationResponse = await _organizationService.GetOrganizationByProduct(product.Id);
-            if (organizationResponse.Data != null)
-            {
-                productDto.Organization = _mapper.Map<OrganizationDto>(organizationResponse.Data);
-            }
+            var organization = await _organizationService.GetOrganizationByProduct(product.Id);
+            
+            productDto.Organization = _mapper.Map<OrganizationDto>(organization);
             return Ok(productDto);
         }
 
@@ -155,28 +128,15 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<List<ProductDto>>> Post(CreateProductDto createProductDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-
-            if (getOrganizationResponse.Data == null)
-            {
-                return NotFound(getOrganizationResponse.Message);
-            }
-
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.Type != OrganizationType.Provider)
             {
-                return BadRequest("Not provider");
+                throw new BadRequestApiException("Not provider");
             }
 
             var product = _mapper.Map<Product>(createProductDto);
-            var createProductResponse = await _productService.AddProduct(product, organization);
-
-            if (createProductResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(createProductResponse.Message);
-            }
-
+            await _productService.AddProduct(product, organization);
 
             var productDto = _mapper.Map<ProductDto>(product);
             productDto.Organization = _mapper.Map<OrganizationDto>(organization);
@@ -192,21 +152,12 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<ProductDto>> Put(UpdateProductDto updateProductDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            
-            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(getOrganizationResponse.Message);
-            }
-
-            var organization = getOrganizationResponse.Data;
-
-
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             var product = organization?.Products.Find(p => p.Id == updateProductDto.Id);
             if (product == null)
             {
-                return NotFound("No such product in your organization");
+                throw new NotFoundApiException("No such product in your organization");
             }
 
             product.Name = updateProductDto.Name;
@@ -214,12 +165,7 @@ namespace FRF.API.Controllers
             product.Type = updateProductDto.Type;
             product.Quantity = updateProductDto.Quantity;
 
-            var updateProductResponse = await _productService.UpdateProduct(product);
-
-            if (updateProductResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(updateProductResponse.Message);
-            }
+            await _productService.UpdateProduct(product);
 
             var productDto = _mapper.Map<ProductDto>(product);
             productDto.Organization = _mapper.Map<OrganizationDto>(organization);
@@ -235,25 +181,14 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<bool>> Delete(Guid id)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
-
-            if (organization == null)
-            {
-                return NotFound("Organization not found");
-            }
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (!organization.Products.Any(p => p.Id == id))
             {
-                return NotFound("No such product in your organization");
+                throw new NotFoundApiException("No such product in your organization");
             }
 
-            var deleteProductResponse = await _productService.DeleteProduct(id);
-
-            if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(deleteProductResponse.Message);
-            }
+            await _productService.DeleteProduct(id);
 
             return Ok("Product deleted");
         }
@@ -268,28 +203,17 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<bool>> DeleteAllExpiredProducts()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            
-            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(getOrganizationResponse.Message);
-            }
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            var organization = getOrganizationResponse.Data;
             var products = organization?.Products.FindAll(p => p.ExpirationDate < DateTime.UtcNow);
             if (products == null)
             {
-                return NotFound("No such product in your organization");
+                throw new NotFoundApiException("No such product in your organization");
             }
 
             foreach (var product in products)
             {
-                var deleteProductResponse = await _productService.DeleteProduct(product.Id);
-
-                if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    return BadRequest(deleteProductResponse.Message);
-                }
+                await _productService.DeleteProduct(product.Id);
             }
 
             return Ok("Expired products are deleted");

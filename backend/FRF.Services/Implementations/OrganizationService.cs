@@ -2,7 +2,7 @@
 using FRF.DAL.Interfaces;
 using FRF.Domain.Entities;
 using FRF.Domain.Enum;
-using FRF.Domain.Responses;
+using FRF.Domain.Exceptions;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,30 +41,20 @@ namespace FRF.Services.Implementations
             _productService = productService;
         }
 
-        public async Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
+        public async Task<bool> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user is null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "User not found",
-                        Data = false
-                    };
+                    throw new NotFoundApiException("User with id: " + userId + ", not found");
                 }
 
                 var organization = await _organizationRepository.GetById(organizationId);
                 if (organization is null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "Organization not found",
-                        Data = false
-                    };
+                    throw new NotFoundApiException("Organization with id: " + organizationId + ", not found");
                 }
 
                 //if (!BCrypt.Net.BCrypt.Verify(password, organization.Password))
@@ -79,22 +69,12 @@ namespace FRF.Services.Implementations
 
                 if (!organization.AllowedEmails.Any(a => a.Email == user.Email))
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.InternalServerError,
-                        Message = "You are not in invited users list",
-                        Data = false
-                    };
+                    throw new BadRequestApiException("You are not in invited users list");
                 }
 
                 if (organization.Users.Any(u => u.Id == userId))
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.InternalServerError,
-                        Message = "User already is in organization",
-                        Data = false
-                    };
+                    throw new BadRequestApiException("User already is in organization");
                 }
 
                 organization.Users.Add(user);
@@ -104,93 +84,53 @@ namespace FRF.Services.Implementations
                 OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "User was successfuly added to the organization",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception e)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "User wasn't added to the organization: " + e.Message,
-                    Data = false
-                };
+                throw new InternalServerErrorApiException("AddUserToOrganization error", e);
             }
         }
 
-        public async Task<BaseResponse<bool>> RemoveUserFromOrganization(string userId, Guid organizationId)
+        public async Task<bool> RemoveUserFromOrganization(string userId, Guid organizationId)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user is null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "User not found",
-                        Data = false
-                    };
+                    throw new NotFoundApiException("User with id: " + userId + ", not found");
                 }
 
                 var organization = await _organizationRepository.GetById(organizationId);
                 if (organization is null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "Organization not found",
-                        Data = false
-                    };
+                    throw new NotFoundApiException("Organization with id: " + organizationId + ", not found");
                 }
 
                 if (!organization.Users.Any(u => u.Id == user.Id))
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.InternalServerError,
-                        Message = "User not in Organization",
-                        Data = false
-                    };
+                    throw new BadRequestApiException("User not in Organization");
                 }
 
                 if (organization.CreatorId.ToString() == user.Id)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.InternalServerError,
-                        Message = "Creator can't be removed",
-                        Data = false
-                    };
+                    throw new BadRequestApiException("Creator can't be removed");
                 }
 
                 organization.Users.Remove(user);
                 await _organizationRepository.Update(organization);
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "User was successfuly removed from the organization",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception e)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "User wasn't removed from the organization: " + e.Message,
-                    Data = false
-                };
+                throw new InternalServerErrorApiException("RemoveUserFromOrganization error", e);
             }
         }
 
 
-        public async Task<BaseResponse<IEnumerable<Organization>>> GetAllOrganizations()
+        public async Task<IEnumerable<Organization>> GetAllOrganizations()
         {
             try
             {
@@ -200,26 +140,16 @@ namespace FRF.Services.Implementations
                     .Include(o => o.AllowedEmails)
                     .ToListAsync();
 
-                return new BaseResponse<IEnumerable<Organization>>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Get all Organizations successfuly",
-                    Data = organizations
-                };
+                return organizations;
             }
             catch (Exception e)
             {
-                return new BaseResponse<IEnumerable<Organization>>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "Get all Organizations error: " + e.Message,
-                    Data = null
-                };
+                throw new InternalServerErrorApiException("GetAllOrganizations error", e);
             }
         }
 
 
-        public async Task<BaseResponse<Organization>> GetOrganizationById(Guid id)
+        public async Task<Organization> GetOrganizationById(Guid organizationId)
         {
             try
             {
@@ -227,87 +157,60 @@ namespace FRF.Services.Implementations
                     .Include(o => o.Users)
                     .Include(o => o.Products)
                     .Include(o => o.AllowedEmails)
-                    .Where(o => o.Id == id)
+                    .Where(o => o.Id == organizationId)
                     .FirstOrDefaultAsync();
                 if (organization is null)
                 {
-                    return new BaseResponse<Organization>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "Organization not found",
-                        Data = null
-                    };
+                    throw new NotFoundApiException("Organization with id: " + organizationId + ", not found");
                 }
 
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Organization was found",
-                    Data = organization
-                };
+                return organization;
             }
             catch (Exception e)
             {
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "Get Organizations by id error: " + e.Message,
-                    Data = null
-                };
+                throw new InternalServerErrorApiException("GetOrganizationById error", e);
             }
         }
 
-        public async Task<BaseResponse<Organization>> GetOrganizationByUser(string id)
+        public async Task<Organization> GetOrganizationByUser(string userId)
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user is null)
                 {
-                    return new BaseResponse<Organization>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "User not found",
-                        Data = null
-                    };
+                    throw new NotFoundApiException("User with id: " + userId + ", not found");
                 }
 
                 var organization = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
                     .Include(o => o.AllowedEmails)
-                    .Where(o => o.Users.Any(u => u.Id == id))
+                    .Where(o => o.Users.Any(u => u.Id == userId))
                     .FirstOrDefaultAsync();
 
                 if (organization is null)
                 {
-                    return new BaseResponse<Organization>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "User not in any organization",
-                        Data = null
-                    };
+                    throw new BadRequestApiException("User not in any organization");
                 }
 
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Get Organization succesfully",
-                    Data = organization
-                };
+                return organization;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
             }
             catch (Exception e)
             {
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "Organization not found - " + e.Message,
-                    Data = null
-                };
+                throw new InternalServerErrorApiException("GetOrganizationByUser error", e);
             }
         }
 
-        public async Task<BaseResponse<Organization>> GetOrganizationByProduct(Guid productId)
+        public async Task<Organization> GetOrganizationByProduct(Guid productId)
         {
             try
             {
@@ -320,48 +223,35 @@ namespace FRF.Services.Implementations
 
                 if (organization is null)
                 {
-                    return new BaseResponse<Organization>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "User not in any organization",
-                        Data = null
-                    };
+                    throw new BadRequestApiException("Product not in any organization");
                 }
 
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Get Organization succesfully",
-                    Data = organization
-                };
+                return organization;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
             }
             catch (Exception e)
             {
-                return new BaseResponse<Organization>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "Organization not found - " + e.Message,
-                    Data = null
-                };
+                throw new InternalServerErrorApiException("GetOrganizationByProduct error", e);
             }
         }
 
-        public async Task<BaseResponse<bool>> CreateOrganization(Organization organization)
+        public async Task<bool> CreateOrganization(Organization organization)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(organization.CreatorId.ToString());
                 if (user is null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "Creator User not found",
-                        Data = false
-                    };
+                    throw new NotFoundApiException("Creator user not found");
                 }
 
-                // Test if user is in another organization
                 string creatorId = organization.CreatorId.ToString();
 
                 var org = await _organizationRepository.GetAll()
@@ -371,93 +261,53 @@ namespace FRF.Services.Implementations
 
                 if (org != null)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.InternalServerError,
-                        Message = "Creator already is in the organization",
-                        Data = false
-                    };
+                    throw new BadRequestApiException("Creator already is in other organization");
                 }
 
                 organization.Users.Add(user);
                 await _organizationRepository.Add(organization);
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Organization was succesfuly created",
-                    Data = true
-                };
+                return true;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
             }
             catch (Exception e)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "AddOrganization error: " + e.Message,
-                    Data = false
-                };
+                throw new InternalServerErrorApiException("CreateOrganization error", e);
             }
         }
 
-        public async Task<BaseResponse<bool>> UpdateOrganization(Organization organization)
+        public async Task<bool> UpdateOrganization(Organization organization)
         {
             try
             {
                 await _organizationRepository.Update(organization);
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Organization was succesfuly updated",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception e)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "UpdateOrganization error: " + e.Message,
-                    Data = false
-                };
+                throw new InternalServerErrorApiException("UpdateOrganization error", e);
             }
         }
 
-        public async Task<BaseResponse<bool>> DeleteOrganization(Guid id)
+        public async Task<bool> DeleteOrganization(Guid id)
         {
             try
             {
-                var getOrganizationResponse = await GetOrganizationById(id);
-                var organization = getOrganizationResponse.Data;
-                if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = getOrganizationResponse.StatusCode,
-                        Message = getOrganizationResponse.Message,
-                        Data = false
-                    };
-                }
+                var organization = await GetOrganizationById(id);
 
-                var getFoodRequestsResponse = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
-                if (getFoodRequestsResponse.StatusCode != HttpStatusCode.OK)
+                var foodRequests = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
+
+                foreach (var foodRequest in foodRequests)
                 {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = getFoodRequestsResponse.StatusCode,
-                        Message = getFoodRequestsResponse.Message,
-                        Data = false
-                    };
-                }
-                if (getFoodRequestsResponse.Data?.Count() > 0)
-                {
-                    return new BaseResponse<bool>
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Message = "Organization's requests list is not empty",
-                        Data = false
-                    };
+                    await _foodRequestService.DeleteFoodRequests(foodRequest.Id, organization);
                 }
 
                 organization.Products.ForEach(async p =>
@@ -466,25 +316,26 @@ namespace FRF.Services.Implementations
                 });
                 
                 organization?.Users.Clear();
-                await _organizationRepository.Update(organization);
+                if (organization != null)
+                {
+                    await _organizationRepository.Update(organization);
+                }
 
                 await _organizationRepository.Delete(id);
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Organization was succesfuly deleted",
-                    Data = true
-                };
+                return true;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
             }
             catch (Exception e)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = "DeleteOrganization error: " + e.Message,
-                    Data = false
-                };
+                throw new InternalServerErrorApiException("DeleteOrganization error", e);
             }
         }
     }

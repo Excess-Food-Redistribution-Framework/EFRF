@@ -1,5 +1,4 @@
 ﻿using FRF.Domain.Entities;
-using FRF.Domain.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +9,16 @@ namespace FRF.Services.Interfaces
 {
     public interface IOrganizationService
     {
-        Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password */);
-        Task<BaseResponse<bool>> RemoveUserFromOrganization(string userId, Guid organizationId);
+        Task<bool> AddUserToOrganization(string userId, Guid organizationId/*, string password */);
+        Task<bool> RemoveUserFromOrganization(string userId, Guid organizationId);
 
-        Task<BaseResponse<IEnumerable<Organization>>> GetAllOrganizations();
-        Task<BaseResponse<Organization>> GetOrganizationById(Guid id);
-        Task<BaseResponse<Organization>> GetOrganizationByUser(string id);
-        Task<BaseResponse<Organization>> GetOrganizationByProduct(Guid productId);
+        Task<IEnumerable<Organization>> GetAllOrganizations();
+        Task<Organization> GetOrganizationById(Guid id);
+        Task<Organization> GetOrganizationByUser(string id);
+        Task<Organization> GetOrganizationByProduct(Guid productId);
 
-        Task<BaseResponse<bool>> CreateOrganization(Organization organization);
-        Task<BaseResponse<bool>> UpdateOrganization(Organization organization);
-        Task<BaseResponse<bool>> DeleteOrganization(Guid id);
+        Task<bool> CreateOrganization(Organization organization);
+        Task<bool> UpdateOrganization(Organization organization);
+        Task<bool> DeleteOrganization(Guid id);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace FRF.API.Exceptions;
+namespace FRF.Domain.Exceptions;
 
 public class NotFoundApiException : ApiException
 {

@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using FRF.Services.Interfaces;
 using FRF.DAL.Interfaces;
 using FRF.Domain.Enum;
-using FRF.Domain.Responses;
 using System.Net;
+using FRF.Domain.Exceptions;
 
 public class ProductService : IProductService
 {
@@ -27,68 +27,30 @@ public class ProductService : IProductService
         _organizationRepository = organizationRepository;
     }
 
-    public async Task<BaseResponse<IEnumerable<Product>>> GetAllProducts()
+    public async Task<IEnumerable<Product>> GetAllProducts()
     {
         try
         {
             var products = await _productRepository.GetAll()
                 .ToListAsync();
 
-            return new BaseResponse<IEnumerable<Product>>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Get all products - success",
-                Data = products
-            };
+            return products;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<IEnumerable<Product>>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = null
-            };
+            throw new InternalServerErrorApiException("GetAllProducts error", e);
         }
     }
 
-    public async Task<BaseResponse<Product>> GetProductByType(ProductType type)
-    {
-        try
-        {
-            var product = await _productRepository.GetAll()
-                .Where(p => p.State == ProductState.Available)
-                .FirstOrDefaultAsync(p => p.Type == type);
-
-            if (product == null)
-            {
-                return new BaseResponse<Product>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Product not found",
-                    Data = null
-                };
-            }
-
-            return new BaseResponse<Product>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Product found",
-                Data = product
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseResponse<Product>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = null
-            };
-        }
-    }
-
-    public async Task<BaseResponse<Product>> GetProductById(Guid id)
+    public async Task<Product> GetProductById(Guid id)
     {
         try
         {
@@ -96,112 +58,94 @@ public class ProductService : IProductService
 
             if (product == null)
             {
-                return new BaseResponse<Product>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Product not found",
-                    Data = null
-                };
+                throw new NotFoundApiException("Product not found");
             }
 
-            return new BaseResponse<Product>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Product found",
-                Data = product
-            };
+            return product;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<Product>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = null
-            };
+            throw new InternalServerErrorApiException("GetProductById error", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> AddProduct(Product product, Organization? organization)
+    public async Task<bool> AddProduct(Product product, Organization? organization)
     {
         try
         {
             if (organization == null)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Organization not found",
-                    Data = false
-                };
+                throw new NotFoundApiException("Organization not found");
             }
 
             organization.Products.Add(product);
             await _organizationRepository.Update(organization);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Product added",
-                Data = true
-            };
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("AddProduct error", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> UpdateProduct(Product product)
+    public async Task<bool> UpdateProduct(Product product)
     {
         try
         {
             await _productRepository.Update(product);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Product updated",
-                Data = true
-            };
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("UpdateProduct error", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> DeleteProduct(Guid id)
+    public async Task<bool> DeleteProduct(Guid id)
     {
         try
         {
             await _productRepository.Delete(id);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Product updated",
-                Data = true
-            };
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("DeleteProduct error", e);
         }
     }
 }

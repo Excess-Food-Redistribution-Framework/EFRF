@@ -2,6 +2,7 @@
 using FRF.API.Dto.Organization;
 using FRF.Domain.Entities;
 using FRF.Domain.Enum;
+using FRF.Domain.Exceptions;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -41,8 +42,8 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get all organizations")]
         public async Task<IEnumerable<Organization>?> Get()
         {
-            var getResponse = await _organizationService.GetAllOrganizations();
-            return getResponse.Data;
+            var organization = await _organizationService.GetAllOrganizations();
+            return organization;
         }
 
         [HttpPost]
@@ -53,26 +54,25 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<OrganizationDto>> Post([FromBody] CreateOrganizationDto createOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user == null)
+            {
+                throw new NotFoundApiException("User not found");
+            }
+
             var organization = _mapper.Map<Organization>(createOrganizationDto);
             organization.CreatorId = Guid.Parse(user.Id);
 
             //string salt = BCrypt.Net.BCrypt.GenerateSalt();
             //organization.Password = BCrypt.Net.BCrypt.HashPassword(organization.Password, salt);
 
-            var createOrganizationResponse = await _organizationService.CreateOrganization(organization);
-            if (createOrganizationResponse.Data == true)
-            {
-                // Add role depending on organization type
-                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
-                await _userManager.AddToRoleAsync(user, role.ToString());
+            await _organizationService.CreateOrganization(organization);
 
-                var organizationDto = _mapper.Map<OrganizationDto>(organization);
-                return Ok(organizationDto);
-            }
-            else
-            {
-                return BadRequest(createOrganizationResponse.Message);
-            }
+            // Add role depending on organization type
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
+            await _userManager.AddToRoleAsync(user, role.ToString());
+
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
 
         [HttpPut("Current")]
@@ -84,13 +84,12 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<OrganizationDto>> Put([FromBody] UpdateOrganizationDto updateOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
-            
-            if (organization == null)
+            if (user == null)
             {
-                return NotFound(getOrganizationResponse);
+                throw new NotFoundApiException("User not found");
             }
+
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.CreatorId.ToString() != user.Id)
             {
@@ -107,16 +106,10 @@ namespace FRF.API.Controllers
             //    organization.Password = BCrypt.Net.BCrypt.HashPassword(updateOrganizationDto.Password, salt);
             //}
 
-            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
-            if (updateOrganizationResponse.Data == true)
-            {
-                var organizationDto = _mapper.Map<OrganizationDto>(organization);
-                return Ok(organizationDto);
-            }
-            else
-            {
-                return BadRequest(updateOrganizationResponse.Message);
-            }
+            await _organizationService.UpdateOrganization(organization);
+            
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
         
         [HttpGet("Current")]
@@ -127,15 +120,10 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<OrganizationDto>> GetUserOrganization()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
-
-            return Ok(_mapper.Map<OrganizationDto>(organization));
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
 
         [HttpGet]
@@ -148,17 +136,17 @@ namespace FRF.API.Controllers
         public async Task<ActionResult<List<AllowedEmail>>> GetAllowedEmails()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
-
-            if (organization == null)
+            if (user == null)
             {
-                return NotFound(getOrganizationResponse);
+                throw new NotFoundApiException("User not found");
             }
+
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
+
 
             if (organization.CreatorId.ToString() != user.Id)
             {
-                return BadRequest("User not organization creator");
+                throw new BadRequestApiException("User not organization creator");
             }
 
             return Ok(organization.AllowedEmails);
@@ -174,22 +162,21 @@ namespace FRF.API.Controllers
         public async Task<Object> AllowEmail([FromBody] OrganizationEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
-
-            if (organization == null)
+            if (user == null)
             {
-                return NotFound(getOrganizationResponse);
+                throw new NotFoundApiException("User not found");
             }
+
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.CreatorId.ToString() != user.Id)
             {
-                return BadRequest("User isn't the organization's creator");
+                throw new BadRequestApiException("User not organization creator");
             }
 
             if (organization.AllowedEmails.Any(a => a.Email == email.Email))
             {
-                return BadRequest("This email is already in allowed list");
+                throw new BadRequestApiException("This email is already in allowed list");
             }
 
             var allowedEmail = new AllowedEmail
@@ -198,15 +185,8 @@ namespace FRF.API.Controllers
             };
             organization.AllowedEmails.Add(allowedEmail);
 
-            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
-            if (updateOrganizationResponse.Data == true)
-            {
-                return Ok(organization.AllowedEmails);
-            }
-            else
-            {
-                return BadRequest(updateOrganizationResponse.Message);
-            }
+            await _organizationService.UpdateOrganization(organization);
+            return Ok(organization.AllowedEmails);
         }
 
         [HttpDelete]
@@ -219,36 +199,28 @@ namespace FRF.API.Controllers
         public async Task<Object> DeclineEmail([FromBody] OrganizationEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
-
-            if (organization == null)
+            if (user == null)
             {
-                return NotFound(getOrganizationResponse);
+                throw new NotFoundApiException("User not found");
             }
+
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.CreatorId.ToString() != user.Id)
             {
-                return BadRequest("User isn't the organization's creator");
+                throw new BadRequestApiException("User not organization creator");
             }
 
             var allowedEmail = organization.AllowedEmails.Find(a => a.Email == email.Email);
             if (allowedEmail == null)
             {
-                return NotFound("This email not found in allowed list");
+                throw new BadRequestApiException("This email not found in allowed list");
             }
 
             organization.AllowedEmails.Remove(allowedEmail);
 
-            var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
-            if (updateOrganizationResponse.Data == true)
-            {
-                return Ok(organization.AllowedEmails);
-            }
-            else
-            {
-                return BadRequest(updateOrganizationResponse.Message);
-            }
+            await _organizationService.UpdateOrganization(organization);
+            return Ok(organization.AllowedEmails);
         }
 
         [HttpDelete]
@@ -260,23 +232,16 @@ namespace FRF.API.Controllers
         public async Task<Object> Delete()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            if (user.Id == null)
+            if (user == null)
             {
-                return NotFound("User not found");
+                throw new NotFoundApiException("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-
-            var organization = getOrganizationResponse.Data;
-
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse.Message);
-            }
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.CreatorId.ToString() != user.Id)
             {
-                return BadRequest("User isn't the organization's creator");
+                throw new BadRequestApiException("User not organization creator");
             }
 
             // Remove all roles depending on organization type
@@ -284,23 +249,17 @@ namespace FRF.API.Controllers
             // Copu users list
             var users = organization.Users.ToList();
 
-            var deleteOrganizationResponse = await _organizationService.DeleteOrganization(organization.Id);
-            if (deleteOrganizationResponse.Data == true)
+            await _organizationService.DeleteOrganization(organization.Id);
+
+            if (users != null)
             {
-                if (users != null)
+                foreach (User u in users)
                 {
-                    foreach (User u in users)
-                    {
-                        await _userManager.RemoveFromRoleAsync(u, role.ToString());
-                    }
+                    await _userManager.RemoveFromRoleAsync(u, role.ToString());
                 }
-                var organizationDto = _mapper.Map<OrganizationDto>(organization);
-                return Ok(organizationDto);
             }
-            else
-            {
-                return BadRequest(deleteOrganizationResponse.Message);
-            }
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
 
         [HttpDelete]
@@ -313,18 +272,12 @@ namespace FRF.API.Controllers
         public async Task<Object> KickUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            if (user.Id == null)
+            if (user == null)
             {
-                return NotFound("User not found");
+                throw new NotFoundApiException("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            if (getOrganizationResponse.Data == null)
-            {
-                return NotFound(getOrganizationResponse.Message);
-            }
-
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
             if (organization.CreatorId.ToString() != user.Id)
             {
@@ -335,18 +288,12 @@ namespace FRF.API.Controllers
 
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
-            var kickResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
-            if (kickResponse.StatusCode == HttpStatusCode.OK)
-            {
-                await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
+            await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
+            
+            await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
 
-                var organizationDto = _mapper.Map<OrganizationDto>(organization);
-                return Ok(organizationDto);
-            }
-            else
-            {
-                return BadRequest(kickResponse.Message);
-            }
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
 
 
@@ -360,32 +307,21 @@ namespace FRF.API.Controllers
         public async Task<Object> Join(JoinOrganizationDto joinOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            if (user.Id == null)
+            if (user == null)
             {
-                return NotFound("User not found");
+                throw new NotFoundApiException("User not found");
             }
 
-            try
-            {
-                // Add role depending on organization type
-                var getOrganizationResponse = await _organizationService.GetOrganizationById(joinOrganizationDto.OrganizationId);
-                var organization = getOrganizationResponse.Data;
-                var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId/*, joinOrganizationDto.Password */);
 
-                if (joinResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
-                    await _userManager.AddToRoleAsync(user, role.ToString());
+            // Add role depending on organization type
+            var organization = await _organizationService.GetOrganizationById(joinOrganizationDto.OrganizationId);
+            await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId/*, joinOrganizationDto.Password */);
 
-                    var organizationDto = _mapper.Map<OrganizationDto>(organization);
-                    return Ok(organizationDto);
-                }
-                return BadRequest(joinResponse.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
+            await _userManager.AddToRoleAsync(user, role.ToString());
+
+            var organizationDto = _mapper.Map<OrganizationDto>(organization);
+            return Ok(organizationDto);
         }
 
 
@@ -399,38 +335,21 @@ namespace FRF.API.Controllers
         public async Task<Object> Leave()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            if (user.Id == null)
+            if (user == null)
             {
-                return NotFound("User not found");
+                throw new NotFoundApiException("User not found");
             }
 
-            try
-            {
-                var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-                var organization = getOrganizationResponse.Data;
+            
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-                if (organization == null)
-                {
-                    return NotFound("Organization not found");
-                }
+            await _organizationService.RemoveUserFromOrganization(user.Id, organization.Id);
 
-                var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organization.Id);
+            // Remove role depending on organization type
+            OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
+            await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
-                if (leaveResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    return BadRequest(leaveResponse.Message);
-                }
-
-                // Remove role depending on organization type
-                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
-                await _userManager.RemoveFromRoleAsync(user, role.ToString());
-
-                return Ok("User leaved organization");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return Ok("User leaved organization");
         }
     }
 }
