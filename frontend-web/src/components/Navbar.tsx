@@ -1,20 +1,19 @@
 import { Container, Nav, Navbar as NavbarBootstrap } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
-import {useEffect} from 'react';
 
 function Navbar() {
   const { setToken, isAuth, user } = useAuth();
 
-  useEffect(() => {
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   const logout = () => {
     setToken('');
   };
 
   return (
-    <NavbarBootstrap className="bg-white shadow-sm mb-5 sticky-top">
+    <NavbarBootstrap className="bg-white shadow-sm sticky-top">
       <Container>
         <Nav>
           <Nav.Link to="/" as={NavLink}>
@@ -26,6 +25,9 @@ function Navbar() {
           <Nav.Link to="/blog" as={NavLink}>
             Blog
           </Nav.Link>
+          <Nav.Link to="/products" as={NavLink}>
+            Products
+          </Nav.Link>
         </Nav>
         <Nav>
           {isAuth() ? (
@@ -35,11 +37,14 @@ function Navbar() {
                   Create organization
                 </Nav.Link>
               ) : (
-                <Nav.Link to="/organizations" as={NavLink}>
-                  Organization
-                </Nav.Link>
-              )
-              }
+                <>
+                  {user?.role === 'Provider' && (
+                    <Nav.Link to="/product/create" as={NavLink}>
+                      Create product
+                    </Nav.Link>
+                  )}
+                </>
+              )}
               <Nav.Link to="/profile" as={NavLink}>
                 Profile
               </Nav.Link>

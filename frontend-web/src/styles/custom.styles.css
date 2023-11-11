@@ -1,15 +1,98 @@
-.primary_color{
-    background-color: #6C63FF;
+.primary_color {
+  background-color: #4c654d;
 }
 
-.secondary_color{
-    background-color: #5B5F66;
+.secondary_color {
+  background-color: #afbaae;
 }
 
 .diagonal-bg {
-    /*background: linear-gradient(110deg, #5B5F66 80%, transparent 50%, transparent 100%);*/
-    background-color: #5B5F66;
-    background-size: 100% 100%;
+  background: linear-gradient(
+    110deg,
+    #afbaae 78%,
+    transparent 50%,
+    transparent 100%
+  );
+  background-color: transparent;
+  background-size: 100% 100%;
+}
+.diagonal-bg {
+  background: linear-gradient(
+    110deg,
+    #4c654d 45%,
+    transparent 30%,
+    transparent 100%
+  );
+  background-color: transparent;
+  background-size: 100% 100%;
 }
 
+.custom-shadow {
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+}
 
+.text-shadow {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.mh-400px {
+  min-height: 400px;
+}
+body {
+  background-color: #ebeee8;
+}
+
+.zoom-card {
+  transform: scale(1);
+  transition: transform 0.5s;
+}
+
+@keyframes changeBackgroundColor {
+  0% {
+    background-color: white;
+  }
+  100% {
+    background-color: bisque;
+  }
+}
+
+.zoom-card:hover {
+  transform: scale(1.08);
+  transition: transform 0.7s;
+  animation: changeBackgroundColor 0.7s linear forwards;
+}
+
+/* Nastavenie vlastného scrollbaru */
+.custom-scrollbar {
+  width: 10px; /* Šírka scrollbaru */
+  background-color: #ccc; /* Farba pozadia scrollbaru */
+  border-radius: 5px; /* Oblúkový okraj scrollbaru */
+}
+
+/* Farba scrollbaru pri hoveri */
+.custom-scrollbar:hover {
+  background-color: #aaa;
+}
+
+/* Farba scrollbaru pri aktívnom stave */
+.custom-scrollbar:active {
+  background-color: #888;
+}
+
+.text-limit {
+  max-width: 100%;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.error-message {
+  color: #e70606; 
+  font-size: 18px;
+  border: 1px;
+  text-align: center; 
+  margin: 0;
+  display: block;
+}

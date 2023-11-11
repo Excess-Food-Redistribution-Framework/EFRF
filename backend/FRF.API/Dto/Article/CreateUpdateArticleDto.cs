@@ -12,7 +12,7 @@ public class CreateUpdateArticleDto
     [Display(Name = "Teaser")]
     // TODO: Add MaxLength
     public string Teaser { get; set; } = string.Empty;
-
+    
     [Required]
     [Display(Name = "Content")]
     public string Content { get; set; } = string.Empty;

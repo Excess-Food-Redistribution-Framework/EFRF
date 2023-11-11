@@ -1,8 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AlertLink, Button, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  Container,
+  Form,
+  Image,
+  Row,
+} from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
+import '../styles/custom.styles.css';
 
 interface ILoginRequest {
   email: string;
@@ -11,21 +19,40 @@ interface ILoginRequest {
 
 function LoginPage() {
   const navigate = useNavigate();
-
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
   const { setToken, setUser, user, isAuth } = useAuth();
-
+  const [error, setError] = useState<string>(''); 
+  
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const handleSubmit = async () => {
+    let isValid = true;
+  
+    if (email === '') {
+      setEmailError('Email is required');
+      isValid = false;
+    } else {
+      setEmailError('');
+    }
+  
+    if (password === '') {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+  
+    if (!isValid) {
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        'api/Account/Login',
-        {
-          email,
-          password,
-        } as ILoginRequest
-      );
+      const response = await axios.post('api/Account/Login', {
+        email,
+        password,
+      } as ILoginRequest);
 
       setToken(response.data.token);
       setUser(response.data.user);
@@ -33,13 +60,21 @@ function LoginPage() {
       if (response.data.user.role) {
         navigate('/');
       } else {
-        navigate('/organization/create')
+        navigate('/organization/create');
       }
-
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      if (error instanceof Error) {
+        if (error.message === 'Request failed with status code 400') {
+          setError('Incorrect email or password. Please try again.');
+        } else {
+          setError('An error occurred. Please try again later.');
+        }
+      }
     }
+  };
+
+  const handleInputChange = () => {
+    setError('');
   };
 
   useEffect(() => {
@@ -49,46 +84,63 @@ function LoginPage() {
   }, [user]);
 
   return (
-    <Container>
-      <Row className="justify-content-center">
-        <Col lg="10">
+    <Container className="pt-5">
+      <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
+        <Col lg="12">
           <Row className="primary_color">
-            <Col lg="7" className="secondary_color diagonal-bg">
-              {/* <Image src="../assets/img/login.svg" /> */}
+            <Col lg="7" className="secondary_color diagonal-bg d-flex">
+              <Image src="/assets/img/login.svg" className="img-fluid p-4 pb-0" />
             </Col>
-            <Col lg="5" className="p-5">
-              <h1 className="mb-3 text-white">Log in</h1>
-
+            <Col lg="5" className="px-4 px-xl-5 d-flex flex-column justify-content-evenly">
+              <h1 className="mb-3 text-white">Login</h1>
+              <Row>
+              {error && (
+                <p className="error-message">
+                  {error}
+                </p>
+              )}
+              </Row>
               <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formUsername" className="mb-3">
+                <Form.Group controlId="formEmail" className="mb-3">
                   <Form.Control
-                    type="text"
-                    placeholder="Enter Username"
+                    type="email"
+                    placeholder="Enter Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      handleInputChange();
+                      setEmailError('');
+                    }}
+                    isInvalid={emailError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{emailError}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group controlId="formBasicPassword" className="mb-3">
+                <Form.Group controlId="formPassword" className="mb-3">
                   <Form.Control
                     type="password"
                     placeholder="Password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      handleInputChange();
+                      setPasswordError('');
+                    }}
+                    isInvalid={passwordError !== ''}
                   />
+                  <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Row>
-                  <Col className="d-flex justify-content-between">
-                    <Button variant="secondary" onClick={handleSubmit}>
-                      Submit
-                    </Button>
-                    <AlertLink href="" className="align-self-end text-white">
-                      Cant Log In?
-                    </AlertLink>
-                  </Col>
-                </Row>
+                <Button variant="primary" onClick={handleSubmit}>
+                  Log In
+                </Button>
               </Form>
+              <p className="text-white mt-3">
+                Don't have an account?{' '}
+                <a className="text-light" href="/registration">
+                  Register here
+                </a>
+              </p>
             </Col>
           </Row>
         </Col>

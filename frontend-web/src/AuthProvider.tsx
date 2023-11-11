@@ -35,7 +35,7 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     } else {
       localStorage.removeItem('user');
     }
-  }
+  };
 
   const isAuth = () => {
     if (isTokenExpired(token)) {
@@ -56,13 +56,14 @@ function AuthProvider({ children }: React.PropsWithChildren) {
   }, [token]);
 
   const contextValue: AuthContextProps = useMemo(
-    () => ({
-      token,
-      setToken,
-      user,
-      setUser,
-      isAuth,
-    } as AuthContextProps),
+    () =>
+      ({
+        token,
+        setToken,
+        user,
+        setUser,
+        isAuth,
+      }) as AuthContextProps,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [token]
   );
