@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using FRF.Domain.Responses;
 using FRF.API.Dto.Product;
 using AutoMapper;
+using System.Net;
+using FRF.API.Dto.Organization;
+using FRF.API.Dto;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,6 +24,7 @@ namespace FRF.API.Controllers
         // Controller uses services
         private readonly IProductService _productService;
         private readonly IOrganizationService _organizationService;
+        private readonly IFoodRequestService _foodRequestService;
         private readonly IMapper _mapper;
         private UserManager<User> _userManager;
 
@@ -30,69 +34,101 @@ namespace FRF.API.Controllers
             UserManager<User> userManager,
             IOrganizationService organizationService
 ,
-            IMapper mapper)
+            IMapper mapper,
+            IFoodRequestService foodRequestService)
         {
             _productService = productService;
             _userManager = userManager;
             _organizationService = organizationService;
             _mapper = mapper;
+            _foodRequestService = foodRequestService;
         }
-
 
         [HttpGet]
         //[Authorize(Roles = OrganizationType.Distributer.ToString())]
         [SwaggerOperation("Get all products")]
-        public async Task<Object> Get(bool unexpired)
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<ProductDto>>> Get(int page, int pageSize, bool notExpired = false, bool notBlocked = true, Guid organizationId = new Guid(), Guid foodRequestId = new Guid())
         {
 
-            BaseResponse<IEnumerable<Product>> getResponse;
-            if (unexpired)
+            var getResponse = await _productService.GetAllProducts();
+            var products = getResponse.Data;
+            if (products == null)
             {
-                getResponse = await _productService.GetAllUnexpiredProducts();
-            }
-            else
-            {
-                getResponse = await _productService.GetAllProducts();
+                return NotFound(getResponse.Message);
             }
 
-            if (getResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (notExpired)
             {
-                return BadRequest(getResponse.Message);
+                products = products.Where(p => p.ExpirationDate >= DateTime.UtcNow);
             }
 
-            return Ok(getResponse.Data);
+            if (notBlocked)
+            {
+                products = products.Where(p => p.State == ProductState.Available);
+            }
+
+            if (organizationId != Guid.Empty)
+            {
+                var getOrganizationResponse = await _organizationService.GetOrganizationById(organizationId);
+
+                var organization = getOrganizationResponse.Data;
+                if (organization == null)
+                {
+                    return NotFound(getOrganizationResponse);
+                }
+                products = products.Where(p => organization.Products.Contains(p));
+            }
+
+            if (foodRequestId != Guid.Empty)
+            {
+                var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(foodRequestId);
+
+                var foodRequest = getFoodRequestResponse.Data;
+                if (foodRequest == null)
+                {
+                    return NotFound(getFoodRequestResponse);
+                }
+                products = products.Where(p => foodRequest.Products.Contains(p));
+            }
+
+            var productsDto = new List<ProductDto>();
+            foreach (var product in products)
+            {
+                var productDto = _mapper.Map<ProductDto>(product);
+                if (product != null)
+                {
+                    var getOrganizationByProductResponse = await _organizationService.GetOrganizationByProduct(product.Id);
+                    if (getOrganizationByProductResponse.Data != null)
+                    {
+                        productDto.Organization = _mapper.Map<OrganizationDto>(getOrganizationByProductResponse.Data);
+                    }
+                }
+                productsDto.Add(productDto);
+            }
+            var pagination = new Pagination<ProductDto>()
+            {
+                Page = page,
+                PageSize = pageSize,
+                Count = products.Count(),
+                Data = productsDto.Skip((page - 1) * pageSize).Take(pageSize).ToList()
+            };
+
+            if (pagination.Data == null)
+            {
+                return BadRequest("No content on this page");
+            }
+
+            return Ok(pagination);
         }
 
-        [HttpPost]
-        //[Authorize(Roles = OrganizationType.Provider.ToString())]
-        [SwaggerOperation("Add New Product")]
-        public async Task<ActionResult<Product>> Post(ProductDto productDto)
-        {
-            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
-            {
-                return BadRequest(getOrganizationResponse.Message);
-            }
-
-            var organization = getOrganizationResponse.Data;
-            var product = _mapper.Map<Product>(productDto);
-            var createProductResponse = await _productService.AddProduct(product, organization);
-
-            if (createProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
-            {
-                return BadRequest(createProductResponse.Message);
-            }
-
-            return Ok(organization?.Products);
-        }
-        
         [HttpGet("{id}")]
         [SwaggerOperation("Get Product by Id")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Product>> Get(Guid id)
+        public async Task<ActionResult<ProductDto>> Get(Guid id)
         {
             var product = (await _productService.GetProductById(id)).Data;
 
@@ -100,106 +136,163 @@ namespace FRF.API.Controllers
             {
                 return NotFound();
             }
-            
-            return Ok(product);
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            var organizationResponse = await _organizationService.GetOrganizationByProduct(product.Id);
+            if (organizationResponse.Data != null)
+            {
+                productDto.Organization = _mapper.Map<OrganizationDto>(organizationResponse.Data);
+            }
+            return Ok(productDto);
+        }
+
+        [HttpPost]
+        //[Authorize(Roles = OrganizationType.Provider.ToString())]
+        [SwaggerOperation("Add New Product")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<ProductDto>>> Post(CreateProductDto createProductDto)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+
+            if (getOrganizationResponse.Data == null)
+            {
+                return NotFound(getOrganizationResponse.Message);
+            }
+
+            var organization = getOrganizationResponse.Data;
+
+            if (organization.Type != OrganizationType.Provider)
+            {
+                return BadRequest("Not provider");
+            }
+
+            var product = _mapper.Map<Product>(createProductDto);
+            var createProductResponse = await _productService.AddProduct(product, organization);
+
+            if (createProductResponse.StatusCode != HttpStatusCode.OK)
+            {
+                return BadRequest(createProductResponse.Message);
+            }
+
+
+            var productDto = _mapper.Map<ProductDto>(product);
+            productDto.Organization = _mapper.Map<OrganizationDto>(organization);
+            return Ok(productDto);
         }
         
         [HttpPut("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Update Product")]
-        public async Task<ActionResult<Product>> Put(Guid id, ProductDto productDto)
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ProductDto>> Put(UpdateProductDto updateProductDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
             
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
-            var product = organization?.Products.Find(p => p.Id == id);
+
+
+
+            var product = organization?.Products.Find(p => p.Id == updateProductDto.Id);
             if (product == null)
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
-            product.Name = productDto.Name;
-            product.ExpirationDate = productDto.ExpirationDate;
-            product.Type = productDto.Type;
-            product.Quantity = productDto.Quantity;
+            product.Name = updateProductDto.Name;
+            product.ExpirationDate = updateProductDto.ExpirationDate;
+            product.Type = updateProductDto.Type;
+            product.Quantity = updateProductDto.Quantity;
 
             var updateProductResponse = await _productService.UpdateProduct(product);
 
-            if (updateProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (updateProductResponse.StatusCode != HttpStatusCode.OK)
             {
                 return BadRequest(updateProductResponse.Message);
             }
 
-            return Ok(organization.Products);
+            var productDto = _mapper.Map<ProductDto>(product);
+            productDto.Organization = _mapper.Map<OrganizationDto>(organization);
+            return Ok(productDto);
         }
 
         [HttpDelete("{id}")]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [SwaggerOperation("Delete Product")]
-        public async Task<Object> Delete(Guid id)
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> Delete(Guid id)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound("Organization not found");
             }
 
-            var organization = getOrganizationResponse.Data;
             if (!organization.Products.Any(p => p.Id == id))
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
             var deleteProductResponse = await _productService.DeleteProduct(id);
 
-            if (deleteProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
             {
                 return BadRequest(deleteProductResponse.Message);
             }
 
-            return Ok(organization.Products);
+            return Ok("Product deleted");
         }
 
         [HttpDelete]
         //[Authorize(Roles = OrganizationType.Provider.ToString())]
         [Route("DeleteAllExpiredProducts")]
         [SwaggerOperation("Delete All Expired Products in organization")]
-        public async Task<Object> DeleteAllExpiredProducts()
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> DeleteAllExpiredProducts()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
             
-            if (getOrganizationResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+            if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
             var products = organization?.Products.FindAll(p => p.ExpirationDate < DateTime.UtcNow);
             if (products == null)
             {
-                return BadRequest("No such product in your organization");
+                return NotFound("No such product in your organization");
             }
 
             foreach (var product in products)
             {
                 var deleteProductResponse = await _productService.DeleteProduct(product.Id);
 
-                if (deleteProductResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (deleteProductResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return BadRequest(deleteProductResponse.Message);
                 }
             }
 
-            return Ok(organization?.Products);
+            return Ok("Expired products are deleted");
         }
     }
 }

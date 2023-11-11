@@ -14,19 +14,19 @@ namespace FRF.API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IArticleService _articleService;
-        
+
         public ArticleController(IArticleService articleService, IMapper mapper)
         {
             _articleService = articleService;
             _mapper = mapper;
         }
-        
+
         [HttpGet]
         [SwaggerOperation("Get Articles")]
         public async Task<ActionResult<Pagination<Article>>> Get(int page = 1, int pageSize = 10)
         {
             var queryable = await _articleService.GetAll();
-            
+
             return Ok(new Pagination<Article>()
             {
                 Page = page,
@@ -35,14 +35,14 @@ namespace FRF.API.Controllers
                 Data = queryable.Skip((page - 1) * pageSize).Take(pageSize).ToList()
             });
         }
-        
+
         [HttpGet("{id}")]
         [SwaggerOperation("Get Article by Id")]
         public async Task<ActionResult<Article>> Get(Guid id)
         {
             return Ok(await _articleService.GetById(id));
         }
-        
+
         [HttpPost]
         [SwaggerOperation("Create Article")]
         [SwaggerResponse(200)]
@@ -53,7 +53,7 @@ namespace FRF.API.Controllers
             await _articleService.Add(article);
             return Ok(article);
         }
-        
+
         [HttpPut("{id}")]
         [SwaggerOperation("Update Article")]
         [SwaggerResponse(200)]

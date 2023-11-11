@@ -13,6 +13,9 @@ namespace FRF.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<FoodRequest> FoodRequests { get; set; }
         public DbSet<Article> Articles { get; set; }
+        public DbSet<AllowedEmail> AllowedEmails { get; set; }
+        public DbSet<InvitedOrganization> InvitedOrganizations { get; set; }
+
 
         // Constructor for the DatabaseContext class.
         public DatabaseContext(DbContextOptions<DatabaseContext> options)

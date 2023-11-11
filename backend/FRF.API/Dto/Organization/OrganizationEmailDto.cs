@@ -2,7 +2,7 @@
 
 namespace FRF.API.Dto.Organization
 {
-    public class AllowedEmailDto
+    public class OrganizationEmailDto
     {
         [EmailAddress]
         [Required]

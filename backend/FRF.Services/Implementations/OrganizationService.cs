@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,15 +19,26 @@ namespace FRF.Services.Implementations
     {
         // Sercice uses repositories to work with datas
         private readonly IBaseRepository<Organization> _organizationRepository;
+
+        private readonly IFoodRequestService _foodRequestService;
+        private readonly IProductService _productService;
+
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         // Dependency Injection (DI).
-        public OrganizationService(IBaseRepository<Organization> organizationRepository, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public OrganizationService(
+            IBaseRepository<Organization> organizationRepository,
+            UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IFoodRequestService foodRequestService,
+            IProductService productService)
         {
             _organizationRepository = organizationRepository;
             _userManager = userManager;
             _roleManager = roleManager;
+            _foodRequestService = foodRequestService;
+            _productService = productService;
         }
 
         public async Task<BaseResponse<bool>> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
@@ -38,7 +50,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = false
                     };
@@ -49,7 +61,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = false
                     };
@@ -65,11 +77,11 @@ namespace FRF.Services.Implementations
                 //    };
                 //}
 
-                if (!organization.AllowedEmails.Contains(user.Email))
+                if (!organization.AllowedEmails.Any(a => a.Email == user.Email))
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "You are not in invited users list",
                         Data = false
                     };
@@ -79,7 +91,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "User already is in organization",
                         Data = false
                     };
@@ -89,12 +101,12 @@ namespace FRF.Services.Implementations
                 await _organizationRepository.Update(organization);
 
                 // Add role depending on organization type
-                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "User was successfuly added to the organization",
                     Data = true
                 };
@@ -103,7 +115,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "User wasn't added to the organization: " + e.Message,
                     Data = false
                 };
@@ -119,7 +131,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = false
                     };
@@ -130,7 +142,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = false
                     };
@@ -140,7 +152,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "User not in Organization",
                         Data = false
                     };
@@ -150,7 +162,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "Creator can't be removed",
                         Data = false
                     };
@@ -161,7 +173,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "User was successfuly removed from the organization",
                     Data = true
                 };
@@ -170,7 +182,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "User wasn't removed from the organization: " + e.Message,
                     Data = false
                 };
@@ -185,12 +197,12 @@ namespace FRF.Services.Implementations
                 var organizations = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .ToListAsync();
 
                 return new BaseResponse<IEnumerable<Organization>>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Get all Organizations successfuly",
                     Data = organizations
                 };
@@ -199,7 +211,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<IEnumerable<Organization>>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Get all Organizations error: " + e.Message,
                     Data = null
                 };
@@ -214,14 +226,14 @@ namespace FRF.Services.Implementations
                 var organization = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .Where(o => o.Id == id)
                     .FirstOrDefaultAsync();
                 if (organization is null)
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Organization not found",
                         Data = null
                     };
@@ -229,7 +241,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was found",
                     Data = organization
                 };
@@ -238,7 +250,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Get Organizations by id error: " + e.Message,
                     Data = null
                 };
@@ -254,7 +266,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not found",
                         Data = null
                     };
@@ -263,7 +275,7 @@ namespace FRF.Services.Implementations
                 var organization = await _organizationRepository.GetAll()
                     .Include(o => o.Users)
                     .Include(o => o.Products)
-                    .Include(o => o.FoodRequests)
+                    .Include(o => o.AllowedEmails)
                     .Where(o => o.Users.Any(u => u.Id == id))
                     .FirstOrDefaultAsync();
 
@@ -271,7 +283,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<Organization>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "User not in any organization",
                         Data = null
                     };
@@ -279,7 +291,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Get Organization succesfully",
                     Data = organization
                 };
@@ -288,7 +300,46 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<Organization>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = "Organization not found - " + e.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<BaseResponse<Organization>> GetOrganizationByProduct(Guid productId)
+        {
+            try
+            {
+                var organization = await _organizationRepository.GetAll()
+                    .Include(o => o.Users)
+                    .Include(o => o.Products)
+                    .Include(o => o.AllowedEmails)
+                    .Where(o => o.Products.Any(u => u.Id == productId))
+                    .FirstOrDefaultAsync();
+
+                if (organization is null)
+                {
+                    return new BaseResponse<Organization>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "User not in any organization",
+                        Data = null
+                    };
+                }
+
+                return new BaseResponse<Organization>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Get Organization succesfully",
+                    Data = organization
+                };
+            }
+            catch (Exception e)
+            {
+                return new BaseResponse<Organization>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "Organization not found - " + e.Message,
                     Data = null
                 };
@@ -304,7 +355,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.NotFound,
+                        StatusCode = HttpStatusCode.NotFound,
                         Message = "Creator User not found",
                         Data = false
                     };
@@ -322,7 +373,7 @@ namespace FRF.Services.Implementations
                 {
                     return new BaseResponse<bool>
                     {
-                        StatusCode = StatusCode.InternalServerError,
+                        StatusCode = HttpStatusCode.InternalServerError,
                         Message = "Creator already is in the organization",
                         Data = false
                     };
@@ -333,7 +384,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly created",
                     Data = true
                 };
@@ -342,7 +393,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "AddOrganization error: " + e.Message,
                     Data = false
                 };
@@ -357,7 +408,7 @@ namespace FRF.Services.Implementations
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly updated",
                     Data = true
                 };
@@ -366,7 +417,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "UpdateOrganization error: " + e.Message,
                     Data = false
                 };
@@ -379,7 +430,7 @@ namespace FRF.Services.Implementations
             {
                 var getOrganizationResponse = await GetOrganizationById(id);
                 var organization = getOrganizationResponse.Data;
-                if (getOrganizationResponse.StatusCode != StatusCode.Ok)
+                if (getOrganizationResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return new BaseResponse<bool>
                     {
@@ -389,17 +440,39 @@ namespace FRF.Services.Implementations
                     };
                 }
 
-                if (organization != null)
+                var getFoodRequestsResponse = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
+                if (getFoodRequestsResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    organization?.Users.Clear();
-                    await _organizationRepository.Update(organization);
+                    return new BaseResponse<bool>
+                    {
+                        StatusCode = getFoodRequestsResponse.StatusCode,
+                        Message = getFoodRequestsResponse.Message,
+                        Data = false
+                    };
                 }
+                if (getFoodRequestsResponse.Data?.Count() > 0)
+                {
+                    return new BaseResponse<bool>
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Organization's requests list is not empty",
+                        Data = false
+                    };
+                }
+
+                organization.Products.ForEach(async p =>
+                {
+                    var deleteProductResponse = await _productService.DeleteProduct(p.Id);
+                });
+                
+                organization?.Users.Clear();
+                await _organizationRepository.Update(organization);
 
                 await _organizationRepository.Delete(id);
 
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.Ok,
+                    StatusCode = HttpStatusCode.OK,
                     Message = "Organization was succesfuly deleted",
                     Data = true
                 };
@@ -408,7 +481,7 @@ namespace FRF.Services.Implementations
             {
                 return new BaseResponse<bool>
                 {
-                    StatusCode = StatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.InternalServerError,
                     Message = "DeleteOrganization error: " + e.Message,
                     Data = false
                 };

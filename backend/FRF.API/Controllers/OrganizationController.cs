@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace FRF.API.Controllers
@@ -48,6 +49,7 @@ namespace FRF.API.Controllers
         [Authorize]
         [SwaggerOperation("Create organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User created the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<OrganizationDto>> Post([FromBody] CreateOrganizationDto createOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -61,7 +63,7 @@ namespace FRF.API.Controllers
             if (createOrganizationResponse.Data == true)
             {
                 // Add role depending on organization type
-                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.AddToRoleAsync(user, role.ToString());
 
                 var organizationDto = _mapper.Map<OrganizationDto>(organization);
@@ -77,6 +79,8 @@ namespace FRF.API.Controllers
         [Authorize]
         [SwaggerOperation("Update current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User updated the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrganizationDto>> Put([FromBody] UpdateOrganizationDto updateOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -85,7 +89,7 @@ namespace FRF.API.Controllers
             
             if (organization == null)
             {
-                return BadRequest(getOrganizationResponse);
+                return NotFound(getOrganizationResponse);
             }
 
             if (organization.CreatorId.ToString() != user.Id)
@@ -119,6 +123,7 @@ namespace FRF.API.Controllers
         [Authorize]
         [SwaggerOperation("Get current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User got the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrganizationDto>> GetUserOrganization()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -127,19 +132,20 @@ namespace FRF.API.Controllers
 
             if (organization == null)
             {
-                return BadRequest(getOrganizationResponse);
+                return NotFound(getOrganizationResponse);
             }
 
             return Ok(_mapper.Map<OrganizationDto>(organization));
         }
-            
-        [HttpPost]
+
+        [HttpGet]
+        [Route("AllowedEmails")]
         [Authorize]
-        [Route("AllowEmail")]
-        [SwaggerOperation("Add email to the list of allowed emails in organization")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Email added to allowed successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "Email added to allowed - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> AllowEmail([FromBody] AllowedEmailDto email)
+        [SwaggerOperation("Get current user's organization AllowedEmails")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User got the AllowedEmails successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<AllowedEmail>>> GetAllowedEmails()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -147,7 +153,33 @@ namespace FRF.API.Controllers
 
             if (organization == null)
             {
-                return BadRequest(getOrganizationResponse);
+                return NotFound(getOrganizationResponse);
+            }
+
+            if (organization.CreatorId.ToString() != user.Id)
+            {
+                return BadRequest("User not organization creator");
+            }
+
+            return Ok(organization.AllowedEmails);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("AllowEmail")]
+        [SwaggerOperation("Add email to the list of allowed emails in organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Email added to allowed successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Email added to allowed - failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<Object> AllowEmail([FromBody] OrganizationEmailDto email)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
+            var organization = getOrganizationResponse.Data;
+
+            if (organization == null)
+            {
+                return NotFound(getOrganizationResponse);
             }
 
             if (organization.CreatorId.ToString() != user.Id)
@@ -155,17 +187,21 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
 
-            if (email.Email != String.Empty)
-                if (organization.AllowedEmails.Contains(email.Email))
-                {
-                    return BadRequest("This email is already in allowed list");
-                }
-            organization.AllowedEmails = string.Join(";", organization.AllowedEmails, email.Email);
+            if (organization.AllowedEmails.Any(a => a.Email == email.Email))
+            {
+                return BadRequest("This email is already in allowed list");
+            }
+
+            var allowedEmail = new AllowedEmail
+            {
+                Email = email.Email,
+            };
+            organization.AllowedEmails.Add(allowedEmail);
 
             var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
             if (updateOrganizationResponse.Data == true)
             {
-                return Ok(organization.AllowedEmails.Split(';').ToList());
+                return Ok(organization.AllowedEmails);
             }
             else
             {
@@ -179,7 +215,8 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Remove email to the list of allowed emails in organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "Email removed to allowed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Email removed to allowed - failed", Type = typeof(MessageResponseDto))]
-        public async Task<Object> DeclineEmail([FromBody] AllowedEmailDto email)
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<Object> DeclineEmail([FromBody] OrganizationEmailDto email)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
@@ -187,7 +224,7 @@ namespace FRF.API.Controllers
 
             if (organization == null)
             {
-                return BadRequest(getOrganizationResponse);
+                return NotFound(getOrganizationResponse);
             }
 
             if (organization.CreatorId.ToString() != user.Id)
@@ -195,17 +232,18 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
 
-            if (email.Email != String.Empty)
-                if (!organization.AllowedEmails.Contains(email.Email))
-                {
-                    return BadRequest("This email not found in allowed list");
-                }
-            organization.AllowedEmails = string.Join(";", organization.AllowedEmails.Split(';').Where(e => e != email.Email));
+            var allowedEmail = organization.AllowedEmails.Find(a => a.Email == email.Email);
+            if (allowedEmail == null)
+            {
+                return NotFound("This email not found in allowed list");
+            }
+
+            organization.AllowedEmails.Remove(allowedEmail);
 
             var updateOrganizationResponse = await _organizationService.UpdateOrganization(organization);
             if (updateOrganizationResponse.Data == true)
             {
-                return Ok(organization.AllowedEmails.Split(';').ToList());
+                return Ok(organization.AllowedEmails);
             }
             else
             {
@@ -213,29 +251,27 @@ namespace FRF.API.Controllers
             }
         }
 
-        [HttpDelete("Current")]
+        [HttpDelete]
         [Authorize]
         [SwaggerOperation("Delete current user's organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User deleted the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> Delete()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
             {
-                return BadRequest("User not found");
+                return NotFound("User not found");
             }
 
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            if (getOrganizationResponse.Data == null)
-            {
-                return BadRequest(getOrganizationResponse.Message);
-            }
 
             var organization = getOrganizationResponse.Data;
 
             if (organization == null)
             {
-                return BadRequest(getOrganizationResponse);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             if (organization.CreatorId.ToString() != user.Id)
@@ -244,7 +280,7 @@ namespace FRF.API.Controllers
             }
 
             // Remove all roles depending on organization type
-            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
             // Copu users list
             var users = organization.Users.ToList();
 
@@ -273,18 +309,19 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Kick user from organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User kicked from organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User kicked from organization - failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> KickUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
             {
-                return BadRequest("User not found");
+                return NotFound("User not found");
             }
 
             var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
             if (getOrganizationResponse.Data == null)
             {
-                return BadRequest(getOrganizationResponse.Message);
+                return NotFound(getOrganizationResponse.Message);
             }
 
             var organization = getOrganizationResponse.Data;
@@ -294,12 +331,12 @@ namespace FRF.API.Controllers
                 return BadRequest("User isn't the organization's creator");
             }
             // Remove all roles depending on organization type
-            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
 
             var userForDelete = await _userManager.FindByIdAsync(userId);
 
-            var deleteFromOrganizationResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
-            if (deleteFromOrganizationResponse.StatusCode == Domain.Enum.StatusCode.Ok)
+            var kickResponse = await _organizationService.RemoveUserFromOrganization(userForDelete.Id, organization.Id);
+            if (kickResponse.StatusCode == HttpStatusCode.OK)
             {
                 await _userManager.RemoveFromRoleAsync(userForDelete, role.ToString());
 
@@ -308,7 +345,7 @@ namespace FRF.API.Controllers
             }
             else
             {
-                return BadRequest(deleteFromOrganizationResponse.Message);
+                return BadRequest(kickResponse.Message);
             }
         }
 
@@ -319,12 +356,13 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Join to the organization")]
         [SwaggerResponse(StatusCodes.Status200OK, "User joined the organization successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User join organization failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> Join(JoinOrganizationDto joinOrganizationDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
             {
-                return BadRequest("User not found");
+                return NotFound("User not found");
             }
 
             try
@@ -334,14 +372,15 @@ namespace FRF.API.Controllers
                 var organization = getOrganizationResponse.Data;
                 var joinResponse = await _organizationService.AddUserToOrganization(user.Id, joinOrganizationDto.OrganizationId/*, joinOrganizationDto.Password */);
 
-                if (joinResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (joinResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return BadRequest(joinResponse.Message);
-                }
-                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
-                await _userManager.AddToRoleAsync(user, role.ToString());
+                    OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
+                    await _userManager.AddToRoleAsync(user, role.ToString());
 
-                return Ok("User joined organization");
+                    var organizationDto = _mapper.Map<OrganizationDto>(organization);
+                    return Ok(organizationDto);
+                }
+                return BadRequest(joinResponse.Message);
             }
             catch (Exception e)
             {
@@ -354,27 +393,36 @@ namespace FRF.API.Controllers
         [Authorize]
         [Route("Leave")]
         [SwaggerOperation("Leave the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User leaved the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User leave organization failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<Object> Leave()
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
             {
-                return BadRequest("User not found");
+                return NotFound("User not found");
             }
 
             try
             {
                 var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
                 var organization = getOrganizationResponse.Data;
+
+                if (organization == null)
+                {
+                    return NotFound("Organization not found");
+                }
+
                 var leaveResponse = await _organizationService.RemoveUserFromOrganization(user.Id, organization.Id);
 
-                if (leaveResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+                if (leaveResponse.StatusCode != HttpStatusCode.OK)
                 {
                     return BadRequest(leaveResponse.Message);
                 }
 
                 // Remove role depending on organization type
-                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributer;
+                OrganizationType role = organization?.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
                 await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
                 return Ok("User leaved organization");

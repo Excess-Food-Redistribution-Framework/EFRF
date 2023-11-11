@@ -17,11 +17,14 @@ namespace FRF.Domain.Entities
         public List<Product> Products { get; set; } = new List<Product>();
 
         public Guid ProviderId { get; set; }
-        public Guid DistributerId { get; set; }
+        public Guid DistributorId { get; set; } = Guid.Empty;
 
-        public DeliveryType Delivery { get; set; } = DeliveryType.WaitForTakeDonate;
-        public FoodRequestState State { get; set; } = FoodRequestState.Waiting;
+        public string UserId { get; set; } = String.Empty;
 
+        public DeliveryType Delivery { get; set; } = DeliveryType.DistributorNeedsToTakeAway;
+        public FoodRequestState State { get; set; } = FoodRequestState.NotAccepted;
+
+        public DateTime EstPickUpTime { get; set; } = DateTime.UtcNow;
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
     }
 }
