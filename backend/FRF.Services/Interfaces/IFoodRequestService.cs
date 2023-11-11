@@ -1,6 +1,5 @@
 ﻿using FRF.Domain.Entities;
 using FRF.Domain.Enum;
-using FRF.Domain.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +10,17 @@ namespace FRF.Services.Interfaces
 {
     public interface IFoodRequestService
     {
-        Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequests();
-        Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequestsByOrganization(Guid organizationId);
-        Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequestsByUser(string userId);
+        Task<IEnumerable<FoodRequest>> GetAllFoodRequests();
+        Task<IEnumerable<FoodRequest>> GetAllFoodRequestsByOrganization(Guid organizationId);
+        Task<IEnumerable<FoodRequest>> GetAllFoodRequestsByUser(string userId);
 
-        Task<BaseResponse<FoodRequest>> GetFoodRequestById(Guid id);
-        Task<BaseResponse<FoodRequest>> GetFoodRequestByTitle(string title);
+        Task<FoodRequest> GetFoodRequestById(Guid id);
+        Task<FoodRequest> GetFoodRequestByTitle(string title);
 
-        Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization);
+        Task<bool> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization);
 
-        Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor);
-        Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request, Organization organization);
-        Task<BaseResponse<bool>> DeleteFoodRequests(Guid id, Organization organization);
+        Task<bool> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor);
+        Task<bool> UpdateFoodRequest(FoodRequest request, Organization organization);
+        Task<bool> DeleteFoodRequests(Guid id, Organization organization);
     }
 }

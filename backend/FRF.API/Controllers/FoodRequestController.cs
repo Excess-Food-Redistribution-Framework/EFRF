@@ -3,6 +3,7 @@ using FRF.API.Dto.FoodRequest;
 using FRF.API.Dto.Organization;
 using FRF.Domain.Entities;
 using FRF.Domain.Enum;
+using FRF.Domain.Exceptions;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -47,7 +48,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "FoodRequest state is changed")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<object> ChangeState(ChangeStateDto changeStateDto)
+        public async Task<Object> ChangeState(ChangeStateDto changeStateDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -55,29 +56,15 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
+            var foodRequest = await _foodRequestService.GetFoodRequestById(changeStateDto.Id);
 
-            var foodRequestsResponse = await _foodRequestService.GetFoodRequestById(changeStateDto.Id);
-            var foodRequest = foodRequestsResponse.Data;
+            await _foodRequestService.ChangeStateFoodRequest(changeStateDto.State, foodRequest, organization);
 
-            if (foodRequest == null)
-            {
-                return NotFound(foodRequestsResponse);
-            }
+            var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 
-            var changeStateResponse = await _foodRequestService.ChangeStateFoodRequest(changeStateDto.State, foodRequest, organization);
-            if (changeStateResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(changeStateResponse);
-            }
-
-            return Ok(foodRequest);
+            return Ok(foodRequestDto);
         }
 
 
@@ -87,27 +74,12 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "FoodRequest getted")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<object> Get()
+        public async Task<Object> Get()
         {
-            var foodRequestsResponse = await _foodRequestService.GetAllFoodRequests();
+            var foodRequests = await _foodRequestService.GetAllFoodRequests();
 
-            if (foodRequestsResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(foodRequestsResponse);
-            }
+            var foodRequestsDto = _mapper.Map<List<FoodRequestDto>>(foodRequests);
 
-            var foodRequests = foodRequestsResponse.Data;
-
-            var foodRequestsDto = new List<FoodRequestDto>();
-
-            if (foodRequests != null)
-            {
-                foreach (var foodRequest in foodRequests)
-                {
-                    var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
-                    foodRequestsDto.Add(foodRequestDto);
-                }
-            }
             return Ok(foodRequestsDto);
         }
 
@@ -118,35 +90,14 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "FoodRequest getted")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<object> GetByOrganization(Guid id)
+        public async Task<Object> GetByOrganization(Guid id)
         {
-            var getOrganizationResponse = await _organizationService.GetOrganizationById(id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationById(id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
+            var foodRequests = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
 
-            var foodRequestsResponse = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
+            var foodRequestsDto = _mapper.Map<List<FoodRequestDto>>(foodRequests);
 
-            if (foodRequestsResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(foodRequestsResponse);
-            }
-
-            var foodRequests = foodRequestsResponse.Data;
-
-            var foodRequestsDto = new List<FoodRequestDto>();
-
-            if (foodRequests != null)
-            {
-                foreach (var foodRequest in foodRequests)
-                {
-                    var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
-                    foodRequestsDto.Add(foodRequestDto);
-                }
-            }
             return Ok(foodRequestsDto);
         }
 
@@ -165,33 +116,12 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
+            var foodRequests = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
 
-            var foodRequestsResponse = await _foodRequestService.GetAllFoodRequestsByOrganization(organization.Id);
+            var foodRequestsDto = _mapper.Map<List<FoodRequestDto>>(foodRequests);
 
-            if (foodRequestsResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return BadRequest(foodRequestsResponse);
-            }
-
-            var foodRequests = foodRequestsResponse.Data;
-
-            var foodRequestsDto = new List<FoodRequestDto>();
-
-            if (foodRequests != null)
-            {
-                foreach (var foodRequest in foodRequests)
-                {
-                    var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
-                    foodRequestsDto.Add(foodRequestDto);
-                }
-            }
             return Ok(foodRequestsDto);
         }
 
@@ -203,13 +133,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<object> Get(Guid id)
         {
-            var foodRequestsResponse = await _foodRequestService.GetFoodRequestById(id);
-            var foodRequest = foodRequestsResponse.Data;
-
-            if (foodRequest == null)
-            {
-                return NotFound(foodRequestsResponse);
-            }
+            var foodRequest = await _foodRequestService.GetFoodRequestById(id);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 
@@ -230,16 +154,9 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            var getAssignOrganizationResponse = await _organizationService.GetOrganizationById(createFoodRequestDto.OrganizationId);
-            var assignOrganization = getAssignOrganizationResponse.Data;
-
-            if (organization == null || assignOrganization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
+            var assignOrganization = await _organizationService.GetOrganizationById(createFoodRequestDto.OrganizationId);
 
             Organization provider;
             Organization distributor;
@@ -269,12 +186,7 @@ namespace FRF.API.Controllers
                 Delivery = createFoodRequestDto.Delivery
             };
 
-            var createResponse = await _foodRequestService.CreateFoodRequest(foodRequest, provider, distributor);
-
-            if (createResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(createResponse);
-            }
+            await _foodRequestService.CreateFoodRequest(foodRequest, provider, distributor);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 
@@ -296,33 +208,16 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
-
-            var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(updateFoodRequestDto.Id);
-            var foodRequest = getFoodRequestResponse.Data;
-
-            if (foodRequest == null)
-            {
-                return NotFound(getFoodRequestResponse);
-            }
+            var foodRequest = await _foodRequestService.GetFoodRequestById(updateFoodRequestDto.Id);
 
             foodRequest.Title = foodRequest.Title;
             foodRequest.Description = foodRequest.Description;
             foodRequest.Delivery = foodRequest.Delivery;
             foodRequest.EstPickUpTime = foodRequest.EstPickUpTime;
 
-            var updateResponse = await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
-
-            if (updateResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(updateResponse);
-            }
+            await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 
@@ -345,41 +240,16 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
+            var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
 
-            var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(foodRequestId);
-            var foodRequest = getFoodRequestResponse.Data;
-
-            if (foodRequest == null)
-            {
-                return NotFound(getFoodRequestResponse);
-            }
-
-            var getProductResponse = await _productService.GetProductById(productId);
-            var product = getProductResponse.Data;
-
-            if (product == null)
-            {
-                return NotFound(getProductResponse);
-            }
-
+            var product = await _productService.GetProductById(productId);
             foodRequest.Products.Add(product);
 
-            var updateResponse = await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
-
-            if (updateResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(updateResponse);
-            }
+            await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
-
             return Ok(foodRequestDto);
         }
 
@@ -399,37 +269,20 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
-
-            var getFoodRequestResponse = await _foodRequestService.GetFoodRequestById(foodRequestId);
-            var foodRequest = getFoodRequestResponse.Data;
-
-            if (foodRequest == null)
-            {
-                return NotFound(getFoodRequestResponse);
-            }
+            var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
 
             var product = foodRequest.Products.Find(p => p.Id == productId);
 
             if (product == null)
             {
-                return NotFound("No such product in foodRequest");
+                throw new NotFoundApiException("No such product in foodRequest");
             }
 
             foodRequest.Products.Remove(product);
 
-            var updateResponse = await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
-
-            if (updateResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(updateResponse);
-            }
+            await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 
@@ -450,20 +303,9 @@ namespace FRF.API.Controllers
                 return NotFound("User not found");
             }
 
-            var getOrganizationResponse = await _organizationService.GetOrganizationByUser(user.Id);
-            var organization = getOrganizationResponse.Data;
+            var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (organization == null)
-            {
-                return NotFound(getOrganizationResponse);
-            }
-
-            var updateResponse = await _foodRequestService.DeleteFoodRequests(id, organization);
-
-            if (updateResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return NotFound(updateResponse);
-            }
+            await _foodRequestService.DeleteFoodRequests(id, organization);
 
             return Ok("Food Request deleted");
         }

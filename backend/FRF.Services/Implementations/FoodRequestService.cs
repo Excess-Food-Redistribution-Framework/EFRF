@@ -2,7 +2,7 @@
 using FRF.DAL.Repositories;
 using FRF.Domain.Entities;
 using FRF.Domain.Enum;
-using FRF.Domain.Responses;
+using FRF.Domain.Exceptions;
 using FRF.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,18 +25,13 @@ public class FoodRequestService : IFoodRequestService
         _organizationRepository = organizationRepository;
     }
 
-    public async Task<BaseResponse<bool>> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization)
+    public async Task<bool> ChangeStateFoodRequest(FoodRequestState state, FoodRequest request, Organization organization)
     {
         try
         {
             if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No such organization in food request",
-                    Data = false
-                };
+                throw new NotFoundApiException("No such organization in food request");
             }
 
             if (
@@ -65,56 +60,31 @@ public class FoodRequestService : IFoodRequestService
                 request.State = state;
                 await _foodRequestRepository.Update(request);
 
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "State was changed",
-                    Data = true
-                };
+                return true;
             }
             else
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't change to this state",
-                    Data = false
-                };
+                throw new BadRequestApiException("Can't change to this state");
             }
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "ChangeStateFoodRequest error: " + e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("ChangeStateFoodRequest error: ", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor)
+    public async Task<bool> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor)
     {
         try
         {
             if (provider.Type != OrganizationType.Provider || distributor.Type != OrganizationType.Distributor)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Incorrect organization types",
-                    Data = false
-                };
+                throw new BadRequestApiException("Incorrect organization types");
             }
 
             if (!request.Products.All(p => provider.Products.Contains(p)))
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Some products not exist in provider list",
-                    Data = false
-                };
+                throw new BadRequestApiException("Some products not exist in provider list");
             }
 
             request.ProviderId = provider.Id;
@@ -122,147 +92,84 @@ public class FoodRequestService : IFoodRequestService
 
             await _foodRequestRepository.Update(request);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequest created successfuly",
-                Data = true
-            };
+            return true;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "CreateFoodRequest error: " + e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("CreateFoodRequest error: ", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> UpdateFoodRequest(FoodRequest request, Organization organization)
+    public async Task<bool> UpdateFoodRequest(FoodRequest request, Organization organization)
     {
         try
         {
             if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No such organization in food request",
-                    Data = false
-                };
+                throw new NotFoundApiException("No such organization in food request");
             }
 
             if (request.State != FoodRequestState.NotAccepted)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't edit request in this state",
-                    Data = false
-                };
+                throw new BadRequestApiException("Can't edit request in this state");
             }
 
             var provider = await _organizationRepository.GetById(request.ProviderId);
             if (provider == null)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Provider not found",
-                    Data = false
-                };
+                throw new NotFoundApiException("Provider not found");
             }
 
             if (!request.Products.All(p => provider.Products.Contains(p)))
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Some products not exist in provider list",
-                    Data = false
-                };
+                throw new BadRequestApiException("Some products not exist in provider list");
             }
 
             await _foodRequestRepository.Update(request);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequest was succesfuly updated",
-                Data = true
-            };
+            return true;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "UpdateFoodRequest error: " + e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("UpdateFoodRequest error: ", e);
         }
     }
 
-    public async Task<BaseResponse<bool>> DeleteFoodRequests(Guid id, Organization organization)
+    public async Task<bool> DeleteFoodRequests(Guid id, Organization organization)
     {
         try
         {
-            var getFoodRequestResponse = await GetFoodRequestById(id);
-            var foodRequest = getFoodRequestResponse.Data;
-
-            if (foodRequest == null)
-            {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = getFoodRequestResponse.StatusCode,
-                    Message = getFoodRequestResponse.Message,
-                    Data = false
-                };
-            }
+            var foodRequest = await GetFoodRequestById(id);
 
             if (foodRequest.State != FoodRequestState.NotAccepted)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Can't delete request in this state",
-                    Data = false
-                };
+                throw new BadRequestApiException("Can't delete request in this state");
             }
 
             if (organization.Id != foodRequest.ProviderId && organization.Id != foodRequest.DistributorId)
             {
-                return new BaseResponse<bool>
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No such organization in food request",
-                    Data = false
-                };
+                throw new NotFoundApiException("No such organization in food request");
             }
 
             await _organizationRepository.Delete(id);
 
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequest was succesfuly deleted",
-                Data = true
-            };
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<bool>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "DeleteFoodRequest error: " + e.Message,
-                Data = false
-            };
+            throw new InternalServerErrorApiException("DeleteFoodRequest error: ", e);
         }
     }
 
-    public async Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequests()
+    public async Task<IEnumerable<FoodRequest>> GetAllFoodRequests()
     {
         try
         {
@@ -270,25 +177,23 @@ public class FoodRequestService : IFoodRequestService
                 .Include(f => f.Products)
                 .ToListAsync();
 
-            return new BaseResponse<IEnumerable<FoodRequest>>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequests are listed successfuly",
-                Data = foodRequests
-            };
+            return foodRequests;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<IEnumerable<FoodRequest>>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "GetAllFoodRequests error: " + e.Message,
-                Data = null
-            };
+            throw new InternalServerErrorApiException("GetAllFoodRequests error: ", e);
         }
     }
 
-    public async Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequestsByOrganization(Guid organizationId)
+    public async Task<IEnumerable<FoodRequest>> GetAllFoodRequestsByOrganization(Guid organizationId)
     {
         try
         {
@@ -297,31 +202,29 @@ public class FoodRequestService : IFoodRequestService
                 .Where(f => f.ProviderId == organizationId || f.DistributorId == organizationId)
                 .ToListAsync();
 
-            return new BaseResponse<IEnumerable<FoodRequest>>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequests are listed successfuly",
-                Data = foodRequests
-            };
+            return foodRequests;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<IEnumerable<FoodRequest>>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "GetAllFoodRequestsByOrganization error: " + e.Message,
-                Data = null
-            };
+            throw new InternalServerErrorApiException("GetAllFoodRequestsByOrganization error: ", e);
         }
     }
 
     // TODO
-    public async Task<BaseResponse<IEnumerable<FoodRequest>>> GetAllFoodRequestsByUser(string userId)
+    public  Task<IEnumerable<FoodRequest>> GetAllFoodRequestsByUser(string userId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<BaseResponse<FoodRequest>> GetFoodRequestById(Guid id)
+    public async Task<FoodRequest> GetFoodRequestById(Guid id)
     {
         try
         {
@@ -331,34 +234,27 @@ public class FoodRequestService : IFoodRequestService
 
             if (foodRequest == null)
             {
-                return new BaseResponse<FoodRequest>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "FoodRequest not found",
-                    Data = null
-                };
+                throw new NotFoundApiException("Product not found");
             }
 
-            return new BaseResponse<FoodRequest>
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "FoodRequest is found successfuly",
-                Data = foodRequest
-            };
+            return foodRequest;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new BaseResponse<FoodRequest>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "GetFoodRequestById error: " + e.Message,
-                Data = null
-            };
+            throw new InternalServerErrorApiException("GetFoodRequestById error: ", e);
         }
     }
 
     // TODO
-    public async Task<BaseResponse<FoodRequest>> GetFoodRequestByTitle(string title)
+    public  Task<FoodRequest> GetFoodRequestByTitle(string title)
     {
         throw new NotImplementedException();
     }

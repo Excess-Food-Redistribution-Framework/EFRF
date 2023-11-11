@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
 using FRF.API.Dto.User;
-using FRF.API.Exceptions;
+using FRF.Domain.Exceptions;
 
 namespace FRF.API.Controllers
 {
