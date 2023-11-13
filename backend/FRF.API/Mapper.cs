@@ -13,7 +13,9 @@ public class Mapper : Profile
 {
     public Mapper()
     {
+        // User
         CreateMap<User, UserDto>();
+        CreateMap<User, UserWithOrganizationDto>();
         
         CreateMap<CreateUpdateArticleDto, Article>();
 
