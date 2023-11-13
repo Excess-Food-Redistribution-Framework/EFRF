@@ -5,7 +5,7 @@ export interface User {
   email: string;
 }
 
-export type UserRole = 'Provider' | 'Distributer' | null;
+export type UserRole = null |'Provider' | 'Distributer';
 
 export interface UserDetail extends User {
   role: UserRole;

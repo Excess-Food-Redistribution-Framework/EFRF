@@ -40,6 +40,7 @@ function AuthProvider({ children }: React.PropsWithChildren) {
   const isAuth = () => {
     if (isTokenExpired(token)) {
       setToken(null);
+      return false;
     }
 
     return !!token;

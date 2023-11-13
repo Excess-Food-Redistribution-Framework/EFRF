@@ -1,3 +1,4 @@
+import { Organization } from "./organizationType";
 export enum ProductType {
   FreshProduce = 'FreshProduce',
   CannedGoods = 'CannedGoods',
@@ -19,9 +20,15 @@ export interface Product {
   quantity: number;
   type: ProductType;
   expirationDate: string;
+  organization: Organization
 }
 
 // Pre parametre komponentu ProductCards
 export type ProductCardsProps = {
-  pageSize: number;
+  page: number,
+  pageSize: number,
+  notExpired: boolean,
+  notBlocked: boolean,
+  organizationId?: string;
+  foodRequestId?: string;
 };

@@ -15,6 +15,7 @@ function ProductFormPage() {
   const [quantity, setQuantity] = useState(0);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(today);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +28,14 @@ function ProductFormPage() {
         expirationDate,
       } as Product);
 
-      navigate('/');
+      navigate('/products');
     } catch (error) {
       console.error(error);
     }
   };
-
+  console.log(user?.role);
   useEffect(() => {
-    if (user?.role && user?.role !== 'Provider') {
+    if (user?.role != null && user?.role !== 'Provider') {
       navigate('/');
     }
   }, [isAuth]);

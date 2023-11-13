@@ -12,11 +12,11 @@ import { useNavigate } from 'react-router-dom';
 import { Product, ProductType, ProductCardsProps } from '../types/productTypes';
 import { GetListOfProducts } from '../hooks/useProduct';
 
-function ProductCards({ pageSize }: ProductCardsProps) {
-  const { listOfProducts, errorMessage } = GetListOfProducts(pageSize);
+function ProductCards({ page, pageSize, notBlocked, notExpired}: ProductCardsProps) {7
+  const { listOfProducts, errorMessage } = GetListOfProducts(page, pageSize, notBlocked, notExpired);
   const navigate = useNavigate();
 
-  const handleClickButton = (productId: string) => {
+  const handleButtonClick = (productId: string) => {
     navigate(`/products/${productId}`);
   };
 
@@ -31,6 +31,13 @@ function ProductCards({ pageSize }: ProductCardsProps) {
     return (
       <Container className="p-4 text-center">
         <h2>Loading products...</h2>
+      </Container>
+    );
+  }
+  if (!listOfProducts || listOfProducts.length === 0) {
+    return (
+      <Container className="p-4">
+        <h2>No products available. Please check later.</h2>
       </Container>
     );
   }
@@ -116,7 +123,7 @@ function ProductCards({ pageSize }: ProductCardsProps) {
                       key={2}
                     />
                   </ProgressBar>
-                  <Button onClick={() => handleClickButton(product.id)}>
+                  <Button onClick={() => handleButtonClick(product.id)}>
                     Check Product
                   </Button>
                 </Card.Body>

@@ -5,7 +5,7 @@ import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
 
 function HomePage() {
-  const { isAuth } = useAuth();
+  const { isAuth, user} = useAuth();
   const navigate = useNavigate();
 
   const handleClickButton = (path: string) => {
@@ -104,7 +104,7 @@ function HomePage() {
           />
           <h2>Find What You Need</h2>
           <h2>And Sign For A Supply</h2>
-          <ProductCards pageSize={8} />
+          <ProductCards pageSize={8} notBlocked={true} notExpired={true} page={0}/>
         </Container>
       </Container>
     </Container>

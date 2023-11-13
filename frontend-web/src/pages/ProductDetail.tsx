@@ -1,19 +1,58 @@
-import { Col, Container, Row } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
-import { GetProductById } from '../hooks/useProduct';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { GetProductById, DeleteProduct, UpdateProduct } from '../hooks/useProduct';
+import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
+import axios from 'axios';
+import { useAuth } from '../AuthProvider';
+import { Organization } from '../types/organizationType';
 
 function ProductDetail() {
-  const { productId } = useParams(); // Získajte articleId zo URL
+  const { isAuth, user } = useAuth();
+  const navigate = useNavigate();
+  const { productId } = useParams<{ productId: string }>();
   const [loading, setLoading] = useState(true);
   const id: string = productId || '';
   const { product, errorMessage } = GetProductById(id);
+  const [organization, setOrganization] = useState<Organization>();
 
   useEffect(() => {
-    if (product) {
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        if (product) {
+          setLoading(false);
+        }
+
+        const organizationResponse = await axios.get('/api/Organization/Current');
+        setOrganization(organizationResponse.data);
+      } catch (error) {
+        //console.error('Error fetching organization:', error);
+      }
+    };
+
+    fetchData();
+  }, [product, user]);
+
+  const handleDeleteSuccess = () => {
+    console.log('Product deleted successfully');
+    navigate("/products/");
+  };
+
+  const handleDeleteError = (error: string) => {
+    console.error(`Error deleting product: ${error}`);
+  };
+
+  const handleDelete = () => {
+    DeleteProduct(id, handleDeleteSuccess, handleDeleteError);
+  };
+
+  //console.log(user?.organization);
+  const handleUpdate = () => {
+    if (isAuth() && user?.role != null && id) {
+      if (organization?.id === product?.organization.id) {
+        navigate(`/products/${id}/update`, { state: { id } });
+      }
     }
-  }, [product]);
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -44,6 +83,18 @@ function ProductDetail() {
         <h5>{product.expirationDate}</h5>
         <h5>{product.quantity}</h5>
         <h5>{product.type}</h5>
+        {isAuth() ? (
+          user?.role != null && organization?.id === product?.organization.id ? (
+            <>
+              <Button variant="danger" onClick={handleDelete}>
+                Delete Product
+              </Button>
+              <Button variant="primary" onClick={handleUpdate}>
+                Update Product
+              </Button>
+            </>
+          ) : null
+        ) : null}
       </Container>
     </Container>
   );
