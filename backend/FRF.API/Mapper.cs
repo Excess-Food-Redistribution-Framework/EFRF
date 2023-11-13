@@ -14,7 +14,6 @@ public class Mapper : Profile
     public Mapper()
     {
         CreateMap<User, UserDto>();
-        CreateMap<User, UserDetailDto>();
         
         CreateMap<CreateUpdateArticleDto, Article>();
 
