@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using FRF.API.Dto.Organization;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
@@ -69,15 +70,13 @@ namespace FRF.API.Controllers
             Organization organization = _mapper.Map<Organization>(model.Organization);
             organization.CreatorId = new Guid(user.Id);
             await _organizationService.CreateOrganization(organization);
-            
+
             var token = await LoginUserAndGenerateToken(model.Email, model.Password);
             
-            return Ok(new LoginResponseDto()
-            {
-                Token = token,
-                User = _mapper.Map<UserDto>(user),
-                Organization = organization
-            });
+            var userToReturn = _mapper.Map<UserWithOrganizationDto>(user);
+            userToReturn.Organization = _mapper.Map<OrganizationDto>(organization);
+            
+            return Ok(new LoginResponseDto() { Token = token, User = userToReturn });
         }
         
         [HttpPost]
@@ -87,16 +86,14 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
         {
-            var token = await LoginUserAndGenerateToken(model.Email, model.Password);
             var user = await _userManager.FindByEmailAsync(model.Email);
             var organization = await _organizationService.GetOrganizationByUser(user.Id);
             
-            return Ok(new LoginResponseDto()
-            {
-                Token = token,
-                User = _mapper.Map<UserDto>(user),
-                Organization = organization
-            });
+            var token = await LoginUserAndGenerateToken(model.Email, model.Password);
+            var userToReturn = _mapper.Map<UserWithOrganizationDto>(user);
+            userToReturn.Organization = _mapper.Map<OrganizationDto>(organization);
+            
+            return Ok(new LoginResponseDto() { Token = token, User = userToReturn });
         }
 
         [HttpGet]

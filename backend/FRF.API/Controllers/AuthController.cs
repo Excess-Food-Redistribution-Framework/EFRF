@@ -82,8 +82,7 @@ namespace FRF.API.Controllers
             return Ok(new LoginResponseDto()
             {
                 Token = await LoginUser(model.Email, model.Password),
-                User = _mapper.Map<UserDto>(await _userManager.FindByEmailAsync(model.Email)),
-                Organization = _mapper.Map<Organization>(organization)
+                User = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByEmailAsync(model.Email)),
             });
         }
 
@@ -97,7 +96,7 @@ namespace FRF.API.Controllers
             return Ok(new LoginResponseDto()
             {
                 Token = await LoginUser(model.Email, model.Password),
-                User = _mapper.Map<UserDto>(await _userManager.FindByEmailAsync(model.Email))
+                User = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByEmailAsync(model.Email))
             });
         }
 
