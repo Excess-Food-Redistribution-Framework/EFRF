@@ -33,9 +33,8 @@ function ProductFormPage() {
       console.error(error);
     }
   };
-  console.log(user?.role);
   useEffect(() => {
-    if (user?.role != null && user?.role !== 'Provider') {
+    if (user?.role || user?.role !== 'Provider') {
       navigate('/');
     }
   }, [isAuth]);
