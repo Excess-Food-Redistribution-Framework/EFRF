@@ -26,6 +26,7 @@ public class Mapper : Profile
         CreateMap<Product, ProductDto>();
 
         CreateMap<FoodRequest, FoodRequestDto>();
+        CreateMap<ProductPick, ProductPickDto>();
 
         CreateMap<AddressDto, Address>();
         CreateMap<Address, AddressDto>();

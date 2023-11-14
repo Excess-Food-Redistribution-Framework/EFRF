@@ -232,7 +232,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Product added to FoodRequest")]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<Object> AddProduct(Guid foodRequestId, Guid productId)
+        public async Task<Object> AddProduct(CreateProductPickDto pickDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             if (user.Id == null)
@@ -242,12 +242,11 @@ namespace FRF.API.Controllers
 
             var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
+            var foodRequest = await _foodRequestService.GetFoodRequestById(pickDto.FoodRequestId);
 
-            var product = await _productService.GetProductById(productId);
-            foodRequest.Products.Add(product);
+            var product = await _productService.GetProductById(pickDto.ProductId);
 
-            await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
+            await _foodRequestService.PickFromProduct(foodRequest, product, organization, pickDto.Quantity);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
             return Ok(foodRequestDto);
@@ -273,16 +272,16 @@ namespace FRF.API.Controllers
 
             var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
 
-            var product = foodRequest.Products.Find(p => p.Id == productId);
-
-            if (product == null)
+            var pick = foodRequest.ProductPicks.Find(p => p.Product.Id == productId);
+            
+            if (pick == null)
             {
-                throw new NotFoundApiException("No such product in foodRequest");
+                throw new NotFoundApiException("No such product pick");
             }
 
-            foodRequest.Products.Remove(product);
+            var product = pick.Product;
 
-            await _foodRequestService.UpdateFoodRequest(foodRequest, organization);
+            await _foodRequestService.UnPickFromProduct(foodRequest, product, organization);
 
             var foodRequestDto = _mapper.Map<FoodRequestDto>(foodRequest);
 

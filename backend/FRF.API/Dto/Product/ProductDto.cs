@@ -23,14 +23,14 @@ namespace FRF.API.Dto.Product
         [Required]
         [Display(Name = "Type")]
         public ProductType Type { get; set; }
-        
-        [Required]
-        [Display(Name = "State")]
-        public ProductState State { get; set; }
 
         [Required]
         [Display(Name = "Quantity")]
         public int Quantity { get; set; } = 0;
+
+        [Required]
+        [Display(Name = "AvailableQuantity")]
+        public int AvailableQuantity { get; set; } = 0;
 
         [Required]
         [DataType(DataType.Date)]

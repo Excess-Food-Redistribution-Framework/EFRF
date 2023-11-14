@@ -14,7 +14,7 @@ namespace FRF.Domain.Entities
         public string Title { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
 
-        public List<Product> Products { get; set; } = new List<Product>();
+        public List<ProductPick> ProductPicks { get; set; } = new List<ProductPick>();
 
         public Guid ProviderId { get; set; }
         public Guid DistributorId { get; set; } = Guid.Empty;

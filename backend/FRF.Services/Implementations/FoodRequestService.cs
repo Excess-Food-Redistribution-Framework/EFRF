@@ -16,12 +16,12 @@ using System.Threading.Tasks;
 public class FoodRequestService : IFoodRequestService
 {
     private readonly IBaseRepository<FoodRequest> _foodRequestRepository;
-    private readonly IBaseRepository<Product> _productRepository;
+    private readonly IBaseRepository<ProductPick> _productPickRepository;
     private readonly IBaseRepository<Organization> _organizationRepository;
-    public FoodRequestService(IBaseRepository<FoodRequest> foodRequestRepository, IBaseRepository<Product> productRepository, IBaseRepository<Organization> organizationRepository)
+    public FoodRequestService(IBaseRepository<FoodRequest> foodRequestRepository, IBaseRepository<ProductPick> productPickRepository, IBaseRepository<Organization> organizationRepository)
     {
         _foodRequestRepository = foodRequestRepository;
-        _productRepository = productRepository;
+        _productPickRepository = productPickRepository;
         _organizationRepository = organizationRepository;
     }
 
@@ -47,16 +47,6 @@ public class FoodRequestService : IFoodRequestService
             (request.State == FoodRequestState.Deliviring && state == FoodRequestState.Received && organization.Type == OrganizationType.Distributor)
             )
             {
-                if (request.State == FoodRequestState.NotAccepted && state == FoodRequestState.Preparing)
-                {
-                    request.Products.ForEach(p => p.State = ProductState.Blocked);
-                }
-
-                if (request.State == FoodRequestState.Preparing && state == FoodRequestState.NotAccepted)
-                {
-                    request.Products.ForEach(p => p.State = ProductState.Available);
-                }
-
                 request.State = state;
                 await _foodRequestRepository.Update(request);
 
@@ -66,6 +56,14 @@ public class FoodRequestService : IFoodRequestService
             {
                 throw new BadRequestApiException("Can't change to this state");
             }
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
@@ -82,7 +80,7 @@ public class FoodRequestService : IFoodRequestService
                 throw new BadRequestApiException("Incorrect organization types");
             }
 
-            if (!request.Products.All(p => provider.Products.Contains(p)))
+            if (!request.ProductPicks.All(p => provider.Products.Contains(p.Product)))
             {
                 throw new BadRequestApiException("Some products not exist in provider list");
             }
@@ -90,13 +88,152 @@ public class FoodRequestService : IFoodRequestService
             request.ProviderId = provider.Id;
             request.DistributorId = distributor.Id;
 
-            await _foodRequestRepository.Update(request);
+            await _foodRequestRepository.Add(request);
 
             return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
             throw new InternalServerErrorApiException("CreateFoodRequest error: ", e);
+        }
+    }
+
+    public async Task<bool> UnPickFromProduct(FoodRequest request, Product product, Organization organization)
+    {
+        try
+        {
+            if (request.State != FoodRequestState.NotAccepted)
+            {
+                throw new BadRequestApiException("Can't edit request in this state");
+            }
+
+            if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
+            {
+                throw new NotFoundApiException("No such organization in food request");
+            }
+
+            var provider = await _organizationRepository.GetById(request.ProviderId);
+            if (provider == null)
+            {
+                throw new NotFoundApiException("Provider not found");
+            }
+
+            if (!provider.Products.Contains(product))
+            {
+                throw new NotFoundApiException("No such product in provider list");
+            }
+
+            var pick = request.ProductPicks.FirstOrDefault(pp => pp.Product == product);
+            if (pick == null)
+            {
+                throw new NotFoundApiException("No such product pick in food request list");
+            }
+
+            request.ProductPicks.Remove(pick);
+            product.AvailableQuantity += pick.Quantity;
+
+            await _foodRequestRepository.Update(request);
+
+            await _productPickRepository.Delete(pick.Id);
+
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new InternalServerErrorApiException("UnPickFromProduct error: ", e);
+        }
+    }
+
+    public async Task<bool> PickFromProduct(FoodRequest request, Product product, Organization organization, int quantity)
+    {
+        try
+        {
+            if (request.State != FoodRequestState.NotAccepted)
+            {
+                throw new BadRequestApiException("Can't edit request in this state");
+            }
+
+            if (organization.Id != request.ProviderId && organization.Id != request.DistributorId)
+            {
+                throw new NotFoundApiException("No such organization in food request");
+            }
+
+            var provider = await _organizationRepository.GetById(request.ProviderId);
+            if (provider == null)
+            {
+                throw new NotFoundApiException("Provider not found");
+            }
+
+            if (!provider.Products.Contains(product))
+            {
+                throw new NotFoundApiException("No such product in provider list");
+            }
+
+            if (quantity <= 0)
+            {
+                throw new BadRequestApiException("Bad quantity of product");
+            }
+
+            var pick = request.ProductPicks.FirstOrDefault(pp => pp.Product == product);
+            if (pick == null)
+            {
+                if (quantity > product.AvailableQuantity)
+                {
+                    throw new BadRequestApiException("No quantity of product");
+                }
+
+                pick = new ProductPick
+                {
+                    Product = product,
+                    Organization = organization,
+                    Quantity = quantity
+                };
+
+                product.AvailableQuantity -= quantity;
+                request.ProductPicks.Add(pick);
+            }
+            else
+            {
+                if (quantity > product.AvailableQuantity + pick.Quantity)
+                {
+                    throw new BadRequestApiException("No quantity of product");
+                }
+
+                product.AvailableQuantity += pick.Quantity - quantity;
+                pick.Quantity = quantity;
+            }
+
+            await _foodRequestRepository.Update(request);
+
+            return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new InternalServerErrorApiException("PickFromProduct error: ", e);
         }
     }
 
@@ -120,7 +257,7 @@ public class FoodRequestService : IFoodRequestService
                 throw new NotFoundApiException("Provider not found");
             }
 
-            if (!request.Products.All(p => provider.Products.Contains(p)))
+            if (!request.ProductPicks.All(p => provider.Products.Contains(p.Product)))
             {
                 throw new BadRequestApiException("Some products not exist in provider list");
             }
@@ -128,6 +265,14 @@ public class FoodRequestService : IFoodRequestService
             await _foodRequestRepository.Update(request);
 
             return true;
+        }
+        catch (BadRequestApiException)
+        {
+            throw;
+        }
+        catch (NotFoundApiException)
+        {
+            throw;
         }
         catch (Exception e)
         {
@@ -151,7 +296,15 @@ public class FoodRequestService : IFoodRequestService
                 throw new NotFoundApiException("No such organization in food request");
             }
 
-            await _organizationRepository.Delete(id);
+            foreach (var productPick in foodRequest.ProductPicks)
+            {
+                var product = productPick.Product;
+                product.AvailableQuantity += productPick.Quantity;
+
+                await _productPickRepository.Delete(productPick.Id);
+            }
+
+            await _foodRequestRepository.Delete(foodRequest.Id);
 
             return true;
         }
@@ -174,7 +327,10 @@ public class FoodRequestService : IFoodRequestService
         try
         {
             var foodRequests = await _foodRequestRepository.GetAll()
-                .Include(f => f.Products)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Product)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Organization)
                 .ToListAsync();
 
             return foodRequests;
@@ -198,7 +354,10 @@ public class FoodRequestService : IFoodRequestService
         try
         {
             var foodRequests = await _foodRequestRepository.GetAll()
-                .Include(f => f.Products)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Product)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Organization)
                 .Where(f => f.ProviderId == organizationId || f.DistributorId == organizationId)
                 .ToListAsync();
 
@@ -229,7 +388,10 @@ public class FoodRequestService : IFoodRequestService
         try
         {
             var foodRequest = await _foodRequestRepository.GetAll()
-                .Include(f => f.Products)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Product)
+                .Include(f => f.ProductPicks)
+                    .ThenInclude(pp => pp.Organization)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (foodRequest == null)
