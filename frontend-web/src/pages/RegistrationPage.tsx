@@ -93,7 +93,7 @@ function RegistrationPage() {
       <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
           <Row className="primary_color">
-            <Col lg="7" className="secondary_color diagonal-bg d-flex">
+            <Col lg="7" className="secondary_color diagonal-bg-login d-flex">
               <Image
                 src="/assets/img/register.svg"
                 className="img-fluid p-4 pb-0"
