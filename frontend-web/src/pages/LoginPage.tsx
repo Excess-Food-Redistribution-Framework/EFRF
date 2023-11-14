@@ -88,7 +88,7 @@ function LoginPage() {
       <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
           <Row className="primary_color">
-            <Col lg="7" className="secondary_color diagonal-bg d-flex">
+            <Col lg="7" className="secondary_color diagonal-bg-login d-flex">
               <Image src="/assets/img/login.svg" className="img-fluid p-4 pb-0" />
             </Col>
             <Col lg="5" className="px-4 px-xl-5 d-flex flex-column justify-content-evenly">
