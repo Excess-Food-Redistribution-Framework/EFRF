@@ -46,14 +46,13 @@ function Product() {
         <Row className="justify-content-center diagonal-bg p-5">
           <Col className="text-center d-flex flex-column justify-content-center">
             <h1 className="text-white text-shadow pb-2">
-              {organization ? `Products, Role: ${user?.role}, Organization: ${organization?.name}` : 'Products'}
+              {organization ? `Products, Role: ${user?.role}, Organization: ${organization?.name}, id: ${organization?.id}` : 'Products'}
             </h1>
           </Col>
         </Row>
       </Container>
       {organization ? (
-        <ProductCards page={0} pageSize={10} notExpired={true} notBlocked={true} organizationId={organization.id} foodRequestId={""}
-        />
+        <ProductCards page={0} pageSize={10} notExpired={true} notBlocked={true} organizationId={organization.id} foodRequestId={""} />
       ) : (
         <ProductCards page={0} pageSize={10} notExpired={true} notBlocked={true} organizationId={organization} foodRequestId={""}
         />

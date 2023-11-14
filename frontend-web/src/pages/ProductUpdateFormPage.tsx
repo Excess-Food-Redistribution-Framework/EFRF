@@ -39,8 +39,7 @@ function UpdateProductFormPage() {
           setExpirationDate(new Date(product.expirationDate).toLocaleDateString('en-CA'));
           setLoading(false);
   
-          // После того, как данные загружены, проверяем роль
-          if (organization && product?.organization.id !== organization.id) {
+          if (organization && product?.organization?.id !== organization.id) {
             navigate('/');
           }
         }

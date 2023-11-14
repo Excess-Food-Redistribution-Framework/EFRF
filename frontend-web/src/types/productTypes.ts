@@ -20,7 +20,7 @@ export interface Product {
   quantity: number;
   type: ProductType;
   expirationDate: string;
-  organization: Organization
+  organization: Organization;
 }
 
 // Pre parametre komponentu ProductCards

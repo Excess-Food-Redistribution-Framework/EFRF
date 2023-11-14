@@ -2,12 +2,11 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Product } from '../types/productTypes';
 
-export function GetListOfProducts(page: number, pageSize: number, notExpired: boolean, notBlocked: boolean) {
-  const [listOfProducts, setListOfProducts] = useState<[]>();
+export function GetListOfProducts(page: number, pageSize: number, organizationId: string, notExpired: boolean, notBlocked: boolean) {
+  const [listOfProducts, setListOfProducts] = useState<[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    
     async function fetchListOfProducts() {
       try {
         const response = await axios.get(
@@ -16,6 +15,7 @@ export function GetListOfProducts(page: number, pageSize: number, notExpired: bo
             params: {
               page: page,
               pageSize: pageSize,
+              organizationId: organizationId,
               notExpired: notExpired,
               notBlocked: notBlocked
             },
@@ -25,7 +25,7 @@ export function GetListOfProducts(page: number, pageSize: number, notExpired: bo
           throw new Error(response.statusText);
         }
         const { data } = response.data;
-        // Obmedziť zoznam produktov na veľkosť pageSize
+        // Ограничить список продуктов размером pageSize
         const limitedList = data.slice(0, pageSize);
         setListOfProducts(limitedList);
       } catch (error: unknown) {
@@ -38,10 +38,11 @@ export function GetListOfProducts(page: number, pageSize: number, notExpired: bo
     }
 
     fetchListOfProducts();
-  }, [page, pageSize, notExpired, notBlocked]);
+  }, [page, pageSize, organizationId, notExpired, notBlocked]);
 
   return { listOfProducts, errorMessage };
 }
+
 
 export function GetProductById(productId: string) {
   const [product, setProduct] = useState<Product>();

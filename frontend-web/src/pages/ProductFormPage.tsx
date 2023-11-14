@@ -34,7 +34,7 @@ function ProductFormPage() {
     }
   };
   useEffect(() => {
-    if (user?.role || user?.role !== 'Provider') {
+    if (user?.role && user?.role !== 'Provider') {
       navigate('/');
     }
   }, [isAuth]);
