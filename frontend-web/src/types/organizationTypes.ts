@@ -3,4 +3,19 @@ export interface OrganizationApiResponse {
   name: string;
   type: string;
   information: string;
+  address: OrganizationAddress
+  location: OrganizationLocation
+}
+
+export interface OrganizationAddress{
+  state: string;
+  city: string;
+  street: string;
+  number: string;
+  zipCode: string
+}
+
+export interface OrganizationLocation{
+  longitude: number;
+  latitude: number;
 }

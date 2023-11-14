@@ -7,7 +7,6 @@ import ProductCards from '../components/ProductCards';
 function HomePage() {
   const { isAuth } = useAuth();
   const navigate = useNavigate();
-
   const handleClickButton = (path: string) => {
     navigate(`./${path}`);
   };
