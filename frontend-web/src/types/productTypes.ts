@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------------------------
+// Typy produktov
+
+import { OrganizationApiResponse } from './organizationTypes';
+
 export enum ProductType {
   FreshProduce = 'FreshProduce',
   CannedGoods = 'CannedGoods',
@@ -9,19 +14,44 @@ export enum ProductType {
   Other = 'Other',
 }
 
-export interface ListOfProducts {
-  data: Product[];
+// -----------------------------------------------------------------------------------------
+// ZÍSKAVANIE LISTU PRODUKTOV
+// GET /api/Product
+
+// Parametre pre volanie API pre získanie listu produktov
+export type ProductsApiParams = {
+  page: number;
+  pageSize: number;
+  notExpired: boolean;
+  notBlocked: boolean;
+};
+
+// Očakavaný response po volaní Api pre získanie listu produktov
+export interface ProductsApiResponse {
+  page: number;
+  pageSize: number;
+  count: number;
+  data: ProductApiResponse[];
 }
 
-export interface Product {
+// -----------------------------------------------------------------------------------------
+// ZÍSKAVANIE PRODUKTU POMOCOU JEHO ID
+// GET /api/Product/{id}
+
+// Parametre pre volanie API pre získanie jedného produktu pomocou jeho ID
+export interface ProductApiResponse {
   id: string;
   name: string;
   quantity: number;
   type: ProductType;
+  state: string;
   expirationDate: string;
+  organization: OrganizationApiResponse;
 }
 
-// Pre parametre komponentu ProductCards
-export type ProductCardsProps = {
-  pageSize: number;
+// Očakavaný response po volaní Api pre získanie jedného produktu pomocou jeho ID
+export type ProductApiParams = {
+  id: string;
 };
+
+// -----------------------------------------------------------------------------------------

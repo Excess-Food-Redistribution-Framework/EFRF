@@ -1,10 +1,10 @@
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, Row, Spinner } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { GetArticleById } from '../hooks/useArticle';
 
 function ArticleDetail() {
-  const { articleId } = useParams(); // Získajte articleId zo URL
+  const { articleId } = useParams(); // Získanie articleId z URL
   const [loading, setLoading] = useState(true);
   const id: string = articleId || '';
   const { article, errorMessage } = GetArticleById(id);
@@ -16,9 +16,12 @@ function ArticleDetail() {
   }, [article]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Container className="p-4 text-center">
+        <Spinner animation="border" variant="secondary" />
+      </Container>
+    );
   }
-
   if (errorMessage) {
     return (
       <Container className="p-4 text-center">
@@ -40,9 +43,7 @@ function ArticleDetail() {
           </Col>
         </Row>
       </Container>
-      <Container className="py-5">
-        {article.content}
-      </Container>
+      <Container className="py-5">{article.content}</Container>
     </Container>
   );
 }
