@@ -16,6 +16,9 @@ namespace FRF.Domain.Entities
         // (PLACEHOLDER) Instead of Information field add other specific fields (f.e. email/address/certification/....)
         public string Information { get; set; } = String.Empty;
 
+        public Address? Address { get; set; }
+        public Location? Location { get; set; }
+
         public List<Product> Products { get; set; } = new List<Product>();
 
         public Guid CreatorId { get; set; }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FRF.API.Dto.Address;
 using FRF.API.Dto.Article;
 using FRF.API.Dto.FoodRequest;
 using FRF.API.Dto.Organization;
@@ -25,5 +26,11 @@ public class Mapper : Profile
         CreateMap<Product, ProductDto>();
 
         CreateMap<FoodRequest, FoodRequestDto>();
+
+        CreateMap<AddressDto, Address>();
+        CreateMap<Address, AddressDto>();
+
+        CreateMap<LocationDto, Location>();
+        CreateMap<Location, LocationDto>();
     }
 }
