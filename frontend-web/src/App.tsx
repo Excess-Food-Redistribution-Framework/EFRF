@@ -12,7 +12,8 @@ import Products from './pages/Products';
 import ArticleDetail from './pages/ArticleDetail';
 import OrganizationFormPage from './pages/OrganizationFormPage';
 import ProductFormPage from './pages/ProductFormPage';
-import ProductDetail from './pages/ProductDetail';
+import ProductDetailPage from './pages/ProductDetail';
+import ProductUpdateFormPage from './pages/ProductUpdateFormPage';
 
 function App() {
   // Set axios defaults
@@ -27,7 +28,8 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:articleId" element={<ArticleDetail />} />
-            <Route path="/products/:productId" element={<ProductDetail />} />
+            <Route path="/products/:productId" element={<ProductDetailPage />} />
+            <Route path="/products/:productId/update" element={<ProductUpdateFormPage />} />
             <Route path="/products" element={<Products />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />

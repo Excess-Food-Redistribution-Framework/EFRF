@@ -40,7 +40,7 @@ export function GetListOfProducts(params: ProductsApiParams) {
   return { listOfProducts, errorMessage };
 }
 
-export function GetProductById(params: ProductApiParams) {
+export function GetProductById(productId: string) {
   const [product, setProduct] = useState<ProductApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ export function GetProductById(params: ProductApiParams) {
     async function fetchProductById() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/product/${params.id}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`
         );
 
         if (response.status !== 200) {
@@ -65,7 +65,58 @@ export function GetProductById(params: ProductApiParams) {
       }
     }
     fetchProductById();
-  }, [params]);
+  }, [productId]);
 
   return { product, errorMessage };
+}
+
+export function DeleteProduct(productId: string, onDelete: () => void, onError: (error: string) => void) {
+  async function deleteProduct() {
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`
+      );
+
+      if (response.status !== 200) {
+        throw new Error(response.statusText);
+      }
+
+      onDelete();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        onError(error.message);
+      } else {
+        onError('An unknown error occurred');
+      }
+    }
+  }
+
+  deleteProduct();
+}
+
+
+export function UpdateProduct(productId: string, updateData: ProductApiResponse, onUpdate: (updatedProduct: ProductApiResponse) => void, onError: (error: string) => void) {
+    async function updateProduct() {
+      try {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`,
+          updateData
+        );
+
+        if (response.status !== 200) {
+          throw new Error(response.statusText);
+        }
+
+        const updatedProduct = response.data as ProductApiResponse;
+        onUpdate(updatedProduct);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          onError(error.message);
+        } else {
+          onError('An unknown error occurred');
+        }
+      }
+    }
+
+    updateProduct();
 }
