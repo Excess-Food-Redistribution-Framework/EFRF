@@ -4,13 +4,20 @@ import { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
 
 function Navbar() {
-  const { setToken, isAuth, user } = useAuth();
+  const { setToken, isAuth, user, setUser } = useAuth();
 
   useEffect(() => {}, [user]);
 
-  const logout = () => {
+  const logout = async () => {
     setToken('');
+    
+    try {
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
+
 
   return (
     <NavbarBootstrap className="bg-white shadow-sm sticky-top">

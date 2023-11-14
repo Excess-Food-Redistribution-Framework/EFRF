@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthProvider';
-import { Product, ProductType } from '../types/productTypes';
+import { ProductApiResponse, ProductType } from '../types/productTypes';
 
 function ProductFormPage() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function ProductFormPage() {
         type,
         quantity,
         expirationDate,
-      } as Product);
+      } as ProductApiResponse);
 
       navigate('/');
     } catch (error) {
