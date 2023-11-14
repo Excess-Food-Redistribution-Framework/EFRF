@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Product } from '../types/productTypes';
+import {
+  ProductApiParams,
+  ProductApiResponse,
+  ProductsApiParams,
+} from '../types/productTypes';
 
-export function GetListOfProducts(pageSize: number) {
+export function GetListOfProducts(params: ProductsApiParams) {
   const [listOfProducts, setListOfProducts] = useState<[]>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -10,15 +14,17 @@ export function GetListOfProducts(pageSize: number) {
     async function fetchListOfProducts() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/product`
+          `${import.meta.env.VITE_API_BASE_URL}/api/product`,
+          { params }
         );
 
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-        const { data } = response;
+        const { data } = response.data;
+
         // Obmedziť zoznam produktov na veľkosť pageSize
-        const limitedList = data.slice(0, pageSize);
+        const limitedList = data.slice(0, params.pageSize);
         setListOfProducts(limitedList);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -28,28 +34,27 @@ export function GetListOfProducts(pageSize: number) {
         }
       }
     }
-
     fetchListOfProducts();
-  }, [pageSize]);
+  }, [params]);
 
   return { listOfProducts, errorMessage };
 }
 
-export function GetProductById(productId: string) {
-  const [product, setProduct] = useState<Product>();
+export function GetProductById(params: ProductApiParams) {
+  const [product, setProduct] = useState<ProductApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchProductById() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/product/${params.id}`
         );
 
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-        const data = response.data as Product;
+        const data = response.data as ProductApiResponse;
         setProduct(data);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -60,7 +65,7 @@ export function GetProductById(productId: string) {
       }
     }
     fetchProductById();
-  }, [productId]);
+  }, [params]);
 
   return { product, errorMessage };
 }

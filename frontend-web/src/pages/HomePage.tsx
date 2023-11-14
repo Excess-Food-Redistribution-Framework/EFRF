@@ -12,7 +12,6 @@ function HomePage() {
     navigate(`./${path}`);
   };
   return (
-    <>
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
         <Row className="justify-content-center diagonal-bg mh-400px p-5">
@@ -104,11 +103,10 @@ function HomePage() {
           />
           <h2>Find What You Need</h2>
           <h2>And Sign For A Supply</h2>
-          <ProductCards pageSize={8} />
+          <ProductCards page={1} pageSize={8} notExpired={false} notBlocked />
         </Container>
       </Container>
     </Container>
-    </>
   );
 }
 
