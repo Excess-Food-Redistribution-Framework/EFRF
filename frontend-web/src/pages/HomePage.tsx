@@ -1,8 +1,9 @@
-import { Badge, Button, Col, Container, Row } from 'react-bootstrap';
+import {Badge, Button, Col, Container, Image, Row} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
+import React from "react";
 
 function HomePage() {
   const { isAuth } = useAuth();
@@ -14,10 +15,13 @@ function HomePage() {
   return (
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
-        <Row className="justify-content-center diagonal-bg mh-400px p-5">
+        <Row className="justify-content-evenly diagonal-bg mh-400px p-5">
+          <Col xl="5" className="justify-content-center d-flex">
+            <Image src="/assets/img/hero.svg" className="img-fluid p-4 pb-0" />
+          </Col>
           <Col
-            lg="6"
-            className="text-center d-flex flex-column justify-content-center"
+            xl="3"
+            className="text-center d-flex flex-column justify-content-center py-5"
           >
             <h5 className="text-white text-shadow pb-2">
               Give away unused <Badge bg="warning">Food</Badge>

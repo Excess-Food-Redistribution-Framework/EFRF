@@ -1,9 +1,9 @@
 .primary_color {
-  background-color: #4c654d;
+  background-color: #afbaae;
 }
 
 .secondary_color {
-  background-color: #afbaae;
+  background-color: #4c654d;
 }
 
 .diagonal-bg-login {
@@ -19,7 +19,7 @@
 .diagonal-bg {
   background: linear-gradient(
     110deg,
-    #4c654d 45%,
+    #afbaae 55%,
     transparent 30%,
     transparent 100%
   );
