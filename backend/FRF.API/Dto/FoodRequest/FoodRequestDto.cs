@@ -10,6 +10,7 @@ namespace FRF.API.Dto.FoodRequest
         public string Title { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
 
+        public List<ProductPickDto> ProductPicks { get; set; } = new List<ProductPickDto>();
 
         public Guid ProviderId { get; set; }
         public Guid DistributorId { get; set; }

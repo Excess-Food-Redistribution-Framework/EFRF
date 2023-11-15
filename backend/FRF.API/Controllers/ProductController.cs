@@ -49,7 +49,16 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get all products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Get(int page, int pageSize, bool notExpired = false, bool notBlocked = true, Guid organizationId = new Guid(), Guid foodRequestId = new Guid())
+        public async Task<ActionResult<List<ProductDto>>> Get(
+            int page = 1, 
+            int pageSize = 10, 
+
+            bool notExpired = false, 
+            bool onlyAvailable = true,
+
+            Guid organizationId = new Guid(),
+            Guid foodRequestId = new Guid()
+            )
         {
 
             var products = await _productService.GetAllProducts();
@@ -59,9 +68,9 @@ namespace FRF.API.Controllers
                 products = products.Where(p => p.ExpirationDate >= DateTime.UtcNow);
             }
 
-            if (notBlocked)
+            if (onlyAvailable)
             {
-                products = products.Where(p => p.State == ProductState.Available);
+                products = products.Where(p => p.AvailableQuantity > 0);
             }
 
             if (organizationId != Guid.Empty)
@@ -73,7 +82,7 @@ namespace FRF.API.Controllers
             if (foodRequestId != Guid.Empty)
             {
                 var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
-                products = products.Where(p => foodRequest.Products.Contains(p));
+                products = products.Where(p => foodRequest.ProductPicks.Any(pp => pp.Product == p));
             }
 
             var productsDto = new List<ProductDto>();
@@ -136,6 +145,7 @@ namespace FRF.API.Controllers
             }
 
             var product = _mapper.Map<Product>(createProductDto);
+            product.AvailableQuantity = createProductDto.Quantity;
             await _productService.AddProduct(product, organization);
 
             var productDto = _mapper.Map<ProductDto>(product);
