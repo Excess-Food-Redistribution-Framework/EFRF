@@ -11,14 +11,15 @@ import {
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 import '../styles/custom.styles.css';
-import {LoginRequest} from '../types/userTypes.ts';
+import {LoginRequest, UserRole} from '../types/userTypes.ts';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { setToken, setUser, user, isAuth, setUserRole } = useAuth();
+
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const { setToken, setUser, user, isAuth } = useAuth();
   const [error, setError] = useState<string>(''); 
   
   const [emailError, setEmailError] = useState('');
@@ -52,6 +53,7 @@ function LoginPage() {
 
       setToken(response.data.token);
       setUser(response.data.user);
+      setUserRole(response.data.user.organization.type);
 
       navigate('/');
     } catch (error) {
