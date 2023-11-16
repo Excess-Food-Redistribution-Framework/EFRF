@@ -68,7 +68,7 @@ namespace FRF.API.Controllers
             }
 
             Organization organization = _mapper.Map<Organization>(model.Organization);
-            organization.CreatorId = new Guid(user.Id);
+            organization.CreatorId = Guid.Parse(user.Id);
             await _organizationService.CreateOrganization(organization);
 
             var token = await LoginUserAndGenerateToken(model.Email, model.Password);
@@ -101,12 +101,10 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Get current user")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<UserDto>> GetAccount()
+        public async Task<ActionResult<UserWithOrganizationDto>> GetAccount()
         {
-            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var userRoles = await _userManager.GetRolesAsync(user);
-            
-            var userResponse = _mapper.Map<UserDto>(user);
+            var userResponse = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value));
+            userResponse.Organization = _mapper.Map<OrganizationDto>(await _organizationService.GetOrganizationByUser(userResponse.Id.ToString()));
             
             return Ok(userResponse);
         }
