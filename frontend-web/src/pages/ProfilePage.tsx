@@ -4,7 +4,7 @@ import { Container } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 
 function ProfilePage() {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<object|any>({});
   const [loading, setLoading] = useState(true);
 
   const { isAuth } = useAuth();
@@ -50,7 +50,7 @@ function ProfilePage() {
                 Email: {/* @ts-ignore */} {userData.email}
               </p>
               <p>
-                User role: {/* @ts-ignore */} {userData.role}
+                Data: {/* @ts-ignore */} {JSON.stringify(userData)}
               </p>
             </>
           ) : (

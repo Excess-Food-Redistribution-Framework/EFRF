@@ -1,7 +1,7 @@
 export interface OrganizationApiResponse {
   id: string;
   name: string;
-  type: string;
+  type: 'Provider' | 'Distributor';
   information: string;
   address: OrganizationAddress
   location: OrganizationLocation
