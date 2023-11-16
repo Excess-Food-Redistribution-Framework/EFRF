@@ -18,7 +18,7 @@ namespace FRF.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private IOrganizationService _organizationService;
         private UserManager<User> _userManager;
@@ -27,14 +27,14 @@ namespace FRF.API.Controllers
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
 
-        public AccountController(
-            UserManager<User> userManager, 
-            RoleManager<IdentityRole> roleManager, 
+        public AuthController(
+            UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager,
             SignInManager<User> signInManager,
             IMapper mapper,
-            IConfiguration config, 
+            IConfiguration config,
             IOrganizationService organizationService
-            )
+        )
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -48,70 +48,59 @@ namespace FRF.API.Controllers
         [Route("Register")]
         [SwaggerOperation("Registration")]
         [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
-        public async Task<ActionResult<LoginResponseDto>> Register(RegisterDto model)
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed")]
+        public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterDto model)
         {
-            var user = new User {
-                // Now UserName is set on Email value.
+            var user = new User
+            {
                 UserName = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
             };
-      
+            
             var result = await _userManager.CreateAsync(user, model.Password);
-            //result = await _userManager.SetUserNameAsync(user, model.UserName);
-            //result = await _userManager.SetEmailAsync(user, model.Email);
+            
             if (!result.Succeeded)
             {
-                throw new ApiException(result.Errors.FirstOrDefault()?.Description, HttpStatusCode.BadRequest);
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                {
+                    throw new ApiException("User with this email already exists", HttpStatusCode.Conflict);
+                } 
+                else
+                {
+                    throw new ApiException("User registration failed", HttpStatusCode.BadRequest);
+                }
             }
-
-            Organization organization = _mapper.Map<Organization>(model.Organization);
-            organization.CreatorId = new Guid(user.Id);
+            
+            // create organization
+            var organization = _mapper.Map<Organization>(model.Organization);
+            organization.CreatorId = new Guid(user.Id); 
+            
             await _organizationService.CreateOrganization(organization);
-
-            var token = await LoginUserAndGenerateToken(model.Email, model.Password);
             
-            var userToReturn = _mapper.Map<UserWithOrganizationDto>(user);
-            userToReturn.Organization = _mapper.Map<OrganizationDto>(organization);
-            
-            return Ok(new LoginResponseDto() { Token = token, User = userToReturn });
+            return Ok(new LoginResponseDto()
+            {
+                Token = await LoginUser(model.Email, model.Password),
+                User = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByEmailAsync(model.Email)),
+            });
         }
-        
+
         [HttpPost]
         [Route("Login")]
         [SwaggerOperation("Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed")]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
-        {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            var organization = await _organizationService.GetOrganizationByUser(user.Id);
-            
-            var token = await LoginUserAndGenerateToken(model.Email, model.Password);
-            var userToReturn = _mapper.Map<UserWithOrganizationDto>(user);
-            userToReturn.Organization = _mapper.Map<OrganizationDto>(organization);
-            
-            return Ok(new LoginResponseDto() { Token = token, User = userToReturn });
+        { 
+            return Ok(new LoginResponseDto()
+            {
+                Token = await LoginUser(model.Email, model.Password),
+                User = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByEmailAsync(model.Email))
+            });
         }
 
-        [HttpGet]
-        [Authorize]
-        [SwaggerOperation("Get current user")]
-        [SwaggerResponse(StatusCodes.Status200OK)]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<UserDto>> GetAccount()
-        {
-            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var userRoles = await _userManager.GetRolesAsync(user);
-            
-            var userResponse = _mapper.Map<UserDto>(user);
-            
-            return Ok(userResponse);
-        }
-        
-        private async Task<String> LoginUserAndGenerateToken(string email, string password)
+        private async Task<String> LoginUser(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
 

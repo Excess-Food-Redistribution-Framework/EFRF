@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FRF.API.Dto.Organization;
 
 namespace FRF.API.Dto.User
 {
@@ -22,5 +23,7 @@ namespace FRF.API.Dto.User
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string? Password { get; set; }
+        
+        public CreateOrganizationDto Organization { get; set; } = new CreateOrganizationDto();
     }
 }
