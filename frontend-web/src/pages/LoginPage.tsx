@@ -11,11 +11,7 @@ import {
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 import '../styles/custom.styles.css';
-
-interface ILoginRequest {
-  email: string;
-  password: string;
-}
+import {LoginRequest} from '../types/userTypes.ts';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -52,7 +48,7 @@ function LoginPage() {
       const response = await axios.post('api/Account/Login', {
         email,
         password,
-      } as ILoginRequest);
+      } as LoginRequest);
 
       setToken(response.data.token);
       setUser(response.data.user);
