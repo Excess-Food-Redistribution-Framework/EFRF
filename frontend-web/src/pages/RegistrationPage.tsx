@@ -98,7 +98,7 @@ function RegistrationPage() {
 
       setToken(response.data.token);
       setUser(response.data.user);
-      setUserRole(response.data.organization.type as UserRole);
+      setUserRole(response.data.user.organization.type);
 
       navigate('/');
     } catch (error : any) {

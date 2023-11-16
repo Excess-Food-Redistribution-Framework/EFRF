@@ -7,7 +7,7 @@ import { useAuth } from '../AuthProvider';
 import axios from 'axios';
 
 function ProductDetail() {
-  const { isAuth, user } = useAuth();
+  const { isAuth, user, userRole } = useAuth();
   const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ function ProductDetail() {
 
   //console.log(user?.organization);
   const handleUpdate = () => {
-    if (isAuth() && user?.role != null && id) {
+    if (isAuth() && userRole != null && id) {
       if (organization?.id === product?.organization.id) {
         navigate(`/products/${id}/update`, { state: { id } });
       }
@@ -82,7 +82,7 @@ function ProductDetail() {
         <h5>{product.quantity}</h5>
         <h5>{product.type}</h5>
         {isAuth() ? (
-          user?.role != null && organization?.id === product?.organization.id ? (
+          userRole != null && organization?.id === product?.organization.id ? (
             <>
               <Button variant="danger" onClick={handleDelete}>
                 Delete Product

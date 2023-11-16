@@ -7,7 +7,7 @@ import { ProductApiResponse, ProductType } from '../types/productTypes';
 
 function ProductFormPage() {
   const navigate = useNavigate();
-  const { isAuth, user, setUser } = useAuth();
+  const { isAuth, userRole } = useAuth();
 
   const today = new Date().toLocaleDateString('en-CA');
 
@@ -34,7 +34,7 @@ function ProductFormPage() {
   };
 
   useEffect(() => {
-    if (user?.role && user?.role !== 'Provider') {
+    if (userRole !== 'Provider') {
       navigate('/');
     }
   }, [isAuth]);

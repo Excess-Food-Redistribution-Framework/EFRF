@@ -59,6 +59,12 @@ function AuthProvider({ children }: React.PropsWithChildren) {
       delete axios.defaults.headers.common.Authorization;
       localStorage.removeItem('token');
     }
+
+    if (userRole) {
+      localStorage.setItem('userRole', userRole);
+    } else {
+      localStorage.removeItem('userRole');
+    }
   }, [token, userRole]);
 
   const contextValue: AuthContextProps = useMemo(
