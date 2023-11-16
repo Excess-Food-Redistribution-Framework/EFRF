@@ -85,9 +85,7 @@ function OrganizationFormPage() {
   };
 
   useEffect(() => {
-    if (user?.role) {
-      navigate('/');
-    }
+
   }, [isAuth]);
 
   return (
@@ -132,8 +130,8 @@ function OrganizationFormPage() {
                     <option value="Provider" style={{ color: 'black' }}>
                       Provider
                     </option>
-                    <option value="Distributer" style={{ color: 'black' }}>
-                      Distributer
+                    <option value="Distributor" style={{ color: 'black' }}>
+                      Distributor
                     </option>
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">{typeError}</Form.Control.Feedback>

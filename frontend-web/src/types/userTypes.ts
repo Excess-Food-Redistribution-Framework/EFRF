@@ -5,11 +5,7 @@ export interface User {
   email: string;
 }
 
-export type UserRole = 'Provider' | 'Distributer' | null;
-
-export interface UserDetail extends User {
-  role: UserRole;
-}
+export type UserRole = 'Provider' | 'Distributor' | null;
 
 export interface LoginRequest {
   email: string;

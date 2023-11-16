@@ -57,11 +57,7 @@ function LoginPage() {
       setToken(response.data.token);
       setUser(response.data.user);
 
-      if (response.data.user.role) {
-        navigate('/');
-      } else {
-        navigate('/organization/create');
-      }
+      navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Request failed with status code 400') {
@@ -102,9 +98,9 @@ function LoginPage() {
               </Row>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formEmail" className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter Email"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -117,9 +113,9 @@ function LoginPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formPassword" className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Password</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Password"
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -131,7 +127,7 @@ function LoginPage() {
                   <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Button variant="primary" onClick={handleSubmit}>
+                <Button variant="primary" onClick={handleSubmit} className="mt-2">
                   Log In
                 </Button>
               </Form>
