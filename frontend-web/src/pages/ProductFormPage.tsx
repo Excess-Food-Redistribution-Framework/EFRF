@@ -9,12 +9,14 @@ function ProductFormPage() {
   const navigate = useNavigate();
   const { isAuth, userRole } = useAuth();
 
-  const today = new Date().toLocaleDateString('en-CA');
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowFormatted = tomorrow.toLocaleDateString('en-CA');
 
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [type, setType] = useState(ProductType.Other);
-  const [expirationDate, setExpirationDate] = useState(today);
+  const [expirationDate, setExpirationDate] = useState(tomorrowFormatted);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +92,7 @@ function ProductFormPage() {
                   <Form.Label>Quantity</Form.Label>
                   <Form.Control
                     type="date"
-                    min={today}
+                    min={tomorrowFormatted}
                     placeholder="Guantity"
                     value={expirationDate}
                     onChange={(e) =>

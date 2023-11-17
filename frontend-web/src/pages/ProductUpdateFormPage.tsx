@@ -15,42 +15,6 @@ function UpdateProductFormPage() {
   const [loading, setLoading] = useState(true);
   const id: string = productId || '';
   const { product, errorMessage } = GetProductById(id);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!isAuth) {
-          navigate('/login');
-          return;
-        }
-  
-        const organizationResponse = await axios.get('/api/Organization/Current', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        setOrganization(organizationResponse.data);
-  
-        if (product) {
-          setName(product.name || '');
-          setQuantity(product.quantity || 0);
-          setType(product.type || ProductType.Other);
-          setExpirationDate(new Date(product.expirationDate).toLocaleDateString('en-CA'));
-          setLoading(false);
-  
-          if (organization && product?.organization.id !== organization.id) {
-            navigate('/');
-          }
-        }
-      } catch (error) {
-        navigate('/');
-      }
-    };
-  
-    fetchData();
-  }, [product, token, user, isAuth]);
-  
     const today = new Date().toLocaleDateString('en-CA');
   
     const [name, setName] = useState('');
@@ -59,8 +23,48 @@ function UpdateProductFormPage() {
     const [expirationDate, setExpirationDate] = useState(today);
     const [state, setState] = useState('');
     const [organization, setOrganization] = useState<OrganizationApiResponse>();
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          if (!isAuth) {
+            navigate('/login');
+            return;
+          }
+    
+          const organizationResponse = await axios.get('/api/Organization/Current', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          setOrganization(organizationResponse.data);
+        } catch (error) {
+          navigate('/');
+        }
+        
+      };
+    
+      fetchData();
+    }, [product, token, user, isAuth, navigate]);
+    
+    useEffect(() => {
+      if (product) {
+        setName(product.name || '');
+        setQuantity(product.quantity || 0);
+        setType(product.type || ProductType.Other);
+        setExpirationDate(new Date(product.expirationDate).toLocaleDateString('en-CA'));
+        setLoading(false);
+        
+        if (product.organization && organization && product.organization.id !== organization.id) {
+          navigate('/');
+          return;
+        }
+      }
+    }, [product, organization]);
+
     const handleUpdate = () => {
-    if (id && organization)  {
+      if (id && organization)  {
         const updateData = {
           id: id,
           name: name,
@@ -70,16 +74,16 @@ function UpdateProductFormPage() {
           state: state,
           organization: organization
         };
-  
+    
         UpdateProduct(id, updateData, handleUpdateSuccess, handleUpdateError);
-        navigate("/products");
       }
     };
-  
+    
     const handleUpdateSuccess = (updatedProduct: ProductApiResponse) => {
       console.log('Product updated successfully:', updatedProduct);
+      navigate("/products");
     };
-  
+    
     const handleUpdateError = (error: string) => {
       console.error('Error updating product:', error);
     };
