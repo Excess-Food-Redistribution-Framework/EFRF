@@ -42,12 +42,8 @@ function ProductCards(params: ProductsApiParams) {
       <Row xs={1} md={4} className="g-4 justify-content-center">
         {listOfProducts?.map((product: ProductApiResponse) => (
           <Col key={product.id} className="px-4">
-            <Card className="h-100 zoom-card">
-              <Card.Img
-                variant="top"
-                src={getProductImage(product.type)}
-                style={{ opacity: product.state === 'Available' ? 1 : 0.5 }}
-              />
+            <Card className={`h-100 ${product.state === 'Available' ? 'zoom-card' : 'opacity-50'}`}>
+              <Card.Img variant="top" src={getProductImage(product.type)} />
               <Card.Body className="d-flex flex-column justify-content-between h-100">
                 <Row>
                   <Col className="d-flex justify-content-start">
@@ -85,21 +81,21 @@ function ProductCards(params: ProductsApiParams) {
                 </Row>
                 <ProgressBar className="m-3 ">
                   <ProgressBar
-                    variant="secondary"
-                    animated
-                    min={0}
-                    max={product.quantity}
-                    now={7}
-                    label={`${7}`}
-                    key={1}
-                  />
-                  <ProgressBar
                     variant="primary"
                     animated
                     min={0}
                     max={product.quantity}
-                    now={product.quantity - 7}
-                    label={`${product.quantity - 7}`}
+                    now={product.availableQuantity}
+                    label={`${product.availableQuantity}`}
+                    key={1}
+                  />
+                  <ProgressBar
+                    variant="danger"
+                    animated
+                    min={0}
+                    max={product.quantity}
+                    now={product.quantity - product.availableQuantity}
+                    label={`${product.quantity - product.availableQuantity}`}
                     key={2}
                   />
                 </ProgressBar>

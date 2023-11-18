@@ -22,7 +22,7 @@ export enum ProductType {
 export type ProductsApiParams = {
   page: number;
   pageSize: number;
-  organizationId?: string
+  organizationId?: string;
   notExpired: boolean;
   notBlocked: boolean;
 };
@@ -44,6 +44,7 @@ export interface ProductApiResponse {
   id: string;
   name: string;
   quantity: number;
+  availableQuantity: number;
   type: ProductType;
   state: string;
   expirationDate: string;
