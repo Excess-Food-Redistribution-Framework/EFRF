@@ -1,9 +1,15 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { ListOfArticles, Article } from '../types/articleTypes';
+import {
+  ArticlesApiParams,
+  ArticlesApiResponse,
+  ArticleApiParams,
+  ArticleApiResponse,
+} from '../types/articleTypes';
 
-export function GetListOfArticles(page: number, pageSize: number) {
-  const [listOfArticles, setListOfArticles] = useState<ListOfArticles>();
+// Funkcia pre volanie API na získanie listu articlov
+export function GetListOfArticles(params: ArticlesApiParams) {
+  const [listOfArticles, setListOfArticles] = useState<ArticlesApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,17 +18,14 @@ export function GetListOfArticles(page: number, pageSize: number) {
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/api/article`,
           {
-            params: {
-              page,
-              pageSize,
-            },
+            params,
           }
         );
 
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-        const data = response.data as ListOfArticles;
+        const data = response.data as ArticlesApiResponse;
         setListOfArticles(data);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -34,26 +37,30 @@ export function GetListOfArticles(page: number, pageSize: number) {
     }
 
     fetchListOfArticles();
-  }, [page, pageSize]);
+  }, [params]);
 
   return { listOfArticles, errorMessage };
 }
 
-export function GetArticleById(articleId: string) {
-  const [article, setArticle] = useState<Article>();
+// Funkcia pre volanie API na získanie articlu na základe jeho ID
+export function GetArticleById(params: ArticleApiParams) {
+  const [article, setArticle] = useState<ArticleApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchArticleById() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/article/${articleId}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/article`,
+          {
+            params,
+          }
         );
 
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
-        const data = response.data as Article;
+        const data = response.data as ArticleApiResponse;
         setArticle(data);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -64,7 +71,7 @@ export function GetArticleById(articleId: string) {
       }
     }
     fetchArticleById();
-  }, [articleId]);
+  }, [params]);
 
   return { article, errorMessage };
 }

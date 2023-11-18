@@ -4,6 +4,7 @@ import ArticlesCards from '../components/ArticlesCards';
 function Blog() {
   const page: number = 1;
   const pageSize: number = 9;
+  const isPagination = true;
 
   return (
     <Container fluid className="px-0">
@@ -14,7 +15,7 @@ function Blog() {
           </Col>
         </Row>
       </Container>
-      <ArticlesCards page={page} pageSize={pageSize} />
+      <ArticlesCards params={{ page, pageSize }} pagination={isPagination} />
     </Container>
   );
 }

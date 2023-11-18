@@ -1,5 +1,8 @@
 import { ProductType } from '../types/productTypes';
 
+// Potrebný rozmer obrázku 800x600
+// Možnosť stiahnúť obrázky a pridať ich do assetov
+
 export function getProductImage(params: ProductType) {
   switch (params) {
     case ProductType.BakeryItems:

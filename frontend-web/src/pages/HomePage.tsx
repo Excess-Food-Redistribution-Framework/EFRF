@@ -5,12 +5,26 @@ import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
 
 function HomePage() {
+  // ----- ArticleCards Values -----
+  const pageArticles = 1;
+  const pageSizeArticles = 3;
+  const paginationArticles = false;
+
+  // ----- ProductCards Values -----
+  const pageProducts = 1;
+  const pageSizeProducts = 8;
+  const onlyAvailableProducts = true;
+  const paginationProducts = false;
+
+  // -----
   const { isAuth } = useAuth();
   const navigate = useNavigate();
 
+  // ----- Function for redirecting to another page  -----
   const handleClickButton = (path: string) => {
     navigate(`./${path}`);
   };
+
   return (
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
@@ -86,7 +100,10 @@ function HomePage() {
           />
           <h2>Learn How To</h2>
           <h2>Reduce Food Waste</h2>
-          <ArticlesCards page={1} pageSize={3} />
+          <ArticlesCards
+            params={{ page: pageArticles, pageSize: pageSizeArticles }}
+            pagination={paginationArticles}
+          />
         </Container>
 
         <Container>
@@ -103,7 +120,15 @@ function HomePage() {
           />
           <h2>Find What You Need</h2>
           <h2>And Sign For A Supply</h2>
-          <ProductCards page={1} pageSize={8} notExpired={false} notBlocked />
+          <ProductCards
+            params={{
+              page: pageProducts,
+              pageSize: pageSizeProducts,
+              onlyAvailable: onlyAvailableProducts,
+              notExpired: !onlyAvailableProducts,
+            }}
+            pagination={paginationProducts}
+          />
         </Container>
       </Container>
     </Container>
