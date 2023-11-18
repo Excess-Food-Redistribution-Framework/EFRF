@@ -7,13 +7,15 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import { isTokenExpired } from './utils/jwt';
-import { UserDetail } from './types/userTypes';
+import { User, UserRole } from './types/userTypes';
 
 interface AuthContextProps {
   token: string | null;
   setToken: (token: string | null) => void;
-  user: UserDetail | null;
-  setUser: (user: UserDetail | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
+  userRole: UserRole;
+  setUserRole: (userRole: UserRole) => void;
   isAuth: () => boolean;
 }
 
@@ -24,11 +26,15 @@ function AuthProvider({ children }: React.PropsWithChildren) {
     localStorage.getItem('token')
   );
 
-  const [user, setUser_] = useState<UserDetail | null>(
+  const [user, setUser_] = useState<User | null>(
     JSON.parse(localStorage.getItem('user') || '{}')
   );
 
-  const setUser = (user: UserDetail | null) => {
+  const [userRole, setUserRole] = useState<UserRole>(
+    localStorage.getItem('userRole') as UserRole
+  );
+
+  const setUser = (user: User | null) => {
     setUser_(user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -53,7 +59,13 @@ function AuthProvider({ children }: React.PropsWithChildren) {
       delete axios.defaults.headers.common.Authorization;
       localStorage.removeItem('token');
     }
-  }, [token]);
+
+    if (userRole) {
+      localStorage.setItem('userRole', userRole);
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  }, [token, userRole]);
 
   const contextValue: AuthContextProps = useMemo(
     () =>
@@ -62,6 +74,8 @@ function AuthProvider({ children }: React.PropsWithChildren) {
         setToken,
         user,
         setUser,
+        userRole,
+        setUserRole,
         isAuth,
       }) as AuthContextProps,
     // eslint-disable-next-line react-hooks/exhaustive-deps

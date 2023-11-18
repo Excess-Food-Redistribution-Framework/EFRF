@@ -54,7 +54,8 @@ public class ProductService : IProductService
     {
         try
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productRepository.GetAll()
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
@@ -109,6 +110,11 @@ public class ProductService : IProductService
     {
         try
         {
+            if (product == null)
+            {
+                throw new NotFoundApiException("Product not found");
+            }
+
             await _productRepository.Update(product);
 
             return true;

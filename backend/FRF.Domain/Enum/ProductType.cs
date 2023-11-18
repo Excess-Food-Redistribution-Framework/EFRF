@@ -9,6 +9,8 @@ namespace FRF.Domain.Enum
 {
     public enum ProductType
     {
+        None,
+
         [Description("Fresh Produce")]
         FreshProduce,
 

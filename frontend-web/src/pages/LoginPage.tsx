@@ -11,18 +11,15 @@ import {
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 import '../styles/custom.styles.css';
-
-interface ILoginRequest {
-  email: string;
-  password: string;
-}
+import {LoginRequest, UserRole} from '../types/userTypes.ts';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { setToken, setUser, user, isAuth, setUserRole } = useAuth();
+
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const { setToken, setUser, user, isAuth } = useAuth();
   const [error, setError] = useState<string>(''); 
   
   const [emailError, setEmailError] = useState('');
@@ -52,16 +49,13 @@ function LoginPage() {
       const response = await axios.post('api/Account/Login', {
         email,
         password,
-      } as ILoginRequest);
+      } as LoginRequest);
 
       setToken(response.data.token);
       setUser(response.data.user);
+      setUserRole(response.data.user.organization.type);
 
-      if (response.data.user.role) {
-        navigate('/');
-      } else {
-        navigate('/organization/create');
-      }
+      navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Request failed with status code 400') {
@@ -87,11 +81,11 @@ function LoginPage() {
     <Container className="pt-5">
       <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
-          <Row className="primary_color">
-            <Col lg="7" className="secondary_color diagonal-bg d-flex">
+          <Row className="secondary_color">
+            <Col lg="7" className=" diagonal-bg-login d-flex">
               <Image src="/assets/img/login.svg" className="img-fluid p-4 pb-0" />
             </Col>
-            <Col lg="5" className="px-4 px-xl-5 d-flex flex-column justify-content-evenly">
+            <Col lg="5" className="px-4 px-xl-5 d-flex flex-column justify-content-evenly secondary_color">
               <h1 className="mb-3 text-white">Login</h1>
               <Row>
               {error && (
@@ -102,9 +96,9 @@ function LoginPage() {
               </Row>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formEmail" className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter Email"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -117,9 +111,9 @@ function LoginPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formPassword" className="mb-3">
+                  <Form.Label style={{ color: "white" }}>Password</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Password"
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -131,7 +125,7 @@ function LoginPage() {
                   <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Button variant="primary" onClick={handleSubmit}>
+                <Button variant="primary" onClick={handleSubmit} className="mt-2">
                   Log In
                 </Button>
               </Form>

@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Col, Container, Row, Form } from 'react-bootstrap';
 import ProductCards from '../components/ProductCards';
+import { useAuth } from '../AuthProvider';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { OrganizationApiResponse } from '../types/organizationTypes';
 
 function Products() {
   const page = 1;
@@ -9,6 +13,7 @@ function Products() {
   const isPagination = true;
 
   return (
+    
     <Container fluid className="px-0">
       <Container fluid className="secondary_color">
         <Row className="justify-content-center diagonal-bg p-5">

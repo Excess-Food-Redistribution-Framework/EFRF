@@ -5,7 +5,7 @@
 export interface OrganizationApiResponse {
   id: string;
   name: string;
-  type: string;
+  type: 'Provider' | 'Distributor';
   information: string;
   location: OrganizationLocation;
   address: OrganizationAddress;
@@ -24,4 +24,17 @@ interface OrganizationAddress {
   street: string;
   number: string;
   zipCode: string;
+}
+
+export interface OrganizationAddress{
+  state: string;
+  city: string;
+  street: string;
+  number: string;
+  zipCode: string
+}
+
+export interface OrganizationLocation{
+  longitude: number;
+  latitude: number;
 }

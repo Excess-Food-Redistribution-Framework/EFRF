@@ -1,4 +1,5 @@
-﻿using FRF.Domain.Enum;
+﻿using FRF.API.Dto.Address;
+using FRF.Domain.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace FRF.API.Dto.Organization
@@ -15,6 +16,13 @@ namespace FRF.API.Dto.Organization
 
         [Display(Name = "Information")]
         public string Information { get; set; } = string.Empty;
+
+
+        [Display(Name = "Address")]
+        public AddressDto? Address { get; set; }
+
+        [Display(Name = "Location")]
+        public LocationDto? Location { get; set; }
 
         //[Required]
         //[Display(Name = "Password")]

@@ -1,12 +1,12 @@
 .primary_color {
-  background-color: #4c654d;
-}
-
-.secondary_color {
   background-color: #afbaae;
 }
 
-.diagonal-bg {
+.secondary_color {
+  background-color: #4c654d;
+}
+
+.diagonal-bg-login {
   background: linear-gradient(
     110deg,
     #afbaae 78%,
@@ -19,7 +19,7 @@
 .diagonal-bg {
   background: linear-gradient(
     110deg,
-    #4c654d 45%,
+    #afbaae 55%,
     transparent 30%,
     transparent 100%
   );
@@ -87,5 +87,54 @@ body {
   animation: changeBackgroundColor 0.7s linear forwards;
 }
 
-/*      End Product Cards        */
-/* ----------------------------- */
+/* Nastavenie vlastného scrollbaru */
+.custom-scrollbar {
+  width: 10px; /* Šírka scrollbaru */
+  background-color: #ccc; /* Farba pozadia scrollbaru */
+  border-radius: 5px; /* Oblúkový okraj scrollbaru */
+}
+
+/* Farba scrollbaru pri hoveri */
+.custom-scrollbar:hover {
+  background-color: #aaa;
+}
+
+/* Farba scrollbaru pri aktívnom stave */
+.custom-scrollbar:active {
+  background-color: #888;
+}
+
+.text-limit {
+  max-width: 100%;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.error-message {
+  color: #e70606; 
+  font-size: 18px;
+  border: 1px;
+  text-align: center; 
+  margin: 0;
+  display: block;
+}
+
+.btn-primary{
+  --bs-btn-color: #fff !important;
+  --bs-btn-bg: #2A2E45 !important;
+  --bs-btn-border-color: #2A2E45 !important;
+  --bs-btn-hover-color: #fff !important;
+  --bs-btn-hover-bg: #363B59 !important;
+  --bs-btn-hover-border-color: #363B59 !important;
+  --bs-btn-focus-shadow-rgb: 66,70,73 !important;
+  --bs-btn-active-color: #fff !important;
+  --bs-btn-active-bg: #3E4565 !important;
+  --bs-btn-active-border-color: #363D59 !important;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125) !important;
+  --bs-btn-disabled-color: #fff !important;
+  --bs-btn-disabled-bg: #8D94B9 !important;
+  --bs-btn-disabled-border-color: #8D94B9 !important;
+}

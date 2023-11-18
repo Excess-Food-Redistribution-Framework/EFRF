@@ -4,13 +4,21 @@ import { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
 
 function Navbar() {
-  const { setToken, isAuth, user } = useAuth();
+  const { setToken, isAuth, user, setUser, userRole, setUserRole } = useAuth();
 
   useEffect(() => {}, [user]);
 
-  const logout = () => {
+  const logout = async () => {
     setToken('');
+    setUserRole(null);
+    
+    try {
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
+
 
   return (
     <NavbarBootstrap className="bg-white shadow-sm sticky-top">
@@ -32,18 +40,10 @@ function Navbar() {
         <Nav>
           {isAuth() ? (
             <>
-              {!user?.role ? (
-                <Nav.Link to="/organization/create" as={NavLink}>
-                  Create organization
+              {userRole === 'Provider' && (
+                <Nav.Link to="/product/create" as={NavLink}>
+                  Create product
                 </Nav.Link>
-              ) : (
-                <>
-                  {user?.role === 'Provider' && (
-                    <Nav.Link to="/product/create" as={NavLink}>
-                      Create product
-                    </Nav.Link>
-                  )}
-                </>
               )}
               <Nav.Link to="/profile" as={NavLink}>
                 Profile

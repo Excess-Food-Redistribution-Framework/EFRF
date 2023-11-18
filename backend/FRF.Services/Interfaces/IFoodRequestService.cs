@@ -22,5 +22,8 @@ namespace FRF.Services.Interfaces
         Task<bool> CreateFoodRequest(FoodRequest request, Organization provider, Organization distributor);
         Task<bool> UpdateFoodRequest(FoodRequest request, Organization organization);
         Task<bool> DeleteFoodRequests(Guid id, Organization organization);
+
+        Task<bool> UnPickFromProduct(FoodRequest request, Product product, Organization organization);
+        Task<bool> PickFromProduct(FoodRequest request, Product product, Organization organization, int quantity);
     }
 }
