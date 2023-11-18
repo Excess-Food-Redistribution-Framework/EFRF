@@ -1,15 +1,38 @@
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Pagination,
+  Row,
+  Spinner,
+} from 'react-bootstrap';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Article, ArticleCardsProps } from '../types/articleTypes';
+import { ArticleApiResponse, ArticleCardsProps } from '../types/articleTypes';
 import { GetListOfArticles } from '../hooks/useArticle';
+import generatePaginationItems from '../utils/paginationUtils';
 
-function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
-  const { listOfArticles, errorMessage } = GetListOfArticles(page, pageSize);
+function ArticlesCards({ params, pagination }: ArticleCardsProps) {
   const navigate = useNavigate();
 
-  const handleClickButton = (articleId: string) => {
+  const { listOfArticles, errorMessage } = GetListOfArticles(params);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePaginationClick = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleClickButton = (articleId: ArticleApiResponse['id']) => {
     navigate(`/blog/${articleId}`);
   };
+
+  const paginationItems = generatePaginationItems(
+    currentPage,
+    5,
+    5,
+    handlePaginationClick
+  );
 
   if (errorMessage) {
     return (
@@ -21,7 +44,7 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
   if (!listOfArticles) {
     return (
       <Container className="p-4 text-center">
-        <h2>Loading articles...</h2>
+        <Spinner animation="border" variant="secondary" />
       </Container>
     );
   }
@@ -36,8 +59,8 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
   if (listOfArticles.data) {
     return (
       <Container className="p-4">
-        <Row xs={1} md={3} className="g-4 justify-content-center">
-          {listOfArticles.data.map((article: Article) => (
+        <Row xs={1} md={2} lg={3} className="g-4 justify-content-center">
+          {listOfArticles.data.map((article: ArticleApiResponse) => (
             <Col key={article.id} className="px-4">
               <Card className="h-100">
                 <Card.Img
@@ -60,6 +83,11 @@ function ArticlesCards({ page, pageSize }: ArticleCardsProps) {
             </Col>
           ))}
         </Row>
+        {pagination && (
+          <Pagination className="mt-3 justify-content-center">
+            {paginationItems}
+          </Pagination>
+        )}
       </Container>
     );
   }

@@ -4,28 +4,27 @@ import {
   ProductApiParams,
   ProductApiResponse,
   ProductsApiParams,
+  ProductsApiResponse,
 } from '../types/productTypes';
 
+// Funkcia na volanie API pre získanie listu produktov
 export function GetListOfProducts(params: ProductsApiParams) {
-  const [listOfProducts, setListOfProducts] = useState<[]>();
+  const [response, setResponse] = useState<ProductsApiResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchListOfProducts() {
       try {
-        const response = await axios.get(
+        const apiResponse = await axios.get<ProductsApiResponse>(
           `${import.meta.env.VITE_API_BASE_URL}/api/product`,
           { params }
         );
 
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
+        if (apiResponse.status !== 200) {
+          throw new Error(apiResponse.statusText);
         }
-        const { data } = response.data;
 
-        // Obmedziť zoznam produktov na veľkosť pageSize
-        const limitedList = data.slice(0, params.pageSize);
-        setListOfProducts(limitedList);
+        setResponse(apiResponse.data);
       } catch (error: unknown) {
         if (error instanceof Error) {
           setErrorMessage(error.message);
@@ -34,13 +33,15 @@ export function GetListOfProducts(params: ProductsApiParams) {
         }
       }
     }
+
     fetchListOfProducts();
   }, [params]);
 
-  return { listOfProducts, errorMessage };
+  return { response, errorMessage };
 }
 
-export function GetProductById(productId: string) {
+// Funkcia na volanie API pre získanie produktu na základe jeho ID
+export function GetProductById(params: ProductApiParams) {
   const [product, setProduct] = useState<ProductApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

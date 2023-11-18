@@ -18,16 +18,17 @@ export enum ProductType {
 // ZÍSKAVANIE LISTU PRODUKTOV
 // GET /api/Product
 
-// Parametre pre volanie API pre získanie listu produktov
-export type ProductsApiParams = {
+// Definícia pre parametre volania API pre získanie listu produktov
+export interface ProductsApiParams {
   page: number;
   pageSize: number;
-  organizationId?: string
-  notExpired: boolean;
-  notBlocked: boolean;
-};
+  notExpired?: boolean;
+  onlyAvailable?: boolean;
+  organizationId?: string;
+  foodRequestId?: string;
+}
 
-// Očakavaný response po volaní Api pre získanie listu produktov
+// Definícia pre očakávanú odpoveď API pre získanie listu produktov
 export interface ProductsApiResponse {
   page: number;
   pageSize: number;
@@ -39,20 +40,26 @@ export interface ProductsApiResponse {
 // ZÍSKAVANIE PRODUKTU POMOCOU JEHO ID
 // GET /api/Product/{id}
 
-// Parametre pre volanie API pre získanie jedného produktu pomocou jeho ID
+// Definícia parametrov pre volanie API pre získanie jedného produktu pomocou jeho ID
+export interface ProductApiParams {
+  id: string;
+}
+
+// Definícia pre očakávanú odpoveď API pre získanie jedného produktu pomocou jeho ID
 export interface ProductApiResponse {
   id: string;
   name: string;
   quantity: number;
+  availableQuantity: number;
   type: ProductType;
-  state: string;
   expirationDate: string;
   organization: OrganizationApiResponse;
 }
 
-// Očakavaný response po volaní Api pre získanie jedného produktu pomocou jeho ID
-export type ProductApiParams = {
-  id: string;
-};
-
 // -----------------------------------------------------------------------------------------
+
+// Definícia props pre volanie funkcie(komponentu) ProductCards
+export interface ProductCardsProps {
+  params: ProductsApiParams;
+  pagination: boolean;
+}

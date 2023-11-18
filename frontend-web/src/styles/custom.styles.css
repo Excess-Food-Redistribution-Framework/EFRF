@@ -42,6 +42,31 @@ body {
   background-color: #ebeee8;
 }
 
+.text-limit {
+  max-width: 100%;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.error-message {
+  color: #e70606;
+  font-size: 18px;
+  border: 1px;
+  text-align: center;
+  margin: 0;
+  display: block;
+}
+
+/* ----- Product Cards ----- */
+.product-card-status-label {
+  position: absolute;
+  top: 3%;
+  right: 3%;
+}
+
 .zoom-card {
   transform: scale(1);
   transition: transform 0.5s;
