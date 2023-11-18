@@ -20,8 +20,8 @@ function Hero() {
           xl="3"
           className="text-center d-flex flex-column justify-content-center py-5"
         >
-          <h5 className="text-white text-shadow pb-2">
-            Give away unused <Badge bg="warning">Food</Badge>
+          <h5 className="text-white text-shadow pb-2 text-decoration-underline">
+            Give away unused Food
           </h5>
           <h1 className="text-white text-shadow pb-2">
             Helping each other can make world better
