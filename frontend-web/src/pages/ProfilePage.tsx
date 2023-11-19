@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
+import MapContainer from '../components/MapContainer';
 
 function ProfilePage() {
-  const [userData, setUserData] = useState<object|any>({});
+  const [userData, setUserData] = useState<object | any>({});
   const [loading, setLoading] = useState(true);
 
   const { isAuth } = useAuth();
@@ -12,20 +13,22 @@ function ProfilePage() {
   const fetchUserData = async () => {
     try {
       const response = await axios.get('api/Account');
-
       setUserData(response.data);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isAuth()) {
-      fetchUserData();
-    }
+    const fetchData = async () => {
+      if (isAuth()) {
+        await fetchUserData();
+      }
+    };
+
+    fetchData();
   }, [isAuth]);
 
   return (
@@ -35,23 +38,26 @@ function ProfilePage() {
         <>
           {loading ? (
             <p>Loading...</p>
-          ) : userData ? (
+          ) : userData.id ? (
             <>
               <p>
-                Id: {/* @ts-ignore */} {userData.id}
+                Id: {userData.id}
               </p>
               <p>
-                FirstName: {/* @ts-ignore */} {userData.firstName}
+                FirstName: {userData.firstName}
               </p>
               <p>
-                LastName: {/* @ts-ignore */} {userData.lastName}
+                LastName: {userData.lastName}
               </p>
               <p>
-                Email: {/* @ts-ignore */} {userData.email}
+                Email: {userData.email}
               </p>
               <p>
-                Data: {/* @ts-ignore */} {JSON.stringify(userData)}
+                Data: {JSON.stringify(userData)}
               </p>
+              {userData.organization && userData.organization.address && (
+                <MapContainer address={userData.organization.address} />
+              )}
             </>
           ) : (
             <p>No data available</p>
