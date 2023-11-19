@@ -41,6 +41,22 @@ function Products() {
       </Col>
     </Row>
   </Container>
+  {view === 'list' && (
+    <Container className="pt-4 px-5 justify-content-end">
+      <Form>
+        <Form.Check
+          type="switch"
+          id="custom-switch-disabled"
+          label="Disabled"
+          checked={showDisabled}
+          onChange={() => {
+            setShowDisabled(!showDisabled);
+          }}
+        />
+        </Form>
+      </Container>
+      )}
+
   {view === 'list' ? (
     <ProductCards
       params={{
@@ -54,7 +70,7 @@ function Products() {
   ) : (
     <ProductsMap organizations={organizations} />
   )}
-</Container>
+  </Container>
   );
 }
 
