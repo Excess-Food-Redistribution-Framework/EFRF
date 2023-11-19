@@ -1,5 +1,4 @@
 import { Container } from 'react-bootstrap';
-import React from 'react';
 import ArticlesCards from '../components/ArticlesCards';
 import ProductCards from '../components/ProductCards';
 import Hero from '../components/Hero';
@@ -15,15 +14,6 @@ function HomePage() {
   const pageSizeProducts = 8;
   const onlyAvailableProducts = true;
   const paginationProducts = false;
-
-  // -----
-  const { isAuth } = useAuth();
-  const navigate = useNavigate();
-
-  // ----- Function for redirecting to another page  -----
-  const handleClickButton = (path: string) => {
-    navigate(`./${path}`);
-  };
 
   return (
     <Container fluid className="px-0">
