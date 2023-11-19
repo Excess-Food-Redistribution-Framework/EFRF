@@ -15,103 +15,109 @@ function UpdateProductFormPage() {
   const [loading, setLoading] = useState(true);
   const id: string = productId || '';
   const { product, errorMessage } = GetProductById(id);
-    const today = new Date().toLocaleDateString('en-CA');
-  
-    const [name, setName] = useState('');
-    const [quantity, setQuantity] = useState(0);
-    const [type, setType] = useState(ProductType.Other);
-    const [expirationDate, setExpirationDate] = useState(today);
-    const [state, setState] = useState('');
-    const [organization, setOrganization] = useState<OrganizationApiResponse>();
-    
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          if (!isAuth) {
-            navigate('/login');
-            return;
-          }
-    
-          const organizationResponse = await axios.get('/api/Organization/Current', {
+  const today = new Date().toLocaleDateString('en-CA');
+
+  const [name, setName] = useState('');
+  const [quantity, setQuantity] = useState(0);
+  const [type, setType] = useState(ProductType.Other);
+  const [expirationDate, setExpirationDate] = useState(today);
+  const [state, setState] = useState('');
+  const [organization, setOrganization] = useState<OrganizationApiResponse>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!isAuth) {
+          navigate('/login');
+          return;
+        }
+
+        const organizationResponse = await axios.get(
+          '/api/Organization/Current',
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
-    
-          setOrganization(organizationResponse.data);
-        } catch (error) {
-          navigate('/');
-        }
-        
-      };
-    
-      fetchData();
-    }, [product, token, user, isAuth, navigate]);
-    
-    useEffect(() => {
-      if (product) {
-        setName(product.name || '');
-        setQuantity(product.quantity || 0);
-        setType(product.type || ProductType.Other);
-        setExpirationDate(new Date(product.expirationDate).toLocaleDateString('en-CA'));
-        setLoading(false);
-        
-        if (product.organization && organization && product.organization.id !== organization.id) {
-          navigate('/');
-          return;
-        }
-      }
-    }, [product, organization]);
+          }
+        );
 
-    const handleUpdate = () => {
-      if (id && organization)  {
-        const updateData = {
-          id: id,
-          name: name,
-          expirationDate: expirationDate,
-          type: type,
-          quantity: quantity,
-          state: state,
-          organization: organization
-        };
-    
-        UpdateProduct(id, updateData, handleUpdateSuccess, handleUpdateError);
+        setOrganization(organizationResponse.data);
+      } catch (error) {
+        navigate('/');
       }
     };
-    
-    const handleUpdateSuccess = (updatedProduct: ProductApiResponse) => {
-      console.log('Product updated successfully:', updatedProduct);
-      navigate("/products");
-    };
-    
-    const handleUpdateError = (error: string) => {
-      console.error('Error updating product:', error);
-    };
-  
-    if (loading) {
-      return <div>Loading...</div>;
-    }
-  
-    if (errorMessage) {
-      return (
-        <Container className="p-4 text-center">
-          <h2>Server error. Failed to get product data!</h2>
-        </Container>
+
+    fetchData();
+  }, [product, token, user, isAuth, navigate]);
+
+  useEffect(() => {
+    if (product) {
+      setName(product.name || '');
+      setQuantity(product.quantity || 0);
+      setType(product.type || ProductType.Other);
+      setExpirationDate(
+        new Date(product.expirationDate).toLocaleDateString('en-CA')
       );
+      setLoading(false);
+
+      if (
+        product.organization &&
+        organization &&
+        product.organization.id !== organization.id
+      ) {
+        navigate('/');
+        return;
+      }
     }
-  
-    if (!product) {
-      navigate("/*");
+  }, [product, organization]);
+
+  const handleUpdate = () => {
+    if (id && organization) {
+      const updateData = {
+        id: id,
+        name: name,
+        expirationDate: expirationDate,
+        type: type,
+        quantity: quantity,
+        state: state,
+        organization: organization,
+      };
+
+      UpdateProduct(id, updateData, handleUpdateSuccess, handleUpdateError);
     }
+  };
+
+  const handleUpdateSuccess = (updatedProduct: ProductApiResponse) => {
+    console.log('Product updated successfully:', updatedProduct);
+    navigate('/products');
+  };
+
+  const handleUpdateError = (error: string) => {
+    console.error('Error updating product:', error);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (errorMessage) {
+    return (
+      <Container className="p-4 text-center">
+        <h2>Server error. Failed to get product data!</h2>
+      </Container>
+    );
+  }
+
+  if (!product) {
+    navigate('/*');
+  }
   return (
     <Container>
       <Row className="justify-content-center">
         <Col lg="10" className="pt-4">
           <Card className="p-4">
             <Card.Body>
-              <h1 className="mb-3">
-                Update Product
-              </h1>
+              <h1 className="mb-3">Update Product</h1>
 
               <Form onSubmit={handleUpdate}>
                 <Form.Group controlId="formName" className="mb-3">
@@ -167,7 +173,6 @@ function UpdateProductFormPage() {
                   />
                 </Form.Group>
 
-
                 <Row>
                   <Col className="d-flex justify-content-between">
                     <Button variant="secondary" onClick={handleUpdate}>
@@ -182,6 +187,6 @@ function UpdateProductFormPage() {
       </Row>
     </Container>
   );
-};
+}
 
 export default UpdateProductFormPage;

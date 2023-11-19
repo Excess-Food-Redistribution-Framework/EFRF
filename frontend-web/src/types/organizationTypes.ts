@@ -12,29 +12,16 @@ export interface OrganizationApiResponse {
 }
 
 // Definícia pre geografickú polohu organizácie
-interface OrganizationLocation {
+export interface OrganizationLocation {
   longitude: number;
   latitude: number;
 }
 
 // Definícia pre adresu organizácie
-interface OrganizationAddress {
+export interface OrganizationAddress {
   state: string;
   city: string;
   street: string;
   number: string;
   zipCode: string;
-}
-
-export interface OrganizationAddress{
-  state: string;
-  city: string;
-  street: string;
-  number: string;
-  zipCode: string
-}
-
-export interface OrganizationLocation{
-  longitude: number;
-  latitude: number;
 }

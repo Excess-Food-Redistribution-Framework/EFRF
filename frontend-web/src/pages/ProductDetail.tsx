@@ -1,7 +1,11 @@
 import { Col, Container, Row, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
-import { Navigate ,useNavigate, useParams } from 'react-router-dom';
-import { GetProductById, DeleteProduct, UpdateProduct } from '../hooks/useProduct';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import {
+  GetProductById,
+  DeleteProduct,
+  UpdateProduct,
+} from '../hooks/useProduct';
 import { OrganizationApiResponse } from '../types/organizationTypes';
 import { useAuth } from '../AuthProvider';
 import axios from 'axios';
@@ -21,7 +25,9 @@ function ProductDetail() {
           setLoading(false);
         }
 
-        const organizationResponse = await axios.get('/api/Organization/Current');
+        const organizationResponse = await axios.get(
+          '/api/Organization/Current'
+        );
         setOrganization(organizationResponse.data);
       } catch (error) {
         //console.error('Error fetching organization:', error);
@@ -32,7 +38,7 @@ function ProductDetail() {
   }, [product, user]);
   const handleDeleteSuccess = () => {
     console.log('Product deleted successfully');
-    navigate("/products/");
+    navigate('/products/');
   };
 
   const handleDeleteError = (error: string) => {
@@ -93,7 +99,6 @@ function ProductDetail() {
             </>
           ) : null
         ) : null}
-
       </Container>
     </Container>
   );

@@ -61,3 +61,12 @@ export interface ProductCardsProps {
   params: ProductsApiParams;
   pagination: boolean;
 }
+
+export interface ProductUpdateApiParams {
+  id: string;
+  name: string;
+  quantity: number;
+  type: ProductType;
+  expirationDate: string;
+  organization: OrganizationApiResponse;
+}

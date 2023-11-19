@@ -20,9 +20,9 @@ export interface ArticlesApiResponse {
 // GET /api/Article/{id}
 
 // Definícia pre parametre volania API pre získanie článku pomocou jeho ID
-export interface ArticleApiParams {
-  articleId: string;
-}
+// export interface ArticleApiParams {
+//   articleId: string;
+// }
 
 // Definícia pre očakávanú odpoveď API pre získanie článku pomocou jeho ID
 export interface ArticleApiResponse {
