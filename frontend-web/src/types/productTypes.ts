@@ -41,9 +41,7 @@ export interface ProductsApiResponse {
 // GET /api/Product/{id}
 
 // Definícia parametrov pre volanie API pre získanie jedného produktu pomocou jeho ID
-export interface ProductApiParams {
-  id: string;
-}
+//
 
 // Definícia pre očakávanú odpoveď API pre získanie jedného produktu pomocou jeho ID
 export interface ProductApiResponse {

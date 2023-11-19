@@ -36,7 +36,7 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
     setProps({ ...props, page: pageNumber });
   };
 
-  const handleButtonClick = (productId: ProductApiResponse['id']) => {
+  const handleButtonClick = (productId: string) => {
     navigate(`/products/${productId}`);
   };
 
