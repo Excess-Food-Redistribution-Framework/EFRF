@@ -65,7 +65,7 @@ namespace FRF.API.Controllers
 
             if (notExpired)
             {
-                products = products.Where(p => p.ExpirationDate > DateTime.UtcNow);
+                products = products.Where(p => DateTime.UtcNow > p.ExpirationDatew);
             }
 
             if (onlyAvailable)
