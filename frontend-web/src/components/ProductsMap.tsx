@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
 import { ProductsMapProps } from '../types/mapTypes';
-import { geocodeAddress } from '../utils/geoCodeUtils';
+import { geocodeAddress } from '../utils/geocodeUtils';
 
 const mapContainerStyle = {
   width: '100%',
