@@ -60,6 +60,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFoodRequestService, FoodRequestService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Auth configuration:
 builder.Services.AddIdentity<User, IdentityRole>()
