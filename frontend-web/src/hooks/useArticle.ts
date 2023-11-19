@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import {
   ArticlesApiParams,
   ArticlesApiResponse,
-  ArticleApiParams,
   ArticleApiResponse,
 } from '../types/articleTypes';
 
@@ -43,7 +42,7 @@ export function GetListOfArticles(params: ArticlesApiParams) {
 }
 
 // Funkcia pre volanie API na získanie articlu na základe jeho ID
-export function GetArticleById(params: ArticleApiParams) {
+export function GetArticleById(articleId: string) {
   const [article, setArticle] = useState<ArticleApiResponse>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -51,10 +50,7 @@ export function GetArticleById(params: ArticleApiParams) {
     async function fetchArticleById() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/article`,
-          {
-            params,
-          }
+          `${import.meta.env.VITE_API_BASE_URL}/api/article${articleId}`
         );
 
         if (response.status !== 200) {
@@ -71,7 +67,7 @@ export function GetArticleById(params: ArticleApiParams) {
       }
     }
     fetchArticleById();
-  }, [params]);
+  }, [articleId]);
 
   return { article, errorMessage };
 }

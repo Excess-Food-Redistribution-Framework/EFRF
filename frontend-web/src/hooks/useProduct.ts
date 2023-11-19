@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   ProductApiResponse,
+  ProductUpdateApiParams,
   ProductsApiParams,
   ProductsApiResponse,
 } from '../types/productTypes';
@@ -100,7 +101,7 @@ export function DeleteProduct(
 
 export function UpdateProduct(
   productId: string,
-  updateData: ProductApiResponse,
+  updateData: ProductUpdateApiParams,
   onUpdate: (updatedProduct: ProductApiResponse) => void,
   onError: (error: string) => void
 ) {
