@@ -38,7 +38,7 @@ function ProductDetail() {
   }, [product, user]);
   const handleDeleteSuccess = () => {
     console.log('Product deleted successfully');
-    navigate('/products/');
+    navigate('/organizationProducts/');
   };
 
   const handleDeleteError = (error: string) => {

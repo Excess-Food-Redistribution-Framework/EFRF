@@ -29,7 +29,7 @@ function ProductFormPage() {
         expirationDate,
       } as ProductApiResponse);
 
-      navigate('/');
+      navigate('/organizationProducts');
     } catch (error) {
       console.error(error);
     }

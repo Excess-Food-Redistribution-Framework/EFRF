@@ -89,7 +89,7 @@ function UpdateProductFormPage() {
 
   const handleUpdateSuccess = (updatedProduct: ProductApiResponse) => {
     console.log('Product updated successfully:', updatedProduct);
-    navigate('/products');
+    navigate('/organizationProducts');
   };
 
   const handleUpdateError = (error: string) => {

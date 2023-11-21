@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
 import { ProductsMapProps } from '../types/mapTypes';
-import { geocodeAddress } from '../utils/geocodeUtils';
 import ProductCards from '../components/ProductCards';
 
 const containerStyle: React.CSSProperties = {
@@ -12,11 +11,16 @@ const containerStyle: React.CSSProperties = {
 
 const mapContainerStyle: React.CSSProperties = {
   flex: 1,
+  height: '95vh',
+};
+const mapContainerStyle2: React.CSSProperties = {
+  flex: 1,
   height: '100vh',
 };
 
+
 const cardsContainerStyle: React.CSSProperties = {
-  flex: 1,
+  flex: 2,
   padding: '20px',
 };
 
@@ -28,84 +32,86 @@ function ProductsMap({ organizations }: ProductsMapProps) {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(5);
   const [isPagination] = useState<boolean>(true);
+  
 
   useEffect(() => {
     const fetchLocations = async () => {
-     /* window.scrollTo({
+      window.scrollTo({
         top: window.innerHeight,
         behavior: 'smooth',
-      });*/
+      });
       if (map && organizations.length > 0) {
         const bounds = new window.google.maps.LatLngBounds();
         const markers: google.maps.Marker[] = [];
-
+    
         for (const organization of organizations) {
           if (organization.type === 'Provider') {
-            const { address } = organization;
-
-            if (address && address.street && address.number && address.city && address.state && address.zipCode) {
-              const fullAddress = `${address.street} ${address.number}, ${address.city}, ${address.state}, ${address.zipCode}`;
-
+            const { location } = organization;
+    
+            if (location && location.latitude && location.longitude) {
               try {
-                const result = await geocodeAddress(fullAddress);
-
-                if (result?.geometry?.location) {
-                  const latLng = result.geometry.location;
-
-                  const circle = new window.google.maps.Circle({
-                    map,
-                    center: latLng,
-                    radius: 90,
-                    fillColor: 'blue',
-                    fillOpacity: 0.5,
-                    strokeColor: 'blue',
-                    strokeOpacity: 1,
-                    strokeWeight: 1,
-                  });
-
-                  const marker = new window.google.maps.Marker({ position: latLng, map });
-                  markers.push(marker);
-
-                  bounds.extend(latLng);
-
-                  marker.addListener('click', () => {
-                    showInfoWindow(organization, marker);
-                  });
-                }
+                const latLng = {
+                  lat: location.latitude,
+                  lng: location.longitude
+                };
+    
+                const circle = new window.google.maps.Circle({
+                  map,
+                  center: latLng,
+                  radius: 90,
+                  fillColor: 'blue',
+                  fillOpacity: 0.5,
+                  strokeColor: 'blue',
+                  strokeOpacity: 1,
+                  strokeWeight: 1,
+                });
+    
+                const marker = new window.google.maps.Marker({ position: latLng, map });
+                markers.push(marker);
+    
+                bounds.extend(latLng);
+    
+                marker.addListener('click', () => {
+                  showInfoWindow(organization, marker);
+                });
               } catch (error) {
                 console.error(error);
               }
             }
           }
         }
-
+    
         map.addListener('click', () => {
           if (infoWindow) {
             infoWindow.close();
             setSelectedOrganization(null);
           }
         });
-
-        map.fitBounds(bounds);
+    
+        const center = bounds.getCenter();
+        const zoom = 13;
+    
+        map.setCenter(center);
+        map.setZoom(zoom);
       }
     };
-
+  
     const showInfoWindow = (organization: any, marker: google.maps.Marker) => {
       if (infoWindow) {
         infoWindow.close();
       }
-
-      const contentString = `<div><h3>${organization.name}</h3><p>${organization.address.street} ${organization.address.number}, ${organization.address.city}, ${organization.address.state}</p></div>`;
-
+  
+      const contentString = `<div><h3>${organization.name}</h3><p>${organization.address.street} ${organization.address.number}, ${organization.address.city}</p></div>`;
+  
       const newInfoWindow = new window.google.maps.InfoWindow({
         content: contentString,
       });
-
+  
       newInfoWindow.open(map!, marker);
       setInfoWindow(newInfoWindow);
       setSelectedOrganization(organization);
     };
-
+  
     if (map && organizations.length > 0) {
       fetchLocations();
     }
@@ -125,11 +131,10 @@ function ProductsMap({ organizations }: ProductsMapProps) {
               },
             ],
           }}
-          mapContainerStyle={mapContainerStyle}
+          mapContainerStyle={selectedOrganization ? mapContainerStyle : mapContainerStyle2}
           onLoad={(map) => setMap(map)}
         />
       </LoadMapContainer>
-      
       {selectedOrganization && (
         <div style={cardsContainerStyle}>
           <ProductCards

@@ -14,6 +14,7 @@ import OrganizationFormPage from './pages/OrganizationFormPage';
 import ProductFormPage from './pages/ProductFormPage';
 import ProductDetailPage from './pages/ProductDetail';
 import ProductUpdateFormPage from './pages/ProductUpdateFormPage';
+import OrganizationProducts from './pages/OrganizationProducts';
 
 function App() {
   // Set axios defaults
@@ -45,7 +46,7 @@ function App() {
               element={<OrganizationFormPage />}
             />
             <Route path="/product/create" element={<ProductFormPage />} />
-
+            <Route path="/organizationProducts" element={<OrganizationProducts />} />
             {/* Not Found */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>

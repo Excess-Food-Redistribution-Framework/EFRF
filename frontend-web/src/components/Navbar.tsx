@@ -36,6 +36,11 @@ function Navbar() {
           <Nav.Link to="/products" as={NavLink}>
             Products
           </Nav.Link>
+          {isAuth() && userRole === 'Provider' && (
+            <Nav.Link to="/organizationProducts" as={NavLink}>
+              Organization products
+            </Nav.Link>
+          )}
         </Nav>
         <Nav>
           {isAuth() ? (

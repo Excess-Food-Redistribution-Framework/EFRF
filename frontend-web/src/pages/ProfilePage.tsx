@@ -53,10 +53,10 @@ function ProfilePage() {
                 Email: {userData.email}
               </p>
               <p>
-                Data: {JSON.stringify(userData)}
+                Data: {JSON.stringify(userData.organization.location)}
               </p>
-              {userData.organization && userData.organization.address && (
-                <MapContainer address={userData.organization.address} />
+              {userData.organization && userData.organization.location && (
+                <MapContainer location={userData.organization.location} />
               )}
             </>
           ) : (
