@@ -10,6 +10,7 @@ import {
   Row,
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
+import geocodeAddress from '../utils/geocodeUtils.tsx';
 import { UserRole } from '../types/userTypes.ts';
 
 function RegistrationPage() {
@@ -75,35 +76,61 @@ function RegistrationPage() {
     if (!isValid) {
       return;
     }
+    
+    const fullAddress = `${street} ${number}, ${city}, ${state}, ${zipCode}`;
 
     try {
-      const response = await axios.post('api/Account/Register', {
-        firstName,
-        lastName,
-        email,
-        password,
-        organization: {
-          name: organizationName,
-          type: organizationType,
-          information: `${firstName} ${lastName}'s organization.`,
-          address: {
-            state,
-            city,
-            street,
-            number,
-            zipCode,
-          }
-        }
-      });
-
-      setToken(response.data.token);
-      setUser(response.data.user);
-      setUserRole(response.data.user.organization.type);
-
-      navigate('/');
+      if (window.google && window.google.maps) {
+        const result = await geocodeAddress(fullAddress);
+        console.log(result);
+  
+      if (result?.geometry?.location) {
+        const latLng = result.geometry.location;
+        const bounds = new window.google.maps.LatLngBounds();
+        bounds.extend(latLng);
+  
+        const response = await axios.post('api/Account/Register', {
+          firstName,
+          lastName,
+          email,
+          password,
+          organization: {
+            name: organizationName,
+            type: organizationType,
+            information: `${firstName} ${lastName}'s organization.`,
+            address: {
+              state,
+              city,
+              street,
+              number,
+              zipCode,
+            },
+            location: {
+              longitude: latLng.lng(),
+              latitude: latLng.lat()
+            },
+          },
+        });
+        setToken(response.data.token);
+        setUser(response.data.user);
+        setUserRole(response.data.user.organization.type);
+  
+        navigate('/');
+      }
+    }
     } catch (error : any) {
       console.error(error);
+  
+      if (error.response) {
+        console.error('Server error:', error.response.data);
+      } else if (error.request) {
+        console.error('Request error:', error.request);
+      } else {
+        console.error('Error:', error.message);
+      }
+  
       setError('Registration failed. Please try again.');
+      
     }
   };
 

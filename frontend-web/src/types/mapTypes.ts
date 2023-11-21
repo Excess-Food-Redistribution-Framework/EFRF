@@ -9,16 +9,17 @@ export interface ProductsMapProps {
         street: string;
         number: string;
         zipCode: string;
-      };
+      },
+      location: { 
+        longitude: number;
+        latitude: number;
+      }
     }[];
 }
 
 export interface MapContainerProps {
-    address: {
-      state: string;
-      city: string;
-      street: string;
-      number: string;
-      zipCode: string;
-    };
+    location: {
+      longitude: number;
+      latitude: number;
+    }
 }
