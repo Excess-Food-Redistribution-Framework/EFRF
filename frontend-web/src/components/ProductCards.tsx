@@ -87,12 +87,16 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
                 </div>
               </div>
               {isProductSoldOut(product) && (
-                <Badge pill bg="warning" className="product-card-status-label ">
+                <Badge pill bg="danger" className="product-card-status-label ">
                   <h6 className="m-0">Sold Out</h6>
                 </Badge>
               )}
               {isProductExpired(product) && (
-                <Badge pill bg="warning" className="product-card-status-label">
+                <Badge
+                  pill
+                  bg="warning"
+                  className="product-card-status-label-expired"
+                >
                   <h6 className="m-0">Expired</h6>
                 </Badge>
               )}
@@ -117,22 +121,10 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
                 <Card.Title className="pt-2 fw-bold">{product.name}</Card.Title>
                 <Card.Text className="">Short description of product</Card.Text>
                 <Row>
-                  <Col>
-                    <Card.Subtitle className="d-flex justify-content-center">
-                      Quantity
+                  <Col className="d-flex align-items-baseline">
+                    <Card.Subtitle className="d-flex justify-content-center px-2">
+                      Valid To:
                     </Card.Subtitle>
-                  </Col>
-                  <Col>
-                    <Card.Subtitle className="d-flex justify-content-center">
-                      Valid To
-                    </Card.Subtitle>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col className="d-flex justify-content-center">
-                    <Card.Text className="">{product.quantity}</Card.Text>
-                  </Col>
-                  <Col className="d-flex justify-content-center">
                     <Card.Text>
                       {new Date(product.expirationDate).toLocaleDateString(
                         'sk-SK'
@@ -140,35 +132,54 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
                     </Card.Text>
                   </Col>
                 </Row>
-                <ProgressBar className="m-3">
-                  <ProgressBar
-                    variant="primary"
-                    animated
-                    min={0}
-                    max={product.quantity}
-                    now={product.availableQuantity}
-                    label={
-                      product.availableQuantity >= 0.05 * product.quantity
-                        ? `${product.availableQuantity}`
-                        : ''
-                    }
-                    key={1}
-                  />
-                  <ProgressBar
-                    variant="secondary"
-                    animated
-                    min={0}
-                    max={product.quantity}
-                    now={product.quantity - product.availableQuantity}
-                    label={
-                      product.quantity - product.availableQuantity >=
-                      0.05 * product.quantity
-                        ? `${product.quantity - product.availableQuantity}`
-                        : ''
-                    }
-                    key={2}
-                  />
-                </ProgressBar>
+                <Row className="py-2">
+                  <Col>
+                    <Card.Subtitle className="d-flex justify-content-center">
+                      Quantity
+                    </Card.Subtitle>
+                  </Col>
+                  <Col className="col-12">
+                    <ProgressBar className="m-2">
+                      <ProgressBar
+                        variant="primary"
+                        animated
+                        min={0}
+                        max={product.quantity}
+                        now={product.availableQuantity}
+                        label={
+                          product.availableQuantity >= 0.05 * product.quantity
+                            ? `${product.availableQuantity}`
+                            : ''
+                        }
+                        key={1}
+                      />
+                      <ProgressBar
+                        variant="secondary"
+                        animated
+                        min={0}
+                        max={product.quantity}
+                        now={product.quantity - product.availableQuantity}
+                        label={
+                          product.quantity - product.availableQuantity >=
+                          0.05 * product.quantity
+                            ? `${product.quantity - product.availableQuantity}`
+                            : ''
+                        }
+                        key={2}
+                      />
+                    </ProgressBar>
+                  </Col>
+                  <Col className="d-flex justify-content-center align-items-baseline">
+                    <Card.Subtitle className="px-1">Available:</Card.Subtitle>
+                    <Card.Text className="">
+                      {product.availableQuantity}
+                    </Card.Text>
+                  </Col>
+                  <Col className="d-flex justify-content-center align-items-baseline">
+                    <Card.Subtitle className="px-1">Total:</Card.Subtitle>
+                    <Card.Text className="">{product.quantity}</Card.Text>
+                  </Col>
+                </Row>
                 <Button
                   onClick={() => handleButtonClick(product.id)}
                   disabled={!isAuth()}
