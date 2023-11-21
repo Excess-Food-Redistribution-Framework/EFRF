@@ -71,15 +71,23 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
         {response.data.map((product: ProductApiResponse) => (
           <Col key={product.id} className="px-4">
             <Card
-              className={`h-100  ${
+              className={`h-100 ${
                 getProductStatusClass(product) === 'available'
                   ? 'zoom-card'
                   : 'opacity-50'
               } product-card-${getProductStatusClass(product)}`}
             >
-              <Card.Img variant="top" src={getProductImage(product.type)} />
+              <div className="product-image">
+                <div className="image-container">
+                  <Card.Img
+                    variant="top"
+                    className="img-fluid embed-responsive-item"
+                    src={getProductImage(product.type)}
+                  />
+                </div>
+              </div>
               {isProductSoldOut(product) && (
-                <Badge pill bg="warning" className="product-card-status-label">
+                <Badge pill bg="warning" className="product-card-status-label ">
                   <h6 className="m-0">Sold Out</h6>
                 </Badge>
               )}
