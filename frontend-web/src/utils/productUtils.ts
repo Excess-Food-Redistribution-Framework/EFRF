@@ -20,14 +20,24 @@ export function isProductExpired(product: ProductApiResponse): boolean {
 // Potrebný rozmer obrázku 800x600 + možnosť stiahnúť obrázky a pridať ich do assetov
 export function getProductImage(params: ProductType) {
   switch (params) {
-    case ProductType.BakeryItems:
-      return 'https://hicaps.com.ph/wp-content/uploads/2022/12/bakery-products.jpg';
+
     case ProductType.FreshProduce:
-      return 'https://www.heart.org/-/media/Images/News/2019/April-2019/0429SustainableFoodSystem_SC.jpg';
+      return '/assets/img/FreshProduce.jpg';
     case ProductType.CannedGoods:
-      return 'https://www.lacademie.com/wp-content/uploads/2022/05/canned-food.jpg';
+      return '/assets/img/CannedGoods.jpg';
+    case ProductType.DairyProducts:
+      return '/assets/img/DairyProducts.jpg';
+    case ProductType.BakeryItems:
+      return '/assets/img/BakeryItems.jpg';
+    case ProductType.MeatAndPoultry:
+      return '/assets/img/MeatAndPoultry.jpg';
+    case ProductType.FrozenFoods:
+      return '/assets/img/FrozenFoods.jpg';
+    case ProductType.NonPerishables:
+      return '/assets/img/NonPerishables.jpg';
+
     default:
-      return 'https://i.pinimg.com/originals/4b/9c/77/4b9c7794eacda24d38fe00ce664b8fac.jpg';
+      return '/assets/img/other.jpg';
   }
 }
 
