@@ -25,8 +25,11 @@ namespace FRF.API.Controllers
         private readonly IProductService _productService;
         private readonly IOrganizationService _organizationService;
         private readonly IFoodRequestService _foodRequestService;
+        private readonly ILocationService _locationService;
+
         private readonly IMapper _mapper;
         private UserManager<User> _userManager;
+
 
         // Dependency Injection (DI).
         public ProductController(
@@ -35,13 +38,15 @@ namespace FRF.API.Controllers
             IOrganizationService organizationService
 ,
             IMapper mapper,
-            IFoodRequestService foodRequestService)
+            IFoodRequestService foodRequestService,
+            ILocationService locationService)
         {
             _productService = productService;
             _userManager = userManager;
             _organizationService = organizationService;
             _mapper = mapper;
             _foodRequestService = foodRequestService;
+            _locationService = locationService;
         }
 
         [HttpGet]
@@ -50,14 +55,19 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductDto>>> Get(
-            int page = 1, 
-            int pageSize = 10, 
+            [FromQuery] List<Guid>? organizationIds,
+            [FromQuery] List<Guid>? foodRequestIds,
+            [FromQuery] List<string>? names,
+            [FromQuery] List<ProductType>? types,
+            [FromQuery] int? minQuantity,
+            [FromQuery] DateTime? minExpirationDate,
+            [FromQuery] int? maxDistanceKm,
+            [FromQuery] Location? location,
 
-            bool notExpired = false, 
-            bool onlyAvailable = true,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
 
-            Guid organizationId = new Guid(),
-            Guid foodRequestId = new Guid()
+            [FromQuery] bool notExpired = false
             )
         {
 
@@ -68,21 +78,65 @@ namespace FRF.API.Controllers
                 products = products.Where(p => DateTime.UtcNow <= p.ExpirationDate);
             }
 
-            if (onlyAvailable)
+            if (minExpirationDate.HasValue)
             {
-                products = products.Where(p => p.AvailableQuantity > 0);
+                products = products.Where(p => p.ExpirationDate >= minExpirationDate.Value);
             }
 
-            if (organizationId != Guid.Empty)
+            if (maxDistanceKm.HasValue && location != null)
             {
-                var organization = await _organizationService.GetOrganizationById(organizationId);
-                products = products.Where(p => organization.Products.Contains(p));
+                //var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+                //if (user == null)
+                //{
+                //    throw new NotFoundApiException("User not found");
+                //}
+
+                //var organization = await _organizationService.GetOrganizationByUser(user.Id);
+                //if (organization == null)
+                //{
+                //    throw new NotFoundApiException("Organization not found");
+                //}
+                //if (organization.Location == null)
+                //{
+                //    throw new BadRequestApiException("Location not found");
+                //}
+
+                var organizations = await _organizationService.GetAllOrganizations();
+                //organizations = organizations.Where(o => _locationService.GetDistanse(organization.Location, o.Location) <= maxDistanceKm.Value);
+                organizations = organizations.Where(o => _locationService.GetDistanse(location, o.Location) <= maxDistanceKm.Value);
+
+                products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
 
-            if (foodRequestId != Guid.Empty)
+            if (minQuantity.HasValue)
             {
-                var foodRequest = await _foodRequestService.GetFoodRequestById(foodRequestId);
-                products = products.Where(p => foodRequest.ProductPicks.Any(pp => pp.Product == p));
+                products = products.Where(p => p.AvailableQuantity >= minQuantity.Value);
+            }
+
+            if (names?.Count > 0)
+            {
+                products = products.Where(p => names.Any(n => p.Name.Contains(n)));
+            }
+
+            if (types?.Count > 0)
+            {
+                products = products.Where(p => types.Contains(p.Type));
+            }
+
+            if (organizationIds?.Count > 0)
+            {
+                var organizations = await _organizationService.GetAllOrganizations();
+                organizations = organizations.Where(o => organizationIds.Contains(o.Id));
+                
+                products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
+            }
+
+            if (foodRequestIds?.Count > 0)
+            {
+                var foodRequests = await _foodRequestService.GetAllFoodRequests();
+                foodRequests = foodRequests.Where(f => foodRequestIds.Contains(f.Id));
+
+                products = products.Where(p => foodRequests.Any(f => f.ProductPicks.Any(pp => pp.Product == p)));
             }
 
             var productsDto = new List<ProductDto>();
