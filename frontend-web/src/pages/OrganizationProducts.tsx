@@ -70,9 +70,6 @@ const navigate = useNavigate();
           />
         </Form>
       </Container>
-      <p>{organization?.name}</p>
-      <p>{organization?.id}</p>
-      <p>{organization?.information}</p>
       {organization && (
         <ProductCards
           params={{

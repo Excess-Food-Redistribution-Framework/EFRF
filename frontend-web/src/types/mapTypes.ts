@@ -9,3 +9,10 @@ export interface ProductsMapProps {
       location: OrganizationLocation
     }[];
 }
+
+export interface MapContainerProps {
+  location: {
+    longitude: number;
+    latitude: number;
+  }
+}
