@@ -23,9 +23,18 @@ export interface ProductsApiParams {
   page: number;
   pageSize: number;
   notExpired?: boolean;
-  onlyAvailable?: boolean;
-  organizationId?: string;
-  foodRequestId?: string;
+  //onlyAvailable?: boolean;
+  organizationIds?: string;
+  foodRequestIds?: string;
+  names?: string;
+  types?: ProductType
+  minQuantity?: number;
+  minExpirationDate?: string;
+  maxDistanceKm?: number;
+  id?: string
+  Latitude?: number;
+  Longitude?: number;
+
 }
 
 // Definícia pre očakávanú odpoveď API pre získanie listu produktov

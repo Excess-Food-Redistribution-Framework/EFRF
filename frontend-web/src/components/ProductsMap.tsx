@@ -141,9 +141,9 @@ function ProductsMap({ organizations }: ProductsMapProps) {
             params={{
               page,
               pageSize,
-              onlyAvailable: !showDisabled,
+              //onlyAvailable: !showDisabled,
               notExpired: !showDisabled,
-              organizationId: selectedOrganization.id,
+              organizationIds: selectedOrganization.id
             }}
             pagination={isPagination}
           />

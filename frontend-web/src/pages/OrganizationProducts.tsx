@@ -70,15 +70,17 @@ const navigate = useNavigate();
           />
         </Form>
       </Container>
-
+      <p>{organization?.name}</p>
+      <p>{organization?.id}</p>
+      <p>{organization?.information}</p>
       {organization && (
         <ProductCards
           params={{
             page,
             pageSize,
-            onlyAvailable: !showDisabled,
+            //onlyAvailable: !showDisabled,
             notExpired: !showDisabled,
-            organizationId: organization.id
+            organizationIds: organization.id
           }}
           pagination={isPagination}
         />
