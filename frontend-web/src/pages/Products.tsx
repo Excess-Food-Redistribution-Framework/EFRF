@@ -64,7 +64,7 @@ function Products() {
       params={{
         page,
         pageSize,
-        onlyAvailable: !showDisabled,
+        //onlyAvailable: !showDisabled,
         notExpired: !showDisabled,
       }}
       pagination={isPagination}
