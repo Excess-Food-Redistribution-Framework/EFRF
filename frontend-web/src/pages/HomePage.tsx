@@ -58,7 +58,7 @@ function HomePage() {
             params={{
               page: pageProducts,
               pageSize: pageSizeProducts,
-              onlyAvailable: onlyAvailableProducts,
+              //onlyAvailable: onlyAvailableProducts,
               notExpired: !onlyAvailableProducts,
             }}
             pagination={paginationProducts}
