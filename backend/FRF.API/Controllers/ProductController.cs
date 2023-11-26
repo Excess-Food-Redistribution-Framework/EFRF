@@ -30,6 +30,10 @@ namespace FRF.API.Controllers
         private readonly IMapper _mapper;
         private UserManager<User> _userManager;
 
+        private readonly string _uploadFolderPath = "wwwroot/products";
+
+        private readonly string[] allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        private readonly int maxFileSizeInBytes = 5 * 1024 * 1024; // 5 MB
 
         // Dependency Injection (DI).
         public ProductController(
@@ -55,6 +59,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductDto>>> Get(
+            
             [FromQuery] List<Guid>? organizationIds,
             [FromQuery] List<Guid>? foodRequestIds,
             [FromQuery] List<string>? names,
@@ -188,8 +193,9 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> Post(CreateProductDto createProductDto)
+        public async Task<ActionResult<List<ProductDto>>> Post([FromForm] CreateProductDto createProductDto)
         {
+            //CreateProductDto createProductDto = new CreateProductDto();
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
@@ -200,6 +206,31 @@ namespace FRF.API.Controllers
 
             var product = _mapper.Map<Product>(createProductDto);
             product.AvailableQuantity = createProductDto.Quantity;
+
+            if (createProductDto.Image != null)
+            {
+                var fileExtension = Path.GetExtension(createProductDto.Image.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    throw new BadRequestApiException("Bad image extention");
+                }
+
+                if (createProductDto.Image.Length > maxFileSizeInBytes)
+                {
+                    throw new BadRequestApiException("Image is too large (>5 MB).");
+                }
+
+                var fileName = Path.GetExtension(createProductDto.Image.FileName);
+                var filePath = Path.Combine(_uploadFolderPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await createProductDto.Image.CopyToAsync(stream);
+                }
+
+                product.ImageUrl = Path.Combine(_uploadFolderPath, fileName);
+            }
+
             await _productService.AddProduct(product, organization);
 
             var productDto = _mapper.Map<ProductDto>(product);
@@ -213,7 +244,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProductDto>> Put(UpdateProductDto updateProductDto)
+        public async Task<ActionResult<ProductDto>> Put([FromForm] UpdateProductDto updateProductDto)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var organization = await _organizationService.GetOrganizationByUser(user.Id);
@@ -229,6 +260,35 @@ namespace FRF.API.Controllers
             product.Type = updateProductDto.Type;
             product.Quantity = updateProductDto.Quantity;
 
+            if (updateProductDto.Image != null)
+            {
+                if (System.IO.File.Exists(product.ImageUrl))
+                {
+                    System.IO.File.Delete(product.ImageUrl);
+                }
+
+                var fileExtension = Path.GetExtension(updateProductDto.Image.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    throw new BadRequestApiException("Bad image extention");
+                }
+
+                if (updateProductDto.Image.Length > maxFileSizeInBytes)
+                {
+                    throw new BadRequestApiException("Image is too large (>5 MB).");
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(updateProductDto.Image.FileName);
+                var filePath = Path.Combine(_uploadFolderPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await updateProductDto.Image.CopyToAsync(stream);
+                }
+
+                product.ImageUrl = Path.Combine(_uploadFolderPath, fileName);
+            }
+            
             await _productService.UpdateProduct(product);
 
             var productDto = _mapper.Map<ProductDto>(product);
@@ -247,9 +307,20 @@ namespace FRF.API.Controllers
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
             var organization = await _organizationService.GetOrganizationByUser(user.Id);
 
-            if (!organization.Products.Any(p => p.Id == id))
+            var product = organization?.Products.Find(p => p.Id == id);
+            if (product == null)
             {
                 throw new NotFoundApiException("No such product in your organization");
+            }
+
+            if (product.ImageUrl != String.Empty)
+            {
+                var filePath = Path.Combine(product.ImageUrl);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
             await _productService.DeleteProduct(id);
@@ -277,6 +348,15 @@ namespace FRF.API.Controllers
 
             foreach (var product in products)
             {
+                if (product.ImageUrl != String.Empty)
+                {
+                    var filePath = Path.Combine(product.ImageUrl);
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
                 await _productService.DeleteProduct(product.Id);
             }
 

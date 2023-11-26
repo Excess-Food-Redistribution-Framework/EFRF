@@ -30,4 +30,8 @@
     <ProjectReference Include="..\FRF.Services\FRF.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\products\" />
+  </ItemGroup>
+
 </Project>

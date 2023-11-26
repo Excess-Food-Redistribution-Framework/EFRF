@@ -100,6 +100,10 @@ namespace FRF.API.Controllers
                 organization.Name = updateOrganizationDto.Name;
             if (updateOrganizationDto.Information != String.Empty)
                 organization.Information = updateOrganizationDto.Information;
+            if (updateOrganizationDto.Location != null)
+                organization.Location = _mapper.Map<Location>(updateOrganizationDto.Location);
+            if (updateOrganizationDto.Address != null)
+                organization.Address = _mapper.Map<Address>(updateOrganizationDto.Address);
             //if (updateOrganizationDto.Password != String.Empty)
             //{
             //    string salt = BCrypt.Net.BCrypt.GenerateSalt();

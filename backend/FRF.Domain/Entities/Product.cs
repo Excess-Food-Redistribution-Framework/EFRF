@@ -20,6 +20,8 @@ namespace FRF.Domain.Entities
         public int Quantity { get; set; } = 0;
         public int AvailableQuantity { get; set; } = 0;
 
+        public string ImageUrl { get; set; } = String.Empty;
+
         public DateTime ExpirationDate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -40,5 +40,9 @@ namespace FRF.API.Dto.Product
         [Required]
         [Display(Name = "Organization")]
         public OrganizationDto? Organization { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "Image")]
+        public string? ImageUrl { get; set; }
     }
 }

@@ -25,5 +25,10 @@ namespace FRF.API.Dto.Product
         [DataType(DataType.Date)]
         [Display(Name = "ExpirationDate")]
         public DateTime ExpirationDate { get; set; } = DateTime.UtcNow;
+
+
+        [DataType(DataType.Upload)]
+        [Display(Name = "Image")]
+        public IFormFile? Image { get; set; } 
     }
 }
