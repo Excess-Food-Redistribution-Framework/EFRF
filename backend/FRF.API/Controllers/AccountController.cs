@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using FRF.API.Dto;
 using FRF.API.Dto.Organization;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
@@ -48,7 +49,7 @@ namespace FRF.API.Controllers
         [Route("Register")]
         [SwaggerOperation("Registration")]
         [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(ErrorResponse))]
         public async Task<ActionResult<LoginResponseDto>> Register(RegisterDto model)
         {
             var user = new User {
@@ -83,7 +84,7 @@ namespace FRF.API.Controllers
         [Route("Login")]
         [SwaggerOperation("Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(ErrorResponse))]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -109,7 +110,44 @@ namespace FRF.API.Controllers
             return Ok(userResponse);
         }
         
-        private async Task<String> LoginUserAndGenerateToken(string email, string password)
+        [HttpPut]
+        [Authorize]
+        [SwaggerOperation("Edit user profile")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User edit failed", Type = typeof(ErrorResponse))]
+        public async Task<ActionResult<UserWithOrganizationDto>> EditAccount(EditUserDto model)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            await _userManager.UpdateAsync(user);
+            
+            var userResponse = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value));
+            userResponse.Organization = _mapper.Map<OrganizationDto>(await _organizationService.GetOrganizationByUser(userResponse.Id.ToString()));
+            
+            return Ok(userResponse);
+        }
+        
+        [HttpPost("Password")]
+        [Authorize]
+        [SwaggerOperation("Change password")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Change password failed", Type = typeof(ErrorResponse))]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                throw new ApiException(result.Errors.FirstOrDefault()?.Description, HttpStatusCode.BadRequest);
+            }
+            
+            return Ok();
+        }
+        
+        private async Task<string> LoginUserAndGenerateToken(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
 
