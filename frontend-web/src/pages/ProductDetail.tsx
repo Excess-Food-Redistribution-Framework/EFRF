@@ -8,7 +8,10 @@ import {
 } from '../hooks/useProduct';
 import { OrganizationApiResponse } from '../types/organizationTypes';
 import { useAuth } from '../AuthProvider';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 function ProductDetail() {
   const { isAuth, user, userRole } = useAuth();
@@ -18,6 +21,7 @@ function ProductDetail() {
   const id: string = productId || '';
   const { product, errorMessage } = GetProductById(id);
   const [organization, setOrganization] = useState<OrganizationApiResponse>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,8 +40,9 @@ function ProductDetail() {
 
     fetchData();
   }, [product, user]);
+
   const handleDeleteSuccess = () => {
-    console.log('Product deleted successfully');
+    toast.success('Product deleted successfully');
     navigate('/organizationProducts/');
   };
 
@@ -45,8 +50,17 @@ function ProductDetail() {
     console.error(`Error deleting product: ${error}`);
   };
 
-  const handleDelete = () => {
+   const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
     DeleteProduct(id, handleDeleteSuccess, handleDeleteError);
+    setShowDeleteModal(false);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
   };
 
   //console.log(user?.organization);
@@ -100,6 +114,7 @@ function ProductDetail() {
           ) : null
         ) : null}
       </Container>
+      <DeleteConfirmationModal show={showDeleteModal} onHide={handleCancelDelete} onConfirm={handleConfirmDelete} />
     </Container>
   );
 }

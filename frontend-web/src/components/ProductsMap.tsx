@@ -1,38 +1,79 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
-import { ProductsMapProps } from '../types/mapTypes';
-import ProductCards from '../components/ProductCards';
+import { GetListOfProducts } from '../hooks/useProduct';
+import {  ProductMapProps } from '../types/productTypes';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
+  height: '100vh',
+  position: 'relative',
 };
 
 const mapContainerStyle: React.CSSProperties = {
   flex: 1,
-  height: '95vh',
-};
-const mapContainerStyle2: React.CSSProperties = {
-  flex: 1,
-  height: '100vh',
+  height: '50%',
+  marginBottom: '20px',
+  marginTop: '50px'
 };
 
-
-const cardsContainerStyle: React.CSSProperties = {
-  flex: 2,
-  padding: '20px',
+const buttonStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '10px',
+  left: '60px',
+  padding: '10px',
+  background: 'orange',
+  borderRadius: '8px',
+  marginTop: '50px',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  cursor: 'pointer',
 };
 
-function ProductsMap({ organizations }: ProductsMapProps) {
+import ProductListModal from '../components/ProductListModal';
+
+function ProductsMap({ params }: ProductMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<any>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [showDisabled] = useState<boolean>(true);
   const [page] = useState<number>(1);
-  const [pageSize] = useState<number>(5);
-  const [isPagination] = useState<boolean>(true);
-  
+  const [pageSize] = useState<number>(4);
+  const { response, errorMessage } = GetListOfProducts(params);
+
+  const showInfoWindow = (organization: any, marker: google.maps.Marker) => {
+    if (infoWindow) {
+      infoWindow.close();
+    }
+    const contentString = `<div><h3>${organization.name}</h3><p>${organization.address.street} ${organization.address.number}, ${organization.address.city}</p></div>`;
+
+    const newInfoWindow = new window.google.maps.InfoWindow({
+      content: contentString,
+    });
+    newInfoWindow.open(map!, marker);
+    setInfoWindow(newInfoWindow);
+    setSelectedOrganization(organization);
+  };
+
+  const handleMarkerClick = (organization: any, marker: google.maps.Marker) => {
+    showInfoWindow(organization, marker);
+  };
+
+  const closeInfoWindow = () => {
+    if (infoWindow) {
+      infoWindow.close();
+      setSelectedOrganization(null);
+    }
+  };
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -40,89 +81,67 @@ function ProductsMap({ organizations }: ProductsMapProps) {
         top: window.innerHeight,
         behavior: 'smooth',
       });
-      if (map && organizations.length > 0) {
+
+      if (map && response && response.data && response.data.length > 0) {
+        console.log(response.data);
         const bounds = new window.google.maps.LatLngBounds();
-        const markers: google.maps.Marker[] = [];
-    
-        for (const organization of organizations) {
-          if (organization.type === 'Provider') {
+        const markers: Map<string, google.maps.Marker> = new Map();
+
+        for (const product of response.data) {
+          const organization = product.organization;
+
+          if (organization && organization.type === 'Provider') {
             const { location } = organization;
-    
+
             if (location && location.latitude && location.longitude) {
               try {
                 const latLng = {
                   lat: location.latitude,
-                  lng: location.longitude
+                  lng: location.longitude,
                 };
-    
-                const circle = new window.google.maps.Circle({
-                  map,
-                  center: latLng,
-                  radius: 90,
-                  fillColor: 'blue',
-                  fillOpacity: 0.5,
-                  strokeColor: 'blue',
-                  strokeOpacity: 1,
-                  strokeWeight: 1,
-                });
-    
+
                 const marker = new window.google.maps.Marker({ position: latLng, map });
-                markers.push(marker);
-    
+                if (!markers.has(organization.id)) markers.set(organization.id, marker);
+
                 bounds.extend(latLng);
-    
-                marker.addListener('click', () => {
-                  showInfoWindow(organization, marker);
-                });
+
+                marker.addListener('click', () => handleMarkerClick(organization, marker));
               } catch (error) {
                 console.error(error);
               }
             }
           }
         }
-    
-        map.addListener('click', () => {
-          if (infoWindow) {
-            infoWindow.close();
-            setSelectedOrganization(null);
-          }
-        });
-    
+
+        map.addListener('click', closeInfoWindow);
+
         const center = bounds.getCenter();
         const zoom = 13;
-    
+
         map.setCenter(center);
         map.setZoom(zoom);
       }
     };
-  
-    const showInfoWindow = (organization: any, marker: google.maps.Marker) => {
-      if (infoWindow) {
-        infoWindow.close();
+
+    const fetchData = async () => {
+      if (map && response && response.data && response.data.length > 0) {
+        await fetchLocations();
       }
-  
-      const contentString = `<div><h3>${organization.name}</h3><p>${organization.address.street} ${organization.address.number}, ${organization.address.city}</p></div>`;
-  
-      const newInfoWindow = new window.google.maps.InfoWindow({
-        content: contentString,
-      });
-  
-      newInfoWindow.open(map!, marker);
-      setInfoWindow(newInfoWindow);
-      setSelectedOrganization(organization);
     };
-  
-    if (map && organizations.length > 0) {
-      fetchLocations();
-    }
-  }, [map, organizations, infoWindow]);
+
+    fetchData();
+  }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
 
   return (
     <div style={containerStyle}>
       <LoadMapContainer googleMapsApiKey="AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE">
-        <GoogleMap 
+      <GoogleMap
           options={{
             disableDefaultUI: true,
+            streetViewControl: true,
+            streetViewControlOptions: {
+              position: google.maps.ControlPosition.TOP_LEFT,
+            },
             styles: [
               {
                 featureType: 'poi',
@@ -131,24 +150,25 @@ function ProductsMap({ organizations }: ProductsMapProps) {
               },
             ],
           }}
-          mapContainerStyle={selectedOrganization ? mapContainerStyle : mapContainerStyle2}
+          mapContainerStyle={mapContainerStyle}
           onLoad={(map) => setMap(map)}
         />
       </LoadMapContainer>
       {selectedOrganization && (
-        <div style={cardsContainerStyle}>
-          <ProductCards
-            params={{
-              page,
-              pageSize,
-              //onlyAvailable: !showDisabled,
-              notExpired: !showDisabled,
-              organizationIds: selectedOrganization.id
-            }}
-            pagination={isPagination}
-          />
+        <div>
+          <div style={buttonStyle} onClick={openModal}>
+            Show products "{selectedOrganization.name}"
+          </div>
         </div>
       )}
+      <ProductListModal
+        showModal={showModal}
+        closeModal={closeModal}
+        organization={selectedOrganization}
+        page={page}
+        pageSize={pageSize}
+        showDisabled={showDisabled}
+      />
     </div>
   );
 }

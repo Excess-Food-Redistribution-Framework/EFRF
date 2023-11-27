@@ -6,6 +6,8 @@ import { useAuth } from '../AuthProvider';
 import { ProductApiResponse, ProductType } from '../types/productTypes';
 import { GetProductById, UpdateProduct } from '../hooks/useProduct';
 import { OrganizationApiResponse } from '../types/organizationTypes';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UpdateProductFormPage() {
   const { isAuth, user, token } = useAuth();
@@ -87,13 +89,13 @@ function UpdateProductFormPage() {
     }
   };
 
-  const handleUpdateSuccess = (updatedProduct: ProductApiResponse) => {
-    console.log('Product updated successfully:', updatedProduct);
+  const handleUpdateSuccess = () => {
+    toast.success('Product updated successfully');
     navigate('/organizationProducts');
   };
 
-  const handleUpdateError = (error: string) => {
-    console.error('Error updating product:', error);
+  const handleUpdateError = () => {
+    toast.success('Error updating product');
   };
 
   if (loading) {

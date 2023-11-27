@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthProvider';
 import { ProductApiResponse, ProductType } from '../types/productTypes';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ProductFormPage() {
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ function ProductFormPage() {
       } as ProductApiResponse);
 
       navigate('/organizationProducts');
+      toast.success('Product created successfully!')
     } catch (error) {
       console.error(error);
     }

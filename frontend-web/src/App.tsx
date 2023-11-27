@@ -15,6 +15,8 @@ import ProductFormPage from './pages/ProductFormPage';
 import ProductDetailPage from './pages/ProductDetail';
 import ProductUpdateFormPage from './pages/ProductUpdateFormPage';
 import OrganizationProducts from './pages/OrganizationProducts';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   // Set axios defaults
@@ -24,6 +26,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+      <ToastContainer />
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
