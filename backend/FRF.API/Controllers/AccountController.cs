@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using FRF.API.Dto;
 using FRF.API.Dto.Organization;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
@@ -48,7 +49,7 @@ namespace FRF.API.Controllers
         [Route("Register")]
         [SwaggerOperation("Registration")]
         [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User register failed", Type = typeof(ErrorResponse))]
         public async Task<ActionResult<LoginResponseDto>> Register(RegisterDto model)
         {
             var user = new User {
@@ -83,7 +84,7 @@ namespace FRF.API.Controllers
         [Route("Login")]
         [SwaggerOperation("Login")]
         [SwaggerResponse(StatusCodes.Status200OK, "User logged in successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User login failed", Type = typeof(ErrorResponse))]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -114,6 +115,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Edit user profile")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User edit failed", Type = typeof(ErrorResponse))]
         public async Task<ActionResult<UserWithOrganizationDto>> EditAccount(EditUserDto model)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
@@ -132,6 +134,7 @@ namespace FRF.API.Controllers
         [SwaggerOperation("Change password")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Change password failed", Type = typeof(ErrorResponse))]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
         {
             var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
