@@ -84,14 +84,14 @@ function LoginPage() {
   }, [user]);
 
   return (
-    <Container className="pt-5">
-      <Row className="justify-content-center rounded-4 custom-shadow overflow-hidden">
+    <Container className="pt-4">
+      <Row className="m-1 justify-content-center rounded-4 custom-shadow overflow-hidden">
         <Col lg="12">
           <Row className="secondary_color">
             <Col lg="7" className=" diagonal-bg-login d-flex">
               <Image src="/assets/img/login.svg" className="img-fluid p-4 pb-0" />
             </Col>
-            <Col lg="5" className="px-4 px-xl-5 d-flex flex-column justify-content-evenly secondary_color">
+            <Col lg="5" className="px-4 px-xl-5 pt-3 d-flex flex-column justify-content-evenly secondary_color">
               <h1 className="mb-3 text-white">Login</h1>
               <Row>
               {/*error && (

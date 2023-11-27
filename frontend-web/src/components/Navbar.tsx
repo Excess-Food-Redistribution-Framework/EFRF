@@ -21,51 +21,54 @@ function Navbar() {
 
 
   return (
-    <NavbarBootstrap className="bg-white shadow-sm sticky-top">
+    <NavbarBootstrap collapseOnSelect expand="md" className="bg-white shadow-sm sticky-top">
       <Container>
-        <Nav>
-          <Nav.Link to="/" as={NavLink}>
+          <NavbarBootstrap.Brand to="/" as={NavLink}>
             LOGO
-          </Nav.Link>
-          <Nav.Link to="/" as={NavLink}>
-            Home
-          </Nav.Link>
-          <Nav.Link to="/blog" as={NavLink}>
-            Blog
-          </Nav.Link>
-          <Nav.Link to="/products" as={NavLink}>
-            Products
-          </Nav.Link>
-          {isAuth() && userRole === 'Provider' && (
-            <Nav.Link to="/organizationProducts" as={NavLink}>
-              Organization products
-            </Nav.Link>
-          )}
-        </Nav>
-        <Nav>
-          {isAuth() ? (
-            <>
-              {userRole === 'Provider' && (
-                <Nav.Link to="/product/create" as={NavLink}>
-                  Create product
+          </NavbarBootstrap.Brand>
+          <NavbarBootstrap.Toggle aria-controls="main-navbar-nav" />
+          <NavbarBootstrap.Collapse id="main-navbar-nav" className="justify-content-between">
+            <Nav>
+              <Nav.Link to="/" as={NavLink}>
+                Home
+              </Nav.Link>
+              <Nav.Link to="/blog" as={NavLink}>
+                Blog
+              </Nav.Link>
+              <Nav.Link to="/products" as={NavLink}>
+                Products
+              </Nav.Link>
+              {isAuth() && userRole === 'Provider' && (
+                <Nav.Link to="/organizationProducts" as={NavLink}>
+                  Organization products
                 </Nav.Link>
               )}
-              <Nav.Link to="/profile" as={NavLink}>
-                Profile
-              </Nav.Link>
-              <Nav.Link onClick={logout}>Logout</Nav.Link>
-            </>
-          ) : (
-            <>
-              <Nav.Link to="/login" as={NavLink}>
-                Login
-              </Nav.Link>
-              <Nav.Link to="/registration" as={NavLink}>
-                Registration
-              </Nav.Link>
-            </>
-          )}
-        </Nav>
+            </Nav>
+            <Nav>
+              {isAuth() ? (
+                <>
+                  {userRole === 'Provider' && (
+                    <Nav.Link to="/product/create" as={NavLink}>
+                      Create product
+                    </Nav.Link>
+                  )}
+                  <Nav.Link to="/profile" as={NavLink}>
+                    Profile
+                  </Nav.Link>
+                  <Nav.Link onClick={logout}>Logout</Nav.Link>
+                </>
+              ) : (
+                <>
+                  <Nav.Link to="/login" as={NavLink}>
+                    Login
+                  </Nav.Link>
+                  <Nav.Link to="/registration" as={NavLink}>
+                    Registration
+                  </Nav.Link>
+                </>
+              )}
+            </Nav>
+          </NavbarBootstrap.Collapse>
       </Container>
     </NavbarBootstrap>
   );
