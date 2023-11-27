@@ -109,7 +109,42 @@ namespace FRF.API.Controllers
             return Ok(userResponse);
         }
         
-        private async Task<String> LoginUserAndGenerateToken(string email, string password)
+        [HttpPut]
+        [Authorize]
+        [SwaggerOperation("Edit user profile")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<UserWithOrganizationDto>> EditAccount(EditUserDto model)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            await _userManager.UpdateAsync(user);
+            
+            var userResponse = _mapper.Map<UserWithOrganizationDto>(await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value));
+            userResponse.Organization = _mapper.Map<OrganizationDto>(await _organizationService.GetOrganizationByUser(userResponse.Id.ToString()));
+            
+            return Ok(userResponse);
+        }
+        
+        [HttpPost("Password")]
+        [Authorize]
+        [SwaggerOperation("Change password")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                throw new ApiException(result.Errors.FirstOrDefault()?.Description, HttpStatusCode.BadRequest);
+            }
+            
+            return Ok();
+        }
+        
+        private async Task<string> LoginUserAndGenerateToken(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
 
