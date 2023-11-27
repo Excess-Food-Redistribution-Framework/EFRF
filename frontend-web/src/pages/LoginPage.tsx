@@ -11,7 +11,9 @@ import {
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 import '../styles/custom.styles.css';
-import {LoginRequest} from '../types/userTypes.ts';
+import {LoginRequest, UserRole} from '../types/userTypes.ts';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ function LoginPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const [error, setError] = useState<string>(''); 
+  //const [error, setError] = useState<string>(''); 
   
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -54,21 +56,25 @@ function LoginPage() {
       setToken(response.data.token);
       setUser(response.data.user);
       setUserRole(response.data.user.organization.type);
-
+      toast.success('Login successful! Welcome back!', {
+        autoClose: 5000, 
+      });
       navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Request failed with status code 400') {
-          setError('Incorrect email or password. Please try again.');
+          //setError('Incorrect email or password. Please try again.');
+          toast.error('Incorrect email or password. Please try again.');
         } else {
-          setError('An error occurred. Please try again later.');
+          //setError('An error occurred. Please try again later.');
+          toast.error('An error occurred. Please try again later.');
         }
       }
     }
   };
 
   const handleInputChange = () => {
-    setError('');
+    //setError('');
   };
 
   useEffect(() => {
@@ -88,11 +94,11 @@ function LoginPage() {
             <Col lg="5" className="px-4 px-xl-5 pt-3 d-flex flex-column justify-content-evenly secondary_color">
               <h1 className="mb-3 text-white">Login</h1>
               <Row>
-              {error && (
+              {/*error && (
                 <p className="error-message">
                   {error}
                 </p>
-              )}
+              )*/}
               </Row>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formEmail" className="mb-3">

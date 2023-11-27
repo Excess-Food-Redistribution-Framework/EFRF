@@ -11,6 +11,7 @@ function Products() {
   const [showDisabled, setShowDisabled] = useState<boolean>(true);
   const isPagination = true;
   const { organizations } = useMap();
+  const pageSizeMap = 100000;
 
   const handleViewChange = (newView: 'list' | 'map') => {
     setView(newView);
@@ -70,7 +71,14 @@ function Products() {
       pagination={isPagination}
     />
   ) : (
-    <ProductsMap organizations={organizations} />
+    <ProductsMap params={{
+      page,
+      pageSize: pageSizeMap,
+      //onlyAvailable: !showDisabled,
+      notExpired: !showDisabled,
+    }} 
+    //pagination={isPagination}
+    />
   )}
   </Container>
   );

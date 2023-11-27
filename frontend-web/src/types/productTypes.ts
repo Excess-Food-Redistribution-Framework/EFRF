@@ -70,6 +70,9 @@ export interface ProductCardsProps {
   params: ProductsApiParams;
   pagination: boolean;
 }
+export interface ProductMapProps {
+  params: ProductsApiParams;
+}
 
 export interface ProductUpdateApiParams {
   id: string;

@@ -11,6 +11,9 @@ import {
 } from 'react-bootstrap';
 import { useAuth } from '../AuthProvider';
 import geocodeAddress from '../utils/geocodeUtils.tsx';
+import { UserRole } from '../types/userTypes.ts';
+import { Country, State, City }  from 'country-state-city';
+import Select from 'react-select';
 
 function RegistrationPage() {
   const navigate = useNavigate();
@@ -20,23 +23,58 @@ function RegistrationPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  interface ICountry {
+    name: string;
+    isoCode: string;
+  }
+  interface ICity {
+    name: string;
+  }
   const [organizationName, setOrganizationName] = React.useState('');
   const [organizationType, setOrganizationType] = React.useState('');
-
-  const [state, setState] = React.useState('Slovakia');
-  const [city, setCity] = React.useState('');
+  const [countries, setCountries] = useState<ICountry[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
+  const [cities, setCities] = useState<ICity[]>([]);
+  const [selectedCity, setSelectedCity] = useState<ICity | null>(null);
   const [street, setStreet] = React.useState('');
   const [number, setNumber] = React.useState('');
   const [zipCode, setZipCode] = React.useState('');
 
-  const [responseMessage, setResponseMessage] = React.useState({});
   const [error, setError] = React.useState('');
 
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  
+  useEffect(() => {
+    const fetchCountries = async () => {
+      const fetchedCountries = Country.getAllCountries();
+      setCountries(fetchedCountries);
+      setSelectedCountry(null);
+    };
+
+    fetchCountries();
+  }, []);
+  
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (selectedCountry) {
+        const fetchedCities = City.getCitiesOfCountry(selectedCountry.isoCode);
+        if(fetchedCities)
+          setCities(fetchedCities);
+  
+
+        const cityExists = fetchedCities?.some(city => city.name === selectedCity?.name);
+  
+        if (!cityExists) {
+          setSelectedCity(null);
+        }
+      }
+    };
+  
+    fetchCities();
+  }, [selectedCountry]);
 
   const handleInputChange = () => {
     setError('');
@@ -75,7 +113,8 @@ function RegistrationPage() {
     if (!isValid) {
       return;
     }
-    
+    const state = selectedCountry?.name;
+    const city = selectedCity?.name;
     const fullAddress = `${street} ${number}, ${city}, ${state}, ${zipCode}`;
 
     try {
@@ -274,7 +313,54 @@ function RegistrationPage() {
                     </Form.Group>
                   </Col>
                 </Row>
-
+                <Row>
+                  <Col md>
+                    <Form.Group controlId="formState" className="mb-3">
+                      <Form.Label style={{ color: 'white' }}>State</Form.Label>
+                      <div style={{ overflow: 'hidden' }}></div>
+                      <Select
+                        options={countries.map(country => ({ value: country, label: country.name }))}
+                        value={{ value: selectedCountry, label: selectedCountry?.name ?? '' }}
+                        onChange={(selectedOption) => setSelectedCountry(selectedOption?.value ?? selectedCountry)}
+                        styles={{
+                          control: (styles) => ({
+                            ...styles,
+                            width: '100%', 
+                          }),
+                          menu: (styles) => ({
+                            ...styles,
+                            width: '100%', 
+                            maxHeight: '200px', 
+                            overflow: 'hidden'
+                          }),
+                        }}
+                      />
+                      
+                    </Form.Group>
+                  </Col>
+                  <Col md>
+                    <Form.Group controlId="formCity" className="mb-3">
+                      <Form.Label style={{ color: 'white' }}>City</Form.Label>
+                      <Select
+                  options={cities.map(city => ({ value: city, label: city.name }))}
+                  value={{ value: selectedCity, label: selectedCity?.name ?? '' }}
+                  onChange={(selectedOption) => setSelectedCity(selectedOption?.value ?? null)}
+                  styles={{
+                    control: (styles) => ({
+                      ...styles,
+                      width: '100%', 
+                    }),
+                    menu: (styles) => ({
+                      ...styles,
+                      width: '100%', 
+                      maxHeight: '200px', 
+                      overflow: 'hidden'
+                    }),
+                  }}
+                />
+                    </Form.Group>
+                  </Col>
+                </Row>
                 <Row>
                   <Col md>
                     <Form.Group controlId="formStreet" className="mb-3">
@@ -311,20 +397,6 @@ function RegistrationPage() {
                         value={zipCode}
                         onChange={(e) => {
                           setZipCode(e.target.value);
-                          handleInputChange();
-                        }}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md>
-                    <Form.Group controlId="formCity" className="mb-3">
-                      <Form.Label style={{ color: 'white' }}>City</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={city}
-                        pattern="^\d{5}$"
-                        onChange={(e) => {
-                          setCity(e.target.value);
                           handleInputChange();
                         }}
                       />
