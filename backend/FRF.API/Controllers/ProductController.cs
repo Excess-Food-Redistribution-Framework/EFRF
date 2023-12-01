@@ -12,6 +12,7 @@ using System.Net;
 using FRF.API.Dto.Organization;
 using FRF.API.Dto;
 using FRF.Domain.Exceptions;
+using FRF.API.Dto.Address;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -67,7 +68,7 @@ namespace FRF.API.Controllers
             [FromQuery] int? minQuantity,
             [FromQuery] DateTime? minExpirationDate,
             [FromQuery] int? maxDistanceKm,
-            [FromQuery] Location? location,
+            [FromQuery] LocationDto? location,
 
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
@@ -108,7 +109,7 @@ namespace FRF.API.Controllers
 
                 var organizations = await _organizationService.GetAllOrganizations();
                 //organizations = organizations.Where(o => _locationService.GetDistanse(organization.Location, o.Location) <= maxDistanceKm.Value);
-                organizations = organizations.Where(o => _locationService.GetDistanse(location, o.Location) <= maxDistanceKm.Value);
+                organizations = organizations.Where(o => _locationService.GetDistanse(_mapper.Map<Location>(location), o.Location) <= maxDistanceKm.Value);
 
                 products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
