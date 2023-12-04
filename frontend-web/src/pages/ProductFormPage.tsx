@@ -16,7 +16,7 @@ function ProductFormPage() {
   const todayFormatted = today.toLocaleDateString('en-CA');
 
   const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(todayFormatted);
 
@@ -66,7 +66,7 @@ function ProductFormPage() {
                   <Form.Label>Quantity</Form.Label>
                   <Form.Control
                     type="number"
-                    min="0"
+                    min="1"
                     step="1"
                     placeholder="Quantity"
                     value={quantity}
