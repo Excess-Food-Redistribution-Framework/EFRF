@@ -5,7 +5,7 @@ import { useAuth } from '../AuthProvider';
 import MapContainer from '../components/MapContainer';
 import {useNavigate} from "react-router-dom";
 
-function ProfilePage() {
+function Profile() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<object | any>({});
   const [loading, setLoading] = useState(true);
@@ -60,8 +60,8 @@ function ProfilePage() {
                     </>)}
                     <Row>
                       <div>
-                        {/*<Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit profile</Button>*/}
-                        {/*<Button className="mx-1" onClick={() => navigate('/profile/edit-password')}>Change password</Button>*/}
+                        <Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit profile</Button>
+                        <Button className="mx-1" onClick={() => navigate('/profile/change-password')}>Change password</Button>
                       </div>
                     </Row>
                   </Card.Body>
@@ -103,4 +103,4 @@ function ProfilePage() {
   );
 }
 
-export default ProfilePage;
+export default Profile;
