@@ -5,7 +5,7 @@ import { useAuth } from '../AuthProvider';
 import MapContainer from '../components/MapContainer';
 import {useNavigate} from "react-router-dom";
 
-function ProfilePage() {
+function Profile() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<object | any>({});
   const [loading, setLoading] = useState(true);
@@ -103,4 +103,4 @@ function ProfilePage() {
   );
 }
 
-export default ProfilePage;
+export default Profile;
