@@ -60,8 +60,8 @@ function Profile() {
                     </>)}
                     <Row>
                       <div>
-                        {/*<Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit profile</Button>*/}
-                        {/*<Button className="mx-1" onClick={() => navigate('/profile/edit-password')}>Change password</Button>*/}
+                        <Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit profile</Button>
+                        <Button className="mx-1" onClick={() => navigate('/profile/change-password')}>Change password</Button>
                       </div>
                     </Row>
                   </Card.Body>
