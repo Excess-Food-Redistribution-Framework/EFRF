@@ -17,6 +17,8 @@ import ProductUpdateFormPage from './pages/ProductUpdateFormPage';
 import OrganizationProducts from './pages/OrganizationProducts';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ChangePassword from "./pages/ChangePassword.tsx";
+import EditProfile from "./pages/EditProfile.tsx";
 
 function App() {
   // Set axios defaults
@@ -36,6 +38,8 @@ function App() {
             <Route path="/products/:productId/update" element={<ProductUpdateFormPage />}/>
             <Route path="/products" element={<Products />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/change-password" element={<ChangePassword />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
             <Route path="/organization/create" element={<OrganizationFormPage />}/>
