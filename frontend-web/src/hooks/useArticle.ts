@@ -49,10 +49,11 @@ export function GetArticleById(articleId: string) {
   useEffect(() => {
     async function fetchArticleById() {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/article${articleId}`
-        );
 
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/article/${articleId}`
+        );
+        console.log(response);
         if (response.status !== 200) {
           throw new Error(response.statusText);
         }
