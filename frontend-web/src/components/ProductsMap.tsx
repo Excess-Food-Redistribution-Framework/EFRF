@@ -129,6 +129,12 @@ function ProductsMap({ params }: ProductMapProps) {
       }
     };
 
+    if (window.google && window.google.maps) {
+      fetchData();
+    } else {
+      map?.addListener('idle', fetchData);
+    }
+
     fetchData();
   }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
 
