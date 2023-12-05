@@ -1,6 +1,6 @@
-import { Container, Nav, Navbar as NavbarBootstrap } from 'react-bootstrap';
+import {Container, Image, Nav, Navbar as NavbarBootstrap} from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
 
 function Navbar() {
@@ -23,8 +23,8 @@ function Navbar() {
   return (
     <NavbarBootstrap collapseOnSelect expand="md" className="bg-white shadow-sm sticky-top">
       <Container>
-          <NavbarBootstrap.Brand to="/" as={NavLink}>
-            LOGO
+          <NavbarBootstrap.Brand to="/" as={NavLink} className="p-0">
+              <Image src="/assets/img/logo.svg" />
           </NavbarBootstrap.Brand>
           <NavbarBootstrap.Toggle aria-controls="main-navbar-nav" />
           <NavbarBootstrap.Collapse id="main-navbar-nav" className="justify-content-between">
