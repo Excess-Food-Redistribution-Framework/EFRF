@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
 import { GetListOfProducts } from '../hooks/useProduct';
-import {  ProductMapProps } from '../types/productTypes';
+import { ProductMapProps } from '../types/productTypes';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
@@ -15,7 +15,7 @@ const mapContainerStyle: React.CSSProperties = {
   flex: 1,
   height: '50%',
   marginBottom: '20px',
-  marginTop: '50px'
+  marginTop: '50px',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -129,10 +129,16 @@ function ProductsMap({ params }: ProductMapProps) {
       }
     };
 
+    const initializeMap = () => {
+      map?.addListener('idle', () => {
+        fetchData();
+      });
+    };
+
     if (window.google && window.google.maps) {
-      fetchData();
+      initializeMap();
     } else {
-      map?.addListener('idle', fetchData);
+      window.addEventListener('google-maps-api-loaded', initializeMap);
     }
 
     fetchData();
@@ -141,7 +147,7 @@ function ProductsMap({ params }: ProductMapProps) {
   return (
     <div style={containerStyle}>
       <LoadMapContainer googleMapsApiKey="AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE">
-      <GoogleMap
+        <GoogleMap
           options={{
             disableDefaultUI: true,
             streetViewControl: true,
