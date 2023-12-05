@@ -75,7 +75,8 @@ function ProductsMap({ params }: ProductMapProps) {
     setShowModal(false);
   };
 
-  useEffect(() => {
+    useEffect(() => {
+      if (window.google && window.google.maps) {
     const fetchLocations = async () => {
       window.scrollTo({
         top: window.innerHeight,
@@ -128,21 +129,10 @@ function ProductsMap({ params }: ProductMapProps) {
         await fetchLocations();
       }
     };
-
-    const initializeMap = () => {
-      map?.addListener('idle', () => {
         fetchData();
-      });
-    };
-
-    if (window.google && window.google.maps) {
-      initializeMap();
-    } else {
-      window.addEventListener('google-maps-api-loaded', initializeMap);
-    }
-
-    fetchData();
-  }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
+      }
+    }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
+    
 
   return (
     <div style={containerStyle}>
