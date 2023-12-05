@@ -22,19 +22,17 @@ export enum ProductType {
 export interface ProductsApiParams {
   page: number;
   pageSize: number;
-  notExpired?: boolean;
-  //onlyAvailable?: boolean;
-  organizationIds?: string;
-  foodRequestIds?: string;
-  names?: string;
-  types?: ProductType
+  notExpired: boolean;
+  organizationIds?: string[];
+  foodRequestIds?: string[];
+  names?: string[];
+  types?: ProductType[];
   minQuantity?: number;
   minExpirationDate?: string;
   maxDistanceKm?: number;
-  id?: string
+  id?: string;
   Latitude?: number;
   Longitude?: number;
-
 }
 
 // Definícia pre očakávanú odpoveď API pre získanie listu produktov
@@ -68,7 +66,8 @@ export interface ProductApiResponse {
 // Definícia props pre volanie funkcie(komponentu) ProductCards
 export interface ProductCardsProps {
   params: ProductsApiParams;
-  pagination: boolean;
+  isPagination: boolean;
+  isFilter: boolean;
 }
 export interface ProductMapProps {
   params: ProductsApiParams;

@@ -7,13 +7,14 @@ function HomePage() {
   // ----- ArticleCards Values -----
   const pageArticles = 1;
   const pageSizeArticles = 3;
-  const paginationArticles = false;
+  const isPaginationArticles = false;
 
   // ----- ProductCards Values -----
   const pageProducts = 1;
   const pageSizeProducts = 8;
-  const onlyAvailableProducts = true;
-  const paginationProducts = false;
+  const showOnlyAvailableProducts = true;
+  const isPaginationProducts = false;
+  const isFilterProducts = false;
 
   return (
     <Container fluid className="px-0">
@@ -36,7 +37,7 @@ function HomePage() {
           <h2>Reduce Food Waste</h2>
           <ArticlesCards
             params={{ page: pageArticles, pageSize: pageSizeArticles }}
-            pagination={paginationArticles}
+            isPagination={isPaginationArticles}
           />
         </Container>
 
@@ -58,10 +59,10 @@ function HomePage() {
             params={{
               page: pageProducts,
               pageSize: pageSizeProducts,
-              //onlyAvailable: onlyAvailableProducts,
-              notExpired: !onlyAvailableProducts,
+              notExpired: showOnlyAvailableProducts,
             }}
-            pagination={paginationProducts}
+            isPagination={isPaginationProducts}
+            isFilter={isFilterProducts}
           />
         </Container>
       </Container>
