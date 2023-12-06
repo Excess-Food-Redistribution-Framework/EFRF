@@ -40,10 +40,11 @@ function ArticleDetail() {
         <Row className="justify-content-center diagonal-bg p-5">
           <Col className="text-center d-flex flex-column justify-content-center">
             <h1 className="text-white text-shadow pb-2">{article.title}</h1>
+            <h4 className="text-white text-shadow">{article.teaser}</h4>
           </Col>
         </Row>
       </Container>
-      <Container className="py-5">{article.content}</Container>
+      <Container dangerouslySetInnerHTML={{ __html: article.content }} />
     </Container>
   );
 }
