@@ -51,6 +51,8 @@ namespace FRF.API.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadArticlesFromJson([FromForm] FileDto jsonFile)
         {
+            _articleService.GetAll().Result.ToList().ForEach(article => _articleService.Delete(article.Id).Wait());
+            
             try
             {
                 using (var streamReader = new StreamReader(jsonFile.File.OpenReadStream()))
