@@ -45,13 +45,11 @@ function MapContainer({ location }: MapContainerProps) {
   }, [map, location]);
 
   return (
-    <LoadMapContainer googleMapsApiKey="AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE">
       <GoogleMap 
         mapContainerStyle={mapContainerStyle}
         onLoad={(map) => setMap(map)}
       >
       </GoogleMap>
-    </LoadMapContainer>
   );
 }
 
