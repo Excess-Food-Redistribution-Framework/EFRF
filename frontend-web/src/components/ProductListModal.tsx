@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
 import ProductCards from './ProductCards';
 
@@ -42,6 +42,10 @@ const ProductListModal: React.FC<ProductListModalProps> = ({
   pageSize,
   showDisabled,
 }) => {
+  useEffect(() => {
+    Modal.setAppElement('#root');
+  }, []);
+
   return (
     <Modal
       isOpen={showModal}

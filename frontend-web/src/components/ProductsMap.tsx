@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
 import { GetListOfProducts } from '../hooks/useProduct';
-import {  ProductMapProps } from '../types/productTypes';
+import { ProductMapProps } from '../types/productTypes';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
@@ -15,7 +15,7 @@ const mapContainerStyle: React.CSSProperties = {
   flex: 1,
   height: '50%',
   marginBottom: '20px',
-  marginTop: '50px'
+  marginTop: '50px',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -123,18 +123,13 @@ function ProductsMap({ params }: ProductMapProps) {
       }
     };
 
-    const fetchData = async () => {
-      if (map && response && response.data && response.data.length > 0) {
-        await fetchLocations();
-      }
-    };
-
-    fetchData();
+    if (map && response && response.data && response.data.length > 0) {
+      fetchLocations();
+    }
   }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
 
   return (
     <div style={containerStyle}>
-      <LoadMapContainer googleMapsApiKey="AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE">
       <GoogleMap
           options={{
             disableDefaultUI: true,
@@ -153,7 +148,6 @@ function ProductsMap({ params }: ProductMapProps) {
           mapContainerStyle={mapContainerStyle}
           onLoad={(map) => setMap(map)}
         />
-      </LoadMapContainer>
       {selectedOrganization && (
         <div>
           <div style={buttonStyle} onClick={openModal}>
