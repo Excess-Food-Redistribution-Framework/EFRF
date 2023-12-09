@@ -5,6 +5,8 @@ using FRF.Domain.Entities;
 using FRF.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using FRF.Domain.Exceptions;
+using Newtonsoft.Json;
 
 namespace FRF.API.Controllers
 {
@@ -42,36 +44,71 @@ namespace FRF.API.Controllers
         {
             return Ok(await _articleService.GetById(id));
         }
-
-        [HttpPost]
-        [SwaggerOperation("Create Article")]
-        [SwaggerResponse(200)]
-        [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
-        public async Task<ActionResult<Article>> Post([FromBody] CreateUpdateArticleDto articleBody)
+        
+        [HttpPost("Import")]
+        [SwaggerOperation("Import Articles from JSON file")]
+        [SwaggerResponse(200, "Articles successfully uploaded")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadArticlesFromJson([FromForm] FileDto jsonFile)
         {
-            var article = _mapper.Map<Article>(articleBody);
-            await _articleService.Add(article);
-            return Ok(article);
+            try
+            {
+                using (var streamReader = new StreamReader(jsonFile.File.OpenReadStream()))
+                {
+                    var jsonContent = await streamReader.ReadToEndAsync();
+
+                    // Deserialize JSON content into a list of CreateUpdateArticleDto
+                    var articlesData = JsonConvert.DeserializeObject<List<CreateUpdateArticleDto>>(jsonContent);
+
+                    // Map DTOs to Article entities and add to the database
+                    var articleEntities = _mapper.Map<List<Article>>(articlesData);
+                    
+                    foreach (var article in articleEntities)
+                    {
+                        await _articleService.Add(article);
+                    }
+                    
+                    streamReader.Close();
+
+                    return Ok("Articles successfully uploaded");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new BadRequestApiException(ex.Message);
+            }
         }
 
-        [HttpPut("{id}")]
-        [SwaggerOperation("Update Article")]
-        [SwaggerResponse(200)]
-        [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
-        public async Task<ActionResult<Article>> Put(Guid id, [FromBody] CreateUpdateArticleDto articleBody)
-        {
-            var article = await _articleService.GetById(id);
-            _mapper.Map(articleBody, article);
-            await _articleService.Update(article);
-            return Ok(article);
-        }
-
-        [HttpDelete("{id}")]
-        [SwaggerOperation("Delete Article")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            await _articleService.Delete(id);
-            return Ok();
-        }
+        // [HttpPost]
+        // [SwaggerOperation("Create Article")]
+        // [SwaggerResponse(200)]
+        // [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
+        // public async Task<ActionResult<Article>> Post([FromBody] CreateUpdateArticleDto articleBody)
+        // {
+        //     var article = _mapper.Map<Article>(articleBody);
+        //     await _articleService.Add(article);
+        //     return Ok(article);
+        // }
+        //
+        // [HttpPut("{id}")]
+        // [SwaggerOperation("Update Article")]
+        // [SwaggerResponse(200)]
+        // [SwaggerResponse(400, "Invalid request body", typeof(ValidationProblemDetails))]
+        // public async Task<ActionResult<Article>> Put(Guid id, [FromBody] CreateUpdateArticleDto articleBody)
+        // {
+        //     var article = await _articleService.GetById(id);
+        //     _mapper.Map(articleBody, article);
+        //     await _articleService.Update(article);
+        //     return Ok(article);
+        // }
+        //
+        // [HttpDelete("{id}")]
+        // [SwaggerOperation("Delete Article")]
+        // public async Task<IActionResult> Delete(Guid id)
+        // {
+        //     await _articleService.Delete(id);
+        //     return Ok();
+        // }
     }
+    
 }
