@@ -19,6 +19,7 @@ namespace FRF.Services.Implementations
     {
         // Sercice uses repositories to work with datas
         private readonly IBaseRepository<Organization> _organizationRepository;
+        private readonly IBaseRepository<Comment> _commentRepository;
 
         private readonly IFoodRequestService _foodRequestService;
         private readonly IProductService _productService;
@@ -32,13 +33,15 @@ namespace FRF.Services.Implementations
             UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager,
             IFoodRequestService foodRequestService,
-            IProductService productService)
+            IProductService productService,
+            IBaseRepository<Comment> commentRepository)
         {
             _organizationRepository = organizationRepository;
             _userManager = userManager;
             _roleManager = roleManager;
             _foodRequestService = foodRequestService;
             _productService = productService;
+            _commentRepository = commentRepository;
         }
 
         public async Task<bool> AddUserToOrganization(string userId, Guid organizationId/*, string password*/)
@@ -140,6 +143,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.AllowedEmails)
                     .Include(o => o.Address)
                     .Include(o => o.Location)
+                    .Include(o => o.Comments)
                     .ToListAsync();
 
                 return organizations;
@@ -161,6 +165,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.AllowedEmails)
                     .Include(o => o.Address)
                     .Include(o => o.Location)
+                    .Include(o => o.Comments)
                     .Where(o => o.Id == organizationId)
                     .FirstOrDefaultAsync();
                 if (organization is null)
@@ -192,6 +197,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.AllowedEmails)
                     .Include(o => o.Address)
                     .Include(o => o.Location)
+                    .Include(o => o.Comments)
                     .Where(o => o.Users.Any(u => u.Id == userId))
                     .FirstOrDefaultAsync();
 
@@ -226,6 +232,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.AllowedEmails)
                     .Include(o => o.Address)
                     .Include(o => o.Location)
+                    .Include(o => o.Comments)
                     .Where(o => o.Products.Any(u => u.Id == productId))
                     .FirstOrDefaultAsync();
 
@@ -330,6 +337,130 @@ namespace FRF.Services.Implementations
                 }
 
                 await _organizationRepository.Delete(id);
+
+                return true;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new InternalServerErrorApiException("DeleteOrganization error", e);
+            }
+        }
+
+        public async Task<bool> CreateComment(Organization organization, Comment comment)
+        {
+            try
+            {
+                if (!organization.Comments.Any(c => c.User == comment.User)) {
+                    organization.Comments.Add(comment);
+                    organization.AverageEvaulation = organization.Comments.Average(c => c.Evaluation);
+                }
+                else
+                {
+                    throw new BadRequestApiException("Comment from this user is already created in this organization");
+                }
+
+                await _organizationRepository.Update(organization);
+
+                return true;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new InternalServerErrorApiException("DeleteOrganization error", e);
+            }
+        }
+
+        public async Task<Comment> UpdateComment(Guid idComment, User user, string text, int evaluation)
+        {
+            try
+            {
+                var comment = await _commentRepository.GetById(idComment);
+                if (comment == null)
+                {
+                    throw new NotFoundApiException("Comment not found");
+                }
+
+                if (comment.User != user)
+                {
+                    throw new BadRequestApiException("Not comment creator");
+                }
+
+                if (text != null)
+                {
+                    comment.Text = text;
+                }
+                if (evaluation != -1)
+                {
+                    comment.Evaluation = evaluation;
+                }
+                await _commentRepository.Update(comment);
+
+                var organization = await _organizationRepository.GetAll()
+                    .Include(o => o.Comments)
+                    .FirstOrDefaultAsync(o => o.Comments.Contains(comment));
+                if (organization == null)
+                {
+                    throw new NotFoundApiException("Organization not found");
+                }
+                organization.AverageEvaulation = organization.Comments.Average(c => c.Evaluation);
+
+                return comment;
+            }
+            catch (BadRequestApiException)
+            {
+                throw;
+            }
+            catch (NotFoundApiException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new InternalServerErrorApiException("DeleteOrganization error", e);
+            }
+        }
+
+        public async Task<bool> DeleteComment(Guid idComment, User user)
+        {
+            try
+            {
+                var comment = await _commentRepository.GetById(idComment);
+                if (comment == null)
+                {
+                    throw new NotFoundApiException("Comment not found");
+                }
+
+                if (comment.User != user)
+                {
+                    throw new BadRequestApiException("Not comment creator");
+                }
+
+                var organization = await _organizationRepository.GetAll()
+                    .Include(o => o.Comments)
+                    .FirstOrDefaultAsync(o => o.Comments.Contains(comment));
+
+                await _commentRepository.Delete(idComment);
+
+                if (organization == null)
+                {
+                    throw new NotFoundApiException("Organization not found");
+                }
+                organization.AverageEvaulation = organization.Comments.Average(c => c.Evaluation);
 
                 return true;
             }

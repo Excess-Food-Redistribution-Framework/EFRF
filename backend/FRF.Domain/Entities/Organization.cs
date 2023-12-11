@@ -27,5 +27,8 @@ namespace FRF.Domain.Entities
         //public string Password { get; set; } = String.Empty;
         //public string AllowedEmails { get; set; } = String.Empty;
         public List<AllowedEmail> AllowedEmails { get; set; } = new List<AllowedEmail>();
+
+        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public double AverageEvaulation { get; set; }
     }
 }

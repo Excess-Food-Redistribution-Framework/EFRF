@@ -20,5 +20,9 @@ namespace FRF.Services.Interfaces
         Task<bool> CreateOrganization(Organization organization);
         Task<bool> UpdateOrganization(Organization organization);
         Task<bool> DeleteOrganization(Guid id);
+
+        Task<bool> CreateComment(Organization organization, Comment comment);
+        Task<Comment> UpdateComment(Guid idComment, User user, string text, int evaluation);
+        Task<bool> DeleteComment(Guid id, User user);
     }
 }
