@@ -63,6 +63,8 @@ namespace FRF.API.Controllers
             
             [FromQuery] List<Guid>? organizationIds,
             [FromQuery] List<Guid>? foodRequestIds,
+            [FromQuery] List<Guid>? productIds,
+            [FromQuery] List<Guid>? notProductIds,
             [FromQuery] List<string>? names,
             [FromQuery] List<ProductType>? types,
             [FromQuery] int? minQuantity,
@@ -143,6 +145,15 @@ namespace FRF.API.Controllers
                 foodRequests = foodRequests.Where(f => foodRequestIds.Contains(f.Id));
 
                 products = products.Where(p => foodRequests.Any(f => f.ProductPicks.Any(pp => pp.Product == p)));
+            }
+
+            if(productIds?.Count > 0)
+            {
+                products = products.Where(p => productIds.Contains(p.Id));
+            }
+            if (notProductIds?.Count > 0)
+            {
+                products = products.Where(p => !notProductIds.Contains(p.Id));
             }
 
             var productsDto = new List<ProductDto>();
