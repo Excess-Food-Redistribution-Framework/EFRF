@@ -1,11 +1,7 @@
 import { Col, Container, Row, Button } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import {
-  GetProductById,
-  DeleteProduct,
-  UpdateProduct,
-} from '../hooks/useProduct';
+import { GetProductById, DeleteProduct } from '../hooks/useProduct';
 import { OrganizationApiResponse } from '../types/organizationTypes';
 import { useAuth } from '../AuthProvider';
 import { toast } from 'react-toastify';
@@ -22,6 +18,7 @@ function ProductDetail() {
   const { product, errorMessage } = GetProductById(id);
   const [organization, setOrganization] = useState<OrganizationApiResponse>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -29,12 +26,9 @@ function ProductDetail() {
           setLoading(false);
         }
 
-        const organizationResponse = await axios.get(
-          '/api/Organization/Current'
-        );
+        const organizationResponse = await axios.get('/api/Organization/Current');
         setOrganization(organizationResponse.data);
       } catch (error) {
-        //console.error('Error fetching organization:', error);
       }
     };
 
@@ -50,7 +44,7 @@ function ProductDetail() {
     console.error(`Error deleting product: ${error}`);
   };
 
-   const handleDelete = () => {
+  const handleDelete = () => {
     setShowDeleteModal(true);
   };
 
@@ -63,7 +57,15 @@ function ProductDetail() {
     setShowDeleteModal(false);
   };
 
-  //console.log(user?.organization);
+  const handleTakeProduct = async (productId: string) => {
+    try { 
+      navigate(`/foodRequest/products/${productId}`);
+    } catch (error) {
+      console.error(`Error taking product: ${error}`);
+      toast.error('Failed to take product');
+    }
+  };
+
   const handleUpdate = () => {
     if (isAuth() && userRole != null && id) {
       if (organization?.id === product?.organization.id) {
@@ -102,7 +104,7 @@ function ProductDetail() {
         <h5>{product.quantity}</h5>
         <h5>{product.type}</h5>
         {isAuth() ? (
-          userRole != null && organization?.id === product?.organization.id ? (
+          userRole === "Provider" && organization?.id === product?.organization.id ? (
             <>
               <Button variant="danger" onClick={handleDelete}>
                 Delete Product
@@ -111,10 +113,19 @@ function ProductDetail() {
                 Update Product
               </Button>
             </>
+          ) : userRole === "Distributor" ? (
+            <Button variant="success" onClick={() => handleTakeProduct(product.id)}>
+              Take Product
+            </Button>
           ) : null
         ) : null}
       </Container>
-      <DeleteConfirmationModal show={showDeleteModal} onHide={handleCancelDelete} onConfirm={handleConfirmDelete} />
+
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onHide={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </Container>
   );
 }

@@ -3,12 +3,12 @@ import axios from 'axios';
 import { OrganizationApiResponse } from '../types/organizationTypes';
 
 const useMap = () => {
-  const [organizations, setOrganizations] = useState<OrganizationApiResponse[]>([]);
+  const [organizations, setOrganizations] = useState<OrganizationApiResponse>();
   const [loading, setLoading] = useState(true);
 
   const fetchOrganizationData = async () => {
     try {
-      const organizationResponse = await axios.get('/api/Organization');
+      const organizationResponse = await axios.get('/api/Organization/Current');
       setOrganizations(organizationResponse.data);
     } catch (error) {
       console.error('API Error:', error);
