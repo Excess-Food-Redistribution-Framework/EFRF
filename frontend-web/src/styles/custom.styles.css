@@ -188,3 +188,8 @@ body {
   object-fit: cover;
 }
 
+li{
+  color: darkslategrey;
+  margin-bottom: 12px;
+}
+
