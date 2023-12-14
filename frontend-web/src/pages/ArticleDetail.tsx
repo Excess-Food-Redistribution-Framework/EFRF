@@ -1,6 +1,6 @@
 import { Col, Container, Row, Spinner } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, NavLink, useParams } from 'react-router-dom';
 import { GetArticleById } from '../hooks/useArticle';
 
 function ArticleDetail() {
@@ -33,18 +33,26 @@ function ArticleDetail() {
   if (!article) {
     return <Navigate to="/*" />;
   }
-
+  // TODO add styling
   return (
     <Container fluid className="px-0">
-      <Container fluid className="secondary_color">
-        <Row className="justify-content-center diagonal-bg p-5">
+      <Container fluid className="secondary_color mb-5">
+        <Row className="justify-content-center diagonal-bg p-4 shadow">
           <Col className="text-center d-flex flex-column justify-content-center">
             <h1 className="text-white text-shadow pb-2">{article.title}</h1>
             <h4 className="text-white text-shadow">{article.teaser}</h4>
           </Col>
         </Row>
       </Container>
-      <Container dangerouslySetInnerHTML={{ __html: article.content }} />
+
+      <Container>
+        <Row className="justify-content-center">
+          <Col
+            dangerouslySetInnerHTML={{ __html: article.content }}
+            className="col-7"
+          />
+        </Row>
+      </Container>
     </Container>
   );
 }
