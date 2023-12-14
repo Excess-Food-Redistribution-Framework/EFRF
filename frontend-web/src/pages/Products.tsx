@@ -74,6 +74,9 @@ function Products() {
     <ProductsMap params={{
       page,
       pageSize: pageSizeMap,
+      maxDistanceKm: 25,
+      Longitude: organizations?.location?.longitude,
+      Latitude: organizations?.location?.latitude,
       //onlyAvailable: !showDisabled,
       notExpired: !showDisabled,
     }} 

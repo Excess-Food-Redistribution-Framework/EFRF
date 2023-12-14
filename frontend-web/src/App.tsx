@@ -19,6 +19,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ChangePassword from "./pages/ChangePassword.tsx";
 import EditProfile from "./pages/EditProfile.tsx";
+import FoodRequestForm from './pages/FoodRequestForm.tsx';
+import OrganizationFoodRequests from './pages/OrganizationFoodRequests.tsx';
 
 function App() {
   // Set axios defaults
@@ -45,6 +47,8 @@ function App() {
             <Route path="/organization/create" element={<OrganizationFormPage />}/>
             <Route path="/product/create" element={<ProductFormPage />} />
             <Route path="/organizationProducts" element={<OrganizationProducts />} />
+            <Route path="/organizationFoodRequests" element={<OrganizationFoodRequests />} />
+            <Route path="/foodRequest/products/:productId" element={<FoodRequestForm />} />
             {/* Not Found */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>

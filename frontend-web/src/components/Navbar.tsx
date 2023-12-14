@@ -67,20 +67,38 @@ function Navbar() {
                 <Nav.Link to="/profile" as={NavLink}>
                   Profile
                 </Nav.Link>
-                <Nav.Link onClick={logout}>Logout</Nav.Link>
-              </>
-            ) : (
-              <>
-                <Nav.Link to="/login" as={NavLink}>
-                  Login
-                </Nav.Link>
-                <Nav.Link to="/registration" as={NavLink}>
-                  Registration
-                </Nav.Link>
-              </>
-            )}
-          </Nav>
-        </NavbarBootstrap.Collapse>
+              )}
+              {isAuth() && userRole === 'Distributor' && (
+                <Nav.Link to="/organizationFoodRequests" as={NavLink}>
+                Food request
+              </Nav.Link> 
+              )}
+            </Nav>
+            <Nav>
+              {isAuth() ? (
+                <>
+                  {userRole === 'Provider' && (
+                    <Nav.Link to="/product/create" as={NavLink}>
+                      Create product
+                    </Nav.Link>
+                  )}
+                  <Nav.Link to="/profile" as={NavLink}>
+                    Profile
+                  </Nav.Link>
+                  <Nav.Link onClick={logout}>Logout</Nav.Link>
+                </>
+              ) : (
+                <>
+                  <Nav.Link to="/login" as={NavLink}>
+                    Login
+                  </Nav.Link>
+                  <Nav.Link to="/registration" as={NavLink}>
+                    Registration
+                  </Nav.Link>
+                </>
+              )}
+            </Nav>
+          </NavbarBootstrap.Collapse>
       </Container>
     </NavbarBootstrap>
   );
