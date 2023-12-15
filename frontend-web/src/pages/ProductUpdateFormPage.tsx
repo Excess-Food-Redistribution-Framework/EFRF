@@ -23,7 +23,6 @@ function UpdateProductFormPage() {
   const [quantity, setQuantity] = useState(0);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(today);
-  const [state, setState] = useState('');
   const [organization, setOrganization] = useState<OrganizationApiResponse>();
 
   useEffect(() => {
@@ -75,17 +74,15 @@ function UpdateProductFormPage() {
 
   const handleUpdate = () => {
     if (id && organization) {
-      const updateData = {
-        id: id,
-        name: name,
-        expirationDate: expirationDate,
-        type: type,
-        quantity: quantity,
-        state: state,
-        organization: organization,
-      };
+      const formData = new FormData();
+      formData.append('Id', id);
+      formData.append('Name', name);
+      formData.append('ExpirationDate', expirationDate);
+      formData.append('Type', type);
+      formData.append('Quantity', quantity.toString());
+      formData.append('Image', '');
 
-      UpdateProduct(id, updateData, handleUpdateSuccess, handleUpdateError);
+      UpdateProduct(id, formData, handleUpdateSuccess, handleUpdateError);
     }
   };
 

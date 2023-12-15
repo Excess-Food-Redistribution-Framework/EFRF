@@ -20,11 +20,13 @@ export enum ProductType {
 
 // Definícia pre parametre volania API pre získanie listu produktov
 export interface ProductsApiParams {
-  page: number;
-  pageSize: number;
+  page?: number;
+  pageSize?: number;
   notExpired?: boolean;
   //onlyAvailable?: boolean;
   organizationIds?: string;
+  productIds?: string;
+  notProductIds?: string;
   foodRequestIds?: string;
   names?: string;
   types?: ProductType
@@ -34,7 +36,6 @@ export interface ProductsApiParams {
   id?: string
   Latitude?: number;
   Longitude?: number;
-
 }
 
 // Definícia pre očakávanú odpoveď API pre získanie listu produktov
@@ -58,6 +59,7 @@ export interface ProductApiResponse {
   name: string;
   quantity: number;
   availableQuantity: number;
+  ImageUrl: string;
   type: ProductType;
   expirationDate: string;
   organization: OrganizationApiResponse;
@@ -69,9 +71,11 @@ export interface ProductApiResponse {
 export interface ProductCardsProps {
   params: ProductsApiParams;
   pagination: boolean;
+  onToggleProduct?: (productId: string) => void;
 }
 export interface ProductMapProps {
   params: ProductsApiParams;
+  zoom: number;
 }
 
 export interface ProductUpdateApiParams {

@@ -22,14 +22,15 @@ function ProductFormPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const formData = new FormData();
+    formData.append('Name', name);
+    formData.append('Type', type);
+    formData.append('Quantity', quantity.toString());
+    formData.append('ExpirationDate', expirationDate);
+    formData.append('ImageUrl', '');
+    
     try {
-      const response = await axios.post('api/Product', {
-        name,
-        type,
-        quantity,
-        expirationDate,
-      } as ProductApiResponse);
+      await axios.post('api/Product', formData);
 
       navigate('/organizationProducts');
       toast.success('Product created successfully!')

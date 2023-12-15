@@ -101,22 +101,22 @@ export function DeleteProduct(
 
 export function UpdateProduct(
   productId: string,
-  updateData: ProductUpdateApiParams,
-  onUpdate: (updatedProduct: ProductApiResponse) => void,
+  updateData: FormData,
+  onUpdate: (updatedProduct: ProductUpdateApiParams) => void,
   onError: (error: string) => void
 ) {
   async function updateProduct() {
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`,
-        updateData
+        updateData,
       );
 
       if (response.status !== 200) {
         throw new Error(response.statusText);
       }
 
-      const updatedProduct = response.data as ProductApiResponse;
+      const updatedProduct = response.data as ProductUpdateApiParams;
       onUpdate(updatedProduct);
     } catch (error: unknown) {
       if (error instanceof Error) {
