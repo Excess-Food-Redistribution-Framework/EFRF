@@ -1,9 +1,4 @@
-import {
-  Container,
-  Image,
-  Nav,
-  Navbar as NavbarBootstrap,
-} from 'react-bootstrap';
+import {Container, Image, Nav, Navbar as NavbarBootstrap} from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import { useAuth } from '../AuthProvider';
@@ -16,7 +11,7 @@ function Navbar() {
   const logout = async () => {
     setToken('');
     setUserRole(null);
-
+    
     try {
       setUser(null);
     } catch (error) {
@@ -24,48 +19,28 @@ function Navbar() {
     }
   };
 
-  return (
-    <NavbarBootstrap
-      collapseOnSelect
-      expand="md"
-      className="bg-white shadow-sm sticky-top"
-    >
-      <Container>
-        <NavbarBootstrap.Brand to="/" as={NavLink} className="p-0">
-          <Image src="/assets/img/logo.svg" />
-        </NavbarBootstrap.Brand>
-        <NavbarBootstrap.Toggle aria-controls="main-navbar-nav" />
-        <NavbarBootstrap.Collapse
-          id="main-navbar-nav"
-          className="justify-content-between"
-        >
-          <Nav>
-            <Nav.Link to="/" as={NavLink}>
-              Home
-            </Nav.Link>
-            <Nav.Link to="/products" as={NavLink}>
-              Products
-            </Nav.Link>
-            <Nav.Link to="/blog" as={NavLink}>
-              Blog
-            </Nav.Link>
 
-            {isAuth() && userRole === 'Provider' && (
-              <Nav.Link to="/organizationProducts" as={NavLink}>
-                Organization products
+  return (
+    <NavbarBootstrap collapseOnSelect expand="md" className="bg-white shadow-sm sticky-top">
+      <Container>
+          <NavbarBootstrap.Brand to="/" as={NavLink} className="p-0">
+              <Image src="/assets/img/logo.svg" />
+          </NavbarBootstrap.Brand>
+          <NavbarBootstrap.Toggle aria-controls="main-navbar-nav" />
+          <NavbarBootstrap.Collapse id="main-navbar-nav" className="justify-content-between">
+            <Nav>
+              <Nav.Link to="/" as={NavLink}>
+                Home
               </Nav.Link>
-            )}
-          </Nav>
-          <Nav>
-            {isAuth() ? (
-              <>
-                {userRole === 'Provider' && (
-                  <Nav.Link to="/product/create" as={NavLink}>
-                    Create product
-                  </Nav.Link>
-                )}
-                <Nav.Link to="/profile" as={NavLink}>
-                  Profile
+              <Nav.Link to="/products" as={NavLink}>
+                Products
+              </Nav.Link>
+              <Nav.Link to="/blog" as={NavLink}>
+                Blog
+              </Nav.Link>
+              {isAuth() && userRole === 'Provider' && (
+                <Nav.Link to="/organizationProducts" as={NavLink}>
+                  Organization products
                 </Nav.Link>
               )}
               {isAuth() && userRole === 'Distributor' && (
