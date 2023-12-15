@@ -3,7 +3,7 @@ import { Col, Container, Row, Form, Button  } from 'react-bootstrap';
 import ProductCards from '../components/ProductCards';
 import ProductsMap from '../components/ProductsMap';
 import useMap from '../hooks/useMap';
-
+import { useAuth } from '../AuthProvider';
 function Products() {
   const [view, setView] = useState<'list' | 'map'>('list');
   const page = 1;
@@ -12,6 +12,9 @@ function Products() {
   const isPagination = true;
   const { organizations } = useMap();
   const pageSizeMap = 100000;
+  const defaultLatitude = 51.5074;
+  const defaultLongitude = 5;
+  const { isAuth } = useAuth();
 
   const handleViewChange = (newView: 'list' | 'map') => {
     setView(newView);
@@ -61,30 +64,42 @@ function Products() {
       )}
 
   {view === 'list' ? (
-    <ProductCards
-      params={{
-        page,
-        pageSize,
-        //onlyAvailable: !showDisabled,
-        notExpired: !showDisabled,
-      }}
-      pagination={isPagination}
-    />
-  ) : (
-    <ProductsMap params={{
+  <ProductCards
+    params={{
       page,
-      pageSize: pageSizeMap,
-      maxDistanceKm: 25,
-      Longitude: organizations?.location?.longitude,
-      Latitude: organizations?.location?.latitude,
+      pageSize,
       //onlyAvailable: !showDisabled,
       notExpired: !showDisabled,
-    }} 
-    //pagination={isPagination}
+    }}
+    pagination={isPagination}
+  />
+) : (
+  isAuth() ? (
+    <ProductsMap
+      params={{
+        page,
+        pageSize: pageSizeMap,
+        maxDistanceKm: 50,
+        Longitude: organizations?.location?.longitude || defaultLongitude,
+        Latitude: organizations?.location?.latitude || defaultLatitude,
+        notExpired: !showDisabled
+    }}
+    zoom={13}
+      //pagination={isPagination}
     />
-  )}
-  </Container>
-  );
+  ) : (
+    <ProductsMap
+      params={{
+        page,
+        pageSize: pageSizeMap,
+        notExpired: !showDisabled,
+      }}
+      zoom={5}
+    />
+  )
+)}
+</Container>
+  )
 }
-
 export default Products;
+

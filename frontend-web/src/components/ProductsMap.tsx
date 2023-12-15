@@ -31,8 +31,9 @@ const buttonStyle: React.CSSProperties = {
 };
 
 import ProductListModal from '../components/ProductListModal';
+import { Zoom } from 'react-toastify';
 
-function ProductsMap({ params }: ProductMapProps) {
+function ProductsMap({ params, zoom }: ProductMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<any>(null);
@@ -83,7 +84,6 @@ function ProductsMap({ params }: ProductMapProps) {
       });
 
       if (map && response && response.data && response.data.length > 0) {
-        console.log(response.data);
         const bounds = new window.google.maps.LatLngBounds();
         const markers: Map<string, google.maps.Marker> = new Map();
 
@@ -116,7 +116,6 @@ function ProductsMap({ params }: ProductMapProps) {
         map.addListener('click', closeInfoWindow);
 
         const center = bounds.getCenter();
-        const zoom = 13;
 
         map.setCenter(center);
         map.setZoom(zoom);
