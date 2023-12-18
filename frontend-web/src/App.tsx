@@ -10,7 +10,7 @@ import RegistrationPage from './pages/RegistrationPage';
 import Blog from './pages/Blog';
 import Products from './pages/Products';
 import ArticleDetail from './pages/ArticleDetail';
-import OrganizationFormPage from './pages/OrganizationFormPage';
+import OrganizationForm from './pages/OrganizationForm.tsx';
 import ProductFormPage from './pages/ProductFormPage';
 import ProductDetailPage from './pages/ProductDetail';
 import ProductUpdateFormPage from './pages/ProductUpdateFormPage';
@@ -25,7 +25,7 @@ import OrganizationFoodRequests from './pages/OrganizationFoodRequests.tsx';
 function App() {
   // Set axios defaults
   axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL as string;
-  axios.defaults.timeout = 2000;
+  axios.defaults.timeout = 5000;
 
   return (
     <BrowserRouter>
@@ -44,7 +44,7 @@ function App() {
             <Route path="/profile/edit" element={<EditProfile />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
-            <Route path="/organization/create" element={<OrganizationFormPage />}/>
+            <Route path="/organization/edit" element={<OrganizationForm />}/>
             <Route path="/product/create" element={<ProductFormPage />} />
             <Route path="/organizationProducts" element={<OrganizationProducts />} />
             <Route path="/organizationFoodRequests" element={<OrganizationFoodRequests />} />

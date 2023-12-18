@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { OrganizationAddress, OrganizationLocation } from '../types/organizationTypes';
 
-function OrganizationFormPage() {
+function OrganizationForm() {
   const navigate = useNavigate();
   const { isAuth, user, setUser } = useAuth();
 
@@ -65,7 +65,7 @@ function OrganizationFormPage() {
     }
 
     try {
-      const response = await axios.post('api/Organization', {
+      const response = await axios.put('api/Organization/Current', {
         name,
         type,
         information,
@@ -73,20 +73,37 @@ function OrganizationFormPage() {
         location,
       });
 
-      if (response.status === 200) {
-        const currentUser = await axios.get('api/Account');
-        setUser(currentUser.data);
-      }
+      // if (response.status === 200) {
+      //   const currentUser = await axios.get('api/Account');
+      //   setUser(currentUser.data);
+      // }
 
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('api/Organization/Current');
 
-  }, [isAuth]);
+        if (response.status === 200) {
+          const organizationData = response.data;
+          setName(organizationData.name);
+          setType(organizationData.type);
+          setInformation(organizationData.information);
+          setLocation(organizationData.location);
+          setAddress(organizationData.address);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Container>
@@ -94,13 +111,13 @@ function OrganizationFormPage() {
         <Col lg="10" className="pt-4">
           <Card className="p-4">
             <Card.Body>
-              <h1 className="mb-3">Create new organization</h1>
+              <h1 className="mb-3">Edit Organization</h1>
 
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formName" className="mb-3">
+                  <Form.Label>Name</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter Name"
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
@@ -112,8 +129,9 @@ function OrganizationFormPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formType" className="mb-3">
+                  <Form.Label>Type</Form.Label>
                   <Form.Select
-                    aria-label="Type"
+                    disabled
                     value={type}
                     onChange={(e) => {
                       setType(e.target.value);
@@ -124,9 +142,7 @@ function OrganizationFormPage() {
                     }}
                     isInvalid={typeError !== ''}
                   >
-                    <option value="" style={{ color: '#6c757d' }}>
-                      Select Type Organization
-                    </option>
+                    <option value="" style={{ color: '#6c757d' }} disabled></option>
                     <option value="Provider" style={{ color: 'black' }}>
                       Provider
                     </option>
@@ -148,45 +164,42 @@ function OrganizationFormPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formState" className="mb-3">
+                  <Form.Label>State</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter State"
                     value={address.state}
                     onChange={(e) => setAddress({ ...address, state: e.target.value } as OrganizationAddress)}
                     isInvalid={addressError !== '' && address.state === ''}
-                    pattern="[A-Za-z]+"
                   />
                   <Form.Control.Feedback type="invalid">State is required</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formCity" className="mb-3">
+                  <Form.Label>City</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter City"
                     value={address.city}
                     onChange={(e) => setAddress({ ...address, city: e.target.value } as OrganizationAddress)}
                     isInvalid={addressError !== '' && address.city === ''}
-                    pattern="[A-Za-z]+"
                   />
                   <Form.Control.Feedback type="invalid">City is required</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formStreet" className="mb-3">
+                  <Form.Label>Street</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter Street"
                     value={address.street}
                     onChange={(e) => setAddress({ ...address, street: e.target.value } as OrganizationAddress)}
                     isInvalid={addressError !== '' && address.street === ''}
-                    pattern="[A-Za-z]+"
                   />
                   <Form.Control.Feedback type="invalid">Street is required</Form.Control.Feedback>
                 </Form.Group>
 
                 <Form.Group controlId="formNumber" className="mb-3">
+                  <Form.Label>Number</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter Number"
                     value={address.number}
                     onChange={(e) => setAddress({ ...address, number: e.target.value } as OrganizationAddress)}
                     isInvalid={addressError !== '' && address.number === ''}
@@ -196,9 +209,9 @@ function OrganizationFormPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formZipCode" className="mb-3">
+                  <Form.Label>Zip Code</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter Zip Code"
                     value={address.zipCode}
                     onChange={(e) => setAddress({ ...address, zipCode: e.target.value } as OrganizationAddress)}
                     isInvalid={addressError !== '' && address.zipCode === ''}
@@ -218,4 +231,4 @@ function OrganizationFormPage() {
   );
 }
 
-export default OrganizationFormPage;
+export default OrganizationForm;
