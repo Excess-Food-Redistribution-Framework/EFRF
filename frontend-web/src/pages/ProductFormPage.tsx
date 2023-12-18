@@ -93,7 +93,7 @@ function ProductFormPage() {
                 </Form.Group>
 
                 <Form.Group controlId="formQuantity" className="mb-3">
-                  <Form.Label>Quantity</Form.Label>
+                  <Form.Label>Expiration</Form.Label>
                   <Form.Control
                     type="date"
                     min={todayFormatted}
