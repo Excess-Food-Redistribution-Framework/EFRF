@@ -80,7 +80,7 @@ function Profile() {
 
                     <Row>
                       <div>
-                        {/*<Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit organization</Button>*/}
+                        <Button className="mx-1" onClick={() => navigate('/organization/edit')}>Edit organization</Button>
                       </div>
                     </Row>
                   </Card.Body>
