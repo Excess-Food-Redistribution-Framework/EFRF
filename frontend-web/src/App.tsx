@@ -25,7 +25,7 @@ import OrganizationFoodRequests from './pages/OrganizationFoodRequests.tsx';
 function App() {
   // Set axios defaults
   axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL as string;
-  axios.defaults.timeout = 2000;
+  axios.defaults.timeout = 5000;
 
   return (
     <BrowserRouter>
