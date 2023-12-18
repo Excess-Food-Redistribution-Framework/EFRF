@@ -72,9 +72,11 @@ function Profile() {
                     <h3 className="mb-3">{userData.organization.name}</h3>
                     <p>{userData.organization.information}</p>
                     <h5>Address</h5>
-                    <p>{userData.organization.address.street} {userData.organization.address.streetNumber}</p>
-                    <p>{userData.organization.address.city} {userData.organization.address.zipCode}</p>
-                    <p>{userData.organization.address.state}</p>
+                    <p>
+                      {userData.organization.address.street} {userData.organization.address.number}<br/>
+                      {userData.organization.address.zipCode} {userData.organization.address.city}<br/>
+                      {userData.organization.address.state}
+                    </p>
 
                     <Row>
                       <div>
