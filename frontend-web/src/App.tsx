@@ -21,6 +21,7 @@ import ChangePassword from "./pages/ChangePassword.tsx";
 import EditProfile from "./pages/EditProfile.tsx";
 import FoodRequestForm from './pages/FoodRequestForm.tsx';
 import OrganizationFoodRequests from './pages/OrganizationFoodRequests.tsx';
+import ContactForm from "./pages/ContactForm.tsx";
 
 function App() {
   // Set axios defaults
@@ -33,22 +34,39 @@ function App() {
       <ToastContainer />
         <Routes>
           <Route element={<Layout />}>
+            {/*Home*/}
             <Route path="/" element={<HomePage />} />
+
+            {/*Blog*/}
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:articleId" element={<ArticleDetail />} />
+
+            {/*Products*/}
             <Route path="/products/:productId" element={<ProductDetailPage />}/>
             <Route path="/products/:productId/update" element={<ProductUpdateFormPage />}/>
             <Route path="/products" element={<Products />} />
+
+            {/*Profile*/}
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/change-password" element={<ChangePassword />} />
             <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/product/create" element={<ProductFormPage />} />
+
+            {/*Food Request*/}
+            <Route path="/foodRequest/products/:productId" element={<FoodRequestForm />} />
+
+            {/*Auth*/}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegistrationPage />} />
+
+            {/*Organization*/}
             <Route path="/organization/edit" element={<OrganizationForm />}/>
-            <Route path="/product/create" element={<ProductFormPage />} />
             <Route path="/organizationProducts" element={<OrganizationProducts />} />
             <Route path="/organizationFoodRequests" element={<OrganizationFoodRequests />} />
-            <Route path="/foodRequest/products/:productId" element={<FoodRequestForm />} />
+
+            {/*Contact*/}
+            <Route path="/contact" element={<ContactForm />} />
+
             {/* Not Found */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>
