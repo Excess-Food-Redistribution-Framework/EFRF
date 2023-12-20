@@ -23,6 +23,7 @@ function UpdateProductFormPage() {
   const [quantity, setQuantity] = useState(0);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(today);
+  const [description, setDescription] = useState('');
   const [organization, setOrganization] = useState<OrganizationApiResponse>();
 
   useEffect(() => {
@@ -54,11 +55,12 @@ function UpdateProductFormPage() {
   useEffect(() => {
     if (product) {
       setName(product.name || '');
-      setQuantity(product.quantity || 0);
+      setQuantity(product.quantity || 1);
       setType(product.type || ProductType.Other);
       setExpirationDate(
         new Date(product.expirationDate).toLocaleDateString('en-CA')
       );
+      setDescription(product.description || '');
       setLoading(false);
 
       if (
@@ -80,6 +82,7 @@ function UpdateProductFormPage() {
       formData.append('ExpirationDate', expirationDate);
       formData.append('Type', type);
       formData.append('Quantity', quantity.toString());
+      formData.append('Description', description);
       formData.append('Image', '');
 
       UpdateProduct(id, formData, handleUpdateSuccess, handleUpdateError);
@@ -157,7 +160,7 @@ function UpdateProductFormPage() {
                   </Form.Select>
                 </Form.Group>
 
-                <Form.Group controlId="formQuantity" className="mb-3">
+                <Form.Group controlId="formExpiration" className="mb-3">
                   <Form.Label>Expiration date</Form.Label>
                   <Form.Control
                     type="date"
@@ -169,6 +172,16 @@ function UpdateProductFormPage() {
                         new Date(e.target.value).toLocaleDateString('en-CA')
                       )
                     }
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="formDescription" className="mb-3">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </Form.Group>
 

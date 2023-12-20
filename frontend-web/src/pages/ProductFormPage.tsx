@@ -19,6 +19,7 @@ function ProductFormPage() {
   const [quantity, setQuantity] = useState(1);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(todayFormatted);
+  const [description, setDescription] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +29,7 @@ function ProductFormPage() {
     formData.append('Quantity', quantity.toString());
     formData.append('ExpirationDate', expirationDate);
     formData.append('ImageUrl', '');
+    formData.append('Description', description);
     
     try {
       await axios.post('api/Product', formData);
@@ -92,8 +94,8 @@ function ProductFormPage() {
                   </Form.Select>
                 </Form.Group>
 
-                <Form.Group controlId="formQuantity" className="mb-3">
-                  <Form.Label>Expiration</Form.Label>
+                <Form.Group controlId="formExpiration" className="mb-3">
+                  <Form.Label>Expiration Date</Form.Label>
                   <Form.Control
                     type="date"
                     min={todayFormatted}
@@ -104,6 +106,16 @@ function ProductFormPage() {
                         new Date(e.target.value).toLocaleDateString('en-CA')
                       )
                     }
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="formDescription" className="mb-3">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </Form.Group>
 
