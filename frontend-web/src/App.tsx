@@ -21,6 +21,7 @@ import ChangePassword from "./pages/ChangePassword.tsx";
 import EditProfile from "./pages/EditProfile.tsx";
 import FoodRequestForm from './pages/FoodRequestForm.tsx';
 import OrganizationFoodRequests from './pages/OrganizationFoodRequests.tsx';
+import ContactForm from "./pages/ContactForm.tsx";
 
 function App() {
   // Set axios defaults
@@ -62,6 +63,9 @@ function App() {
             <Route path="/organization/edit" element={<OrganizationForm />}/>
             <Route path="/organizationProducts" element={<OrganizationProducts />} />
             <Route path="/organizationFoodRequests" element={<OrganizationFoodRequests />} />
+
+            {/*Contact*/}
+            <Route path="/contact" element={<ContactForm />} />
 
             {/* Not Found */}
             <Route path="*" element={<NotFoundPage />} />
