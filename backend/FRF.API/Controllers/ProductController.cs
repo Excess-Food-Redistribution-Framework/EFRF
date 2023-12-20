@@ -271,6 +271,7 @@ namespace FRF.API.Controllers
             product.ExpirationDate = updateProductDto.ExpirationDate;
             product.Type = updateProductDto.Type;
             product.Quantity = updateProductDto.Quantity;
+            product.Description = updateProductDto.Description;
             product.AvailableQuantity = updateProductDto.Quantity;
 
             if (updateProductDto.Image != null)
