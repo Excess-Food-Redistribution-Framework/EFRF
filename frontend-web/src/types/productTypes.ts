@@ -58,6 +58,7 @@ export interface ProductApiResponse {
   id: string;
   name: string;
   quantity: number;
+  description: string;
   availableQuantity: number;
   ImageUrl: string;
   type: ProductType;
@@ -82,6 +83,7 @@ export interface ProductUpdateApiParams {
   id: string;
   name: string;
   quantity: number;
+  description: string;
   type: ProductType;
   expirationDate: string;
   organization: OrganizationApiResponse;
