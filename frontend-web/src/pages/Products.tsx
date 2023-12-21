@@ -82,7 +82,7 @@ function Products() {
         notExpired: !showDisabled,
         recommended: showRecommended,
       }}
-      pagination={isPagination}
+      pagination={isPagination && !showRecommended}
     />
   ) : (
     isAuth() ? (
