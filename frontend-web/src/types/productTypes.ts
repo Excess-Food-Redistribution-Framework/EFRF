@@ -23,6 +23,7 @@ export interface ProductsApiParams {
   page?: number;
   pageSize?: number;
   notExpired?: boolean;
+  recommended?: boolean;
   //onlyAvailable?: boolean;
   organizationIds?: string;
   productIds?: string;
