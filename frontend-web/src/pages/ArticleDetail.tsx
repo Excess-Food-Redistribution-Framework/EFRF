@@ -49,7 +49,7 @@ function ArticleDetail() {
         <Row className="justify-content-center">
           <Col
             dangerouslySetInnerHTML={{ __html: article.content }}
-            className="col-7"
+            className="col-md-10 col-lg-7"
           />
         </Row>
       </Container>

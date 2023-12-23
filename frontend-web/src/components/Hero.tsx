@@ -13,7 +13,7 @@ function Hero() {
   return (
     <Container fluid className="secondary_color">
       <Row className="justify-content-evenly diagonal-bg mh-400px p-5">
-        <Col xl="5" className="justify-content-center d-flex">
+        <Col lg="12" xl="7" xxl="5" className="justify-content-center d-flex">
           <Image src="/assets/img/hero.svg" className="img-fluid p-4 pb-0" />
         </Col>
         <Col
