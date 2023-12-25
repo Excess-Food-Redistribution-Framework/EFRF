@@ -29,6 +29,10 @@ namespace FRF.API.Dto.Product
         public int Quantity { get; set; } = 0;
 
         [Required]
+        [Display(Name = "Units")]
+        public ProductUnits Units { get; set; } = ProductUnits.Grams;
+
+        [Required]
         [Display(Name = "AvailableQuantity")]
         public int AvailableQuantity { get; set; } = 0;
 

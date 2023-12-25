@@ -20,7 +20,11 @@ namespace FRF.API.Dto.Product
         [Required]
         [Display(Name = "Quantity")]
         public int Quantity { get; set; } = 0;
-        
+
+        [Required]
+        [Display(Name = "Units")]
+        public ProductUnits Units { get; set; } = ProductUnits.Grams;
+
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "ExpirationDate")]

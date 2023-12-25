@@ -18,6 +18,7 @@ namespace FRF.Domain.Entities
         public ProductType Type { get; set; } = ProductType.FreshProduce;
 
         public int Quantity { get; set; } = 0;
+        public ProductUnits Units { get; set; } = ProductUnits.Grams;
         public int AvailableQuantity { get; set; } = 0;
 
         public string ImageUrl { get; set; } = String.Empty;
