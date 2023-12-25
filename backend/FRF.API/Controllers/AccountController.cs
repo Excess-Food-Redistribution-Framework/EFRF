@@ -14,6 +14,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using FRF.Services.Interfaces;
 using FRF.API.Dto.User;
 using FRF.Domain.Exceptions;
+using FRF.Domain.Enum;
 
 namespace FRF.API.Controllers
 {
@@ -73,7 +74,11 @@ namespace FRF.API.Controllers
             await _organizationService.CreateOrganization(organization);
 
             var token = await LoginUserAndGenerateToken(model.Email, model.Password);
-            
+
+            // Add role depending on organization type
+            OrganizationType role = organization.Type == OrganizationType.Provider ? OrganizationType.Provider : OrganizationType.Distributor;
+            await _userManager.AddToRoleAsync(user, role.ToString());
+
             var userToReturn = _mapper.Map<UserWithOrganizationDto>(user);
             userToReturn.Organization = _mapper.Map<OrganizationDto>(organization);
             
