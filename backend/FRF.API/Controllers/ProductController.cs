@@ -63,10 +63,14 @@ namespace FRF.API.Controllers
             
             [FromQuery] List<Guid>? organizationIds,
             [FromQuery] List<Guid>? foodRequestIds,
+
             [FromQuery] List<string>? names,
             [FromQuery] List<ProductType>? types,
+
             [FromQuery] int? minQuantity,
+            [FromQuery] int? minRating,
             [FromQuery] DateTime? minExpirationDate,
+
             [FromQuery] int? maxDistanceKm,
             [FromQuery] LocationDto? location,
 
@@ -91,6 +95,8 @@ namespace FRF.API.Controllers
 
             if (maxDistanceKm.HasValue && location != null)
             {
+                // Implementation of looking for current organization's location:
+
                 //var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
                 //if (user == null)
                 //{
@@ -107,8 +113,8 @@ namespace FRF.API.Controllers
                 //    throw new BadRequestApiException("Location not found");
                 //}
 
-                var organizations = await _organizationService.GetAllOrganizations();
                 //organizations = organizations.Where(o => _locationService.GetDistanse(organization.Location, o.Location) <= maxDistanceKm.Value);
+                var organizations = await _organizationService.GetAllOrganizations();
                 organizations = organizations.Where(o => _locationService.GetDistanse(_mapper.Map<Location>(location), o.Location) <= maxDistanceKm.Value);
 
                 products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
@@ -117,6 +123,13 @@ namespace FRF.API.Controllers
             if (minQuantity.HasValue)
             {
                 products = products.Where(p => p.AvailableQuantity >= minQuantity.Value);
+            }
+
+            if (minRating.HasValue)
+            {
+                var organizations = await _organizationService.GetAllOrganizations();
+                organizations = organizations.Where(o => o.AverageEvaulation >= minRating);
+                products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
 
             if (names?.Count > 0)
