@@ -131,61 +131,61 @@ function ProductDetail() {
               </div>
               <h6>{product.description}</h6>
             </div>
-            <div>
-              <Row className="py-2">
-                <Col>
-                  <Card.Subtitle className="d-flex justify-content-center">
-                    Quantity
-                  </Card.Subtitle>
-                </Col>
-                <Col className="col-12">
-                  <ProgressBar className="m-2">
-                    <ProgressBar
-                      variant="primary"
-                      animated
-                      min={0}
-                      max={product.quantity}
-                      now={product.availableQuantity}
-                      label={
-                        product.availableQuantity >= 0.05 * product.quantity
-                          ? `${product.availableQuantity}`
-                          : ''
-                      }
-                      key={1}
-                    />
-                    <ProgressBar
-                      variant="secondary"
-                      animated
-                      min={0}
-                      max={product.quantity}
-                      now={product.quantity - product.availableQuantity}
-                      label={
-                        product.quantity - product.availableQuantity >=
-                        0.05 * product.quantity
-                          ? `${product.quantity - product.availableQuantity}`
-                          : ''
-                      }
-                      key={2}
-                    />
-                  </ProgressBar>
-                </Col>
-                <Col className="d-flex justify-content-center align-items-baseline">
-                  <Card.Subtitle className="px-1">Available:</Card.Subtitle>
-                  <Card.Text className="">
-                    {product.availableQuantity}
-                  </Card.Text>
-                </Col>
-                <Col className="d-flex justify-content-center align-items-baseline">
-                  <Card.Subtitle className="px-1">Total:</Card.Subtitle>
-                  <Card.Text className="">{product.quantity}</Card.Text>
-                </Col>
-              </Row>
-            </div>
-            <Row>
-              <Col sm={5}>
-                <h6>Expires: {product.expirationDate}</h6>
+
+            <Row className="py-4">
+              <Col>
+                <Card.Subtitle className="d-flex justify-content-center">
+                  Quantity
+                </Card.Subtitle>
               </Col>
-              <Col sm={7} className="d-flex justify-content-evenly">
+              <Col className="col-12">
+                <ProgressBar className="m-2">
+                  <ProgressBar
+                    variant="primary"
+                    animated
+                    min={0}
+                    max={product.quantity}
+                    now={product.availableQuantity}
+                    label={
+                      product.availableQuantity >= 0.05 * product.quantity
+                        ? `${product.availableQuantity}`
+                        : ''
+                    }
+                    key={1}
+                  />
+                  <ProgressBar
+                    variant="secondary"
+                    animated
+                    min={0}
+                    max={product.quantity}
+                    now={product.quantity - product.availableQuantity}
+                    label={
+                      product.quantity - product.availableQuantity >=
+                      0.05 * product.quantity
+                        ? `${product.quantity - product.availableQuantity}`
+                        : ''
+                    }
+                    key={2}
+                  />
+                </ProgressBar>
+              </Col>
+              <Col className="d-flex justify-content-center align-items-baseline">
+                <Card.Subtitle className="px-1">Available:</Card.Subtitle>
+                <Card.Text className="">{product.availableQuantity}</Card.Text>
+              </Col>
+              <Col className="d-flex justify-content-center align-items-baseline">
+                <Card.Subtitle className="px-1">Total:</Card.Subtitle>
+                <Card.Text className="">{product.quantity}</Card.Text>
+              </Col>
+            </Row>
+            <Row>
+              <Col xxl={5} className="text-center text-xxl-start py-2">
+                <h6>
+                  Expires:{' '}
+                  {new Date(product.expirationDate).toLocaleDateString('sk-SK')}
+                </h6>
+              </Col>
+              <Col xxl={7} className="d-flex justify-content-evenly">
                 {isAuth() ? (
                   userRole === 'Provider' &&
                   organization?.id === product?.organization.id ? (
