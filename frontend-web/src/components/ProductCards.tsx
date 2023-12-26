@@ -119,7 +119,7 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
                   </Col>
                 </Row>
                 <Card.Title className="pt-2 fw-bold">{product.name}</Card.Title>
-                <Card.Text className="">Short description of product</Card.Text>
+                <Card.Text className="">{product.description}</Card.Text>
                 <Row>
                   <Col className="d-flex align-items-baseline">
                     <Card.Subtitle className="d-flex justify-content-center px-2">
@@ -182,7 +182,9 @@ function ProductCards({ params, pagination }: ProductCardsProps) {
                 </Row>
                 <Button
                   onClick={() => handleButtonClick(product.id)}
-                  disabled={!isAuth()}
+                  disabled={
+                    !isAuth() || getProductStatusClass(product) !== 'available'
+                  }
                 >
                   Product Detail
                 </Button>
