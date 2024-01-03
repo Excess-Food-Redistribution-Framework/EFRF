@@ -20,7 +20,7 @@ function ContactForm() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('api/Contact', {
+      const response = await axios.post('api/Ticket', {
         email,
         fullName,
         category,
@@ -45,7 +45,6 @@ function ContactForm() {
 
               <Form onSubmit={handleSubmit}>
 
-                {/* Full Name and Email in the same row */}
                 <Row className="mb-3">
                   <Col>
                     <Form.Group controlId="formFullName">
@@ -70,7 +69,6 @@ function ContactForm() {
                   </Col>
                 </Row>
 
-                {/* Category dropdown */}
                 <Form.Group controlId="formCategory" className="mb-3">
                   <Form.Label>Category</Form.Label>
                   <Form.Select
@@ -87,7 +85,6 @@ function ContactForm() {
                   </Form.Select>
                 </Form.Group>
 
-                {/* Text area */}
                 <Form.Group controlId="formText" className="mb-3">
                   <Form.Label>Text</Form.Label>
                   <Form.Control
@@ -99,7 +96,6 @@ function ContactForm() {
                   />
                 </Form.Group>
 
-                {/* Submit button */}
                 <Row>
                   <Col className="d-flex justify-content-between">
                     <Button variant="secondary" type="submit">
