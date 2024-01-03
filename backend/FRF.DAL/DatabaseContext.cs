@@ -13,6 +13,7 @@ namespace FRF.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<FoodRequest> FoodRequests { get; set; }
         public DbSet<Article> Articles { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
         public DbSet<AllowedEmail> AllowedEmails { get; set; }
         public DbSet<InvitedOrganization> InvitedOrganizations { get; set; }
         public DbSet<ProductPick> ProductPick { get; set; }

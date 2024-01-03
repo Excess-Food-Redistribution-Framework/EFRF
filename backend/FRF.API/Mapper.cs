@@ -18,6 +18,8 @@ public class Mapper : Profile
         CreateMap<User, UserWithOrganizationDto>();
         
         CreateMap<CreateUpdateArticleDto, Article>();
+        
+        CreateMap<CreateTicketDto, Ticket>();
 
         CreateMap<CreateOrganizationDto, Organization>();
         CreateMap<Organization, OrganizationDto>();
