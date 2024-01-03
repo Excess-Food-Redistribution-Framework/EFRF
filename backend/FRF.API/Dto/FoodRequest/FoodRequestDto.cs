@@ -17,6 +17,8 @@ namespace FRF.API.Dto.FoodRequest
 
         public DeliveryType Delivery { get; set; }
 
+        public FoodRequestState State { get; set; }
+
         public DateTime EstPickUpTime { get; set; } = DateTime.UtcNow;
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
     }
