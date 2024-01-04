@@ -84,7 +84,20 @@ namespace FRF.API.Controllers
                     .Any(fr => fr.ProductPicks.Any(pp => pp.Organization == o))
                 );
 
-            var userLocation = _mapper.Map<Location>(userLocationDto);
+            var userLocation = new Location();
+            if (userLocationDto == null)
+            {
+                var organization = await _organizationService.GetOrganizationByUser(user.Id);
+                if (organization != null && organization.Location != null)
+                {
+                    userLocation = organization.Location;
+                }
+            }
+            else
+            {
+                userLocation = _mapper.Map<Location>(userLocationDto);
+            }
+
 
             double prodK = 2.0, orgK = 2.0, evalK = 1.0, distK = 1.0;
 
@@ -133,9 +146,9 @@ namespace FRF.API.Controllers
                 {
                     var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
                     productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
-                    if (organization2 != null && organization2.Location != null)
+                    if (organization2 != null && organization2.Location != null && userLocation != null)
                     {
-                        productDto.Distance = _locationService.GetDistanse(_mapper.Map<Location>(userLocationDto), organization2.Location);
+                        productDto.Distance = _locationService.GetDistanse(userLocation, organization2.Location);
                     }
                 }
                 productsDto.Add(productDto);
@@ -186,32 +199,32 @@ namespace FRF.API.Controllers
                 products = products.Where(p => p.ExpirationDate >= minExpirationDate.Value);
             }
 
-            if (maxDistanceKm.HasValue && location != null)
+            var actualLocation = new Location();
+            if (location == null)
             {
-                // Implementation of looking for current organization's location:
+                var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+                if (user != null)
+                {
+                    var organization = await _organizationService.GetOrganizationByUser(user.Id);
+                    if (organization != null && organization.Location != null)
+                    {
+                        actualLocation = organization.Location;
+                    }
+                }
+            }
+            else
+            {
+                actualLocation = _mapper.Map<Location>(location);
+            }
 
-                //var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-                //if (user == null)
-                //{
-                //    throw new NotFoundApiException("User not found");
-                //}
-
-                //var organization = await _organizationService.GetOrganizationByUser(user.Id);
-                //if (organization == null)
-                //{
-                //    throw new NotFoundApiException("Organization not found");
-                //}
-                //if (organization.Location == null)
-                //{
-                //    throw new BadRequestApiException("Location not found");
-                //}
-
-                //organizations = organizations.Where(o => _locationService.GetDistanse(organization.Location, o.Location) <= maxDistanceKm.Value);
+            if (maxDistanceKm.HasValue && actualLocation != null)
+            {
                 var organizations = await _organizationService.GetAllOrganizations();
-                organizations = organizations.Where(o => _locationService.GetDistanse(_mapper.Map<Location>(location), o.Location) <= maxDistanceKm.Value);
+                organizations = organizations.Where(o => _locationService.GetDistanse(actualLocation, o.Location) <= maxDistanceKm.Value);
 
                 products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
+
 
             if (minQuantity.HasValue)
             {
@@ -276,9 +289,9 @@ namespace FRF.API.Controllers
                 {
                     var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
                     productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
-                    if (organization2 != null && organization2.Location != null)
+                    if (organization2 != null && organization2.Location != null && actualLocation != null)
                     {
-                        productDto.Distance = _locationService.GetDistanse(_mapper.Map<Location>(location), organization2.Location);
+                        productDto.Distance = _locationService.GetDistanse(actualLocation, organization2.Location);
                     }
                 }
                 productsDto.Add(productDto);
