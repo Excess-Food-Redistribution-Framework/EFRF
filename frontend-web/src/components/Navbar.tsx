@@ -43,7 +43,7 @@ function Navbar() {
                   Organization products
                 </Nav.Link>
               )}
-              {isAuth() && userRole === 'Distributor' && (
+              {isAuth() && (
                 <Nav.Link to="/organizationFoodRequests" as={NavLink}>
                 Food request
               </Nav.Link> 

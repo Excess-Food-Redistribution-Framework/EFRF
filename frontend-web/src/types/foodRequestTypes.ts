@@ -16,6 +16,7 @@ export interface FoodRequestResponse {
     providerId: string;
     distributorId: string;
     delivery: DeliveryType;
+    state: FoodRequestState;
     estPickUpTime: string;
     creationTime: string; 
 }
@@ -25,7 +26,20 @@ export interface AddProductToFoodRequest{
     foodRequestId: string;
     quantity: number;
 }
-  
+export interface setState{
+    id: string;
+    state: FoodRequestState;
+}
+
+export enum FoodRequestState {
+    NotAccepted = "NotAccepted",
+    Preparing = "Preparing",
+    Waiting = "Waiting",
+    Deliviring = "Deliviring",
+    Received = "Received",
+    Unknown = "Unknown",
+  }
+
 export enum DeliveryType {
     ProviderCanDeliver = "ProviderCanDeliver",
     DistributorNeedsToTakeAway = "DistributorNeedsToTakeAway",

@@ -89,9 +89,7 @@ function Profile() {
                 {userData.organization && userData.organization.location && (
                   <MapContainer location={userData.organization.location} />
                 )}
-                <p className="my-3">
-                  Data: {JSON.stringify(userData)}
-                </p>
+                <br />
               </>
             ) : (
               <p>No data available</p>
