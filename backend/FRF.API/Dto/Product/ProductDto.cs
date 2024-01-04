@@ -28,6 +28,10 @@ namespace FRF.API.Dto.Product
         public int Quantity { get; set; } = 0;
 
         [Required]
+        [Display(Name = "Distance")]
+        public double Distance { get; set; } = 0;
+
+        [Required]
         [Display(Name = "Units")]
         public ProductUnits Units { get; set; } = ProductUnits.Grams;
 

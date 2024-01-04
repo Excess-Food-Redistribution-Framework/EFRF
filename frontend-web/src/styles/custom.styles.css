@@ -193,3 +193,97 @@ li{
   margin-bottom: 12px;
 }
 
+.food-request-card-container {
+  max-width: 600px; 
+  margin: 20px auto; 
+}
+
+.food-request-card {
+  width: 100%;
+}
+
+.custom-shadow {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  border-radius: 30px; 
+}
+
+.food-request-card-title {
+  color: #3498db; 
+}
+
+.text-muted {
+  color: #888; 
+}
+
+.food-request-card-description {
+  margin-top: 10px; 
+}
+
+.close-button {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.divider {
+  height: 1px;
+  background-color: #ccc;
+  margin: 20px 0;
+}
+
+.food-request-card-container {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.food-request-card {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.custom-shadow {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.food-request-card-title {
+  color: #3498db;
+  font-size: 24px;
+}
+
+.text-muted {
+  color: #888;
+}
+
+.food-request-card-description {
+  margin-top: 10px;
+}
+
+/* Стили для кнопок */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.primary-button {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.danger-button {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}

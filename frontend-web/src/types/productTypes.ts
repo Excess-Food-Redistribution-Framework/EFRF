@@ -31,6 +31,7 @@ export interface ProductsApiParams {
   types?: ProductType[];
   minQuantity?: number;
   minExpirationDate?: string;
+  minRating?: number;
   maxDistanceKm?: number;
   id?: string;
   Latitude?: number;
@@ -58,6 +59,7 @@ export interface ProductApiResponse {
   name: string;
   quantity: number;
   description: string;
+  distance: number;
   availableQuantity: number;
   ImageUrl: string;
   type: ProductType;
@@ -73,6 +75,7 @@ export interface ProductCardsProps {
   isPagination: boolean;
   isFilter: boolean;
   isOwnOrgProducts?: boolean;
+  quantity?: number;
   onToggleProduct?: (productId: string) => void;
 }
 export interface ProductMapProps {

@@ -197,7 +197,7 @@ function FoodRequestPage(params: any) {
         pageSize,
         productIds: productId,
         organizationIds: product?.organization.id,
-        notExpired: !showDisabled,
+        notExpired: showDisabled,
       }}
       isPagination={false}
       isFilter={false}

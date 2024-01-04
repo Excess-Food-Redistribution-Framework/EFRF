@@ -27,6 +27,7 @@ import {
   ProductApiResponse,
   ProductCardsProps,
   ProductType,
+  ProductsApiParams,
 } from '../types/productTypes';
 import generatePaginationItems from '../utils/paginationUtils';
 
@@ -38,9 +39,10 @@ function ProductCards({
 }: ProductCardsProps) {
   const navigate = useNavigate();
   const { isAuth } = useAuth();
-  const [props, setProps] = useState({
-    ...params,
+  const [props, setProps] = useState<ProductsApiParams>({
+    names: '',
     types: Object.values(ProductType),
+    ...params,
   });
   const [showModal, setShowModal] = useState(false);
   const { response, errorMessage } = GetListOfProducts(props);
@@ -69,19 +71,24 @@ function ProductCards({
   };
 
   const handleTypeChange = (type: ProductType) => {
-    const updatedTypes = [...props.types];
+    setProps((prevProps) => {
+      const updatedTypes = prevProps.types ? [...prevProps.types] : [];
 
-    if (updatedTypes.includes(type)) {
-      const index = updatedTypes.indexOf(type);
-      updatedTypes.splice(index, 1);
-    } else {
-      updatedTypes.push(type);
-    }
+      if (updatedTypes.includes(type)) {
+        // Zabezpečte, aby zostal aspoň jeden checkbox zaškrtnutý
+        if (updatedTypes.length > 1) {
+          const index = updatedTypes.indexOf(type);
+          updatedTypes.splice(index, 1);
+        }
+      } else {
+        updatedTypes.push(type);
+      }
 
-    setProps({
-      ...props,
-      types: updatedTypes,
-      page: 1,
+      return {
+        ...prevProps,
+        types: updatedTypes,
+        page: 1,
+      };
     });
   };
 
@@ -122,7 +129,7 @@ function ProductCards({
             <Form.Check
               type="switch"
               id="custom-switch-disabled"
-              label="Disabled"
+              label="Expired"
               checked={!props.notExpired}
               onChange={(e) =>
                 handleOtherChange('notExpired', !e.target.checked)
@@ -132,8 +139,8 @@ function ProductCards({
               type="text"
               placeholder="Search"
               className="mx-3"
-              value={props.names}
-              onChange={(e) => handleOtherChange('name', e.target.value)}
+              value={props.names || ''}
+              onChange={(e) => handleOtherChange('names', e.target.value)}
             />
             <Button variant="primary" onClick={() => setShowModal(true)}>
               Filters
@@ -168,7 +175,7 @@ function ProductCards({
 
             {/* Minimálny valid to dátum */}
             <Form.Group controlId="formMinValidTo">
-              <Form.Label>Minimal Valid To</Form.Label>
+              <Form.Label className="mt-2 mb-0">Minimal Valid To</Form.Label>
               <Form.Control
                 type="date"
                 value={props.minExpirationDate}
@@ -180,7 +187,7 @@ function ProductCards({
 
             {/* Minimálne množstvo */}
             <Form.Group controlId="formMinQuantity">
-              <Form.Label>Min Quantity</Form.Label>
+              <Form.Label className="mt-2 mb-0">Min Quantity</Form.Label>
               <Form.Control
                 type="number"
                 value={props.minQuantity}
@@ -189,9 +196,22 @@ function ProductCards({
                 }
               />
             </Form.Group>
+
+            {/* Minimálne množstvo */}
+            <Form.Group controlId="formMinRating">
+              <Form.Label className="mt-2 mb-0">Min Rating</Form.Label>
+              <Form.Control
+                type="number"
+                value={props.minRating}
+                onChange={(e) => handleOtherChange('minRating', e.target.value)}
+              />
+            </Form.Group>
+
             {/* Filtrovanie podľa vzdialenosti */}
             <Form.Group controlId="formDistanceFilter">
-              <Form.Label>Distance Filter (km)</Form.Label>
+              <Form.Label className="mt-2 mb-0">
+                Distance Filter (km)
+              </Form.Label>
               <Form.Control
                 type="number"
                 value={props.maxDistanceKm}
@@ -201,6 +221,7 @@ function ProductCards({
                 disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
               />
             </Form.Group>
+
             <DropdownButton
               variant="primary"
               title={dropdownTitle}
@@ -317,6 +338,21 @@ function ProductCards({
                         </Card.Text>
                       </Col>
                     </Row>
+                    {isAuth() && (
+                      <Row>
+                        <Col className="d-flex align-items-baseline">
+                          <Card.Subtitle className="d-flex justify-content-center px-2">
+                            Distance:
+                          </Card.Subtitle>
+                          <Card.Text>
+                            {Number.isInteger(product.distance)
+                              ? product.distance
+                              : product.distance.toFixed(2)}{' '}
+                            km
+                          </Card.Text>
+                        </Col>
+                      </Row>
+                    )}
                     <Row className="py-2">
                       <Col>
                         <Card.Subtitle className="d-flex justify-content-center">
