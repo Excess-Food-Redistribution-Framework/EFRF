@@ -56,6 +56,7 @@ namespace FRF.API.Controllers
 
         [HttpGet]
         //[Authorize(Roles = OrganizationType.Distributer.ToString())]
+        [Route("Recommended")]
         [SwaggerOperation("Get recommended products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
