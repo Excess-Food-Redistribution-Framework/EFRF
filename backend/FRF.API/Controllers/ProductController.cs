@@ -13,6 +13,7 @@ using FRF.API.Dto.Organization;
 using FRF.API.Dto;
 using FRF.Domain.Exceptions;
 using FRF.API.Dto.Address;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -152,7 +153,7 @@ namespace FRF.API.Controllers
             [FromQuery] List<Guid>? foodRequestIds,
             [FromQuery] List<Guid>? productIds,
             [FromQuery] List<Guid>? notProductIds,
-            [FromQuery] List<string>? names,
+            [FromQuery] string names,
             [FromQuery] List<ProductType>? types,
 
             [FromQuery] int? minQuantity,
@@ -220,7 +221,12 @@ namespace FRF.API.Controllers
                 products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
 
-            if (names?.Count > 0)
+            var pattern = @"\s+";
+            var words = Regex.Split(names, pattern)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+
+            if (words?.Count > 0)
             {
                 products = products.Where(p => names.Any(n => p.Name.Contains(n)));
             }
