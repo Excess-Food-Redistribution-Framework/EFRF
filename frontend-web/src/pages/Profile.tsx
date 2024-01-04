@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Button, Card, Col, Container, Row, Spinner} from 'react-bootstrap';
+import { Button, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import MapContainer from '../components/MapContainer';
-import {useNavigate} from "react-router-dom";
+import getOrgBadge from '../utils/orgUtils';
 
 function Profile() {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ function Profile() {
     fetchData();
   }, [isAuth]);
 
+  const rank = 1;
+  const coins = 234;
   return (
     <>
       <Container fluid className="secondary_color">
@@ -51,47 +54,93 @@ function Profile() {
               </div>
             ) : userData.id ? (
               <>
-                <Card className="mb-3">
-                  <Card.Body>
-                    <h3 className="mb-3">{userData.firstName} {userData.lastName}</h3>
-                    <p>Email: {userData.email}</p>
-                    {userData.organization && (<>
-                      <p>Organization: {userData.organization.name} ({userData.organization.type})</p>
-                    </>)}
-                    <Row>
-                      <div>
-                        <Button className="mx-1" onClick={() => navigate('/profile/edit')}>Edit profile</Button>
-                        <Button className="mx-1" onClick={() => navigate('/profile/change-password')}>Change password</Button>
-                      </div>
-                    </Row>
-                  </Card.Body>
-                </Card>
-
-                <Card className="mb-3">
-                  <Card.Body>
-                    <h3 className="mb-3">{userData.organization.name}</h3>
-                    <p>{userData.organization.information}</p>
-                    <h5>Address</h5>
-                    <p>
-                      {userData.organization.address.street} {userData.organization.address.number}<br/>
-                      {userData.organization.address.zipCode} {userData.organization.address.city}<br/>
-                      {userData.organization.address.state}
-                    </p>
-
-                    <Row>
-                      <div>
-                        <Button className="mx-1" onClick={() => navigate('/organization/edit')}>Edit organization</Button>
-                      </div>
-                    </Row>
-                  </Card.Body>
-                </Card>
+                <Row className="pb-3">
+                  <Col lg="5">
+                    <Card className="h-100">
+                      <Card.Body>
+                        <h3 className="mb-3">
+                          {userData.firstName} {userData.lastName}
+                        </h3>
+                        <p>Email: {userData.email}</p>
+                        {userData.organization && (
+                          <p>
+                            Organization: {userData.organization.name} (
+                            {userData.organization.type})
+                          </p>
+                        )}
+                        <Row>
+                          <div>
+                            <Button
+                              className="mx-1"
+                              onClick={() => navigate('/profile/edit')}
+                            >
+                              Edit profile
+                            </Button>
+                            <Button
+                              className="mx-1"
+                              onClick={() =>
+                                navigate('/profile/change-password')
+                              }
+                            >
+                              Change password
+                            </Button>
+                          </div>
+                        </Row>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col lg={7}>
+                    <Card className="h-100">
+                      <Card.Body className="d-flex flex-column justify-content-between">
+                        <Row className="justify-content-between">
+                          <Col lg={3}>
+                            <img
+                              src={getOrgBadge(rank)}
+                              className="img-fluid"
+                            />
+                          </Col>
+                          <Col lg={5}>
+                            <div className="d-flex justify-content-between">
+                              <h3 className="mb-3">
+                                {userData.organization.name}
+                              </h3>
+                            </div>
+                            <p>{userData.organization.information}</p>
+                            <p className="pt-2">Coins: {coins}</p>
+                            <p>Rank: {rank}.</p>
+                          </Col>
+                          <Col lg={4}>
+                            <h5>Address</h5>
+                            <p>
+                              {userData.organization.address.street}{' '}
+                              {userData.organization.address.number}
+                              <br />
+                              {userData.organization.address.zipCode}{' '}
+                              {userData.organization.address.city}
+                              <br />
+                              {userData.organization.address.state}
+                            </p>
+                          </Col>
+                        </Row>
+                        <div className="justify-content-end d-flex">
+                          <Button
+                            className="mx-1"
+                            onClick={() => navigate('/organization/edit')}
+                          >
+                            Edit organization
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
 
                 {userData.organization && userData.organization.location && (
                   <MapContainer location={userData.organization.location} />
                 )}
-                <p className="my-3">
-                  Data: {JSON.stringify(userData)}
-                </p>
+                {/* <p className="my-3"> */}
+                {/*  Data: {JSON.stringify(userData)} */}
+                {/* </p> */}
               </>
             ) : (
               <p>No data available</p>
@@ -101,7 +150,7 @@ function Profile() {
           <p>To view your profile, please log in</p>
         )}
       </Container>
-      </>
+    </>
   );
 }
 
