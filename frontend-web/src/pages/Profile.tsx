@@ -11,7 +11,7 @@ function Profile() {
   const [userData, setUserData] = useState<object | any>({});
   const [loading, setLoading] = useState(true);
 
-  const { isAuth } = useAuth();
+  const { isAuth, userRole } = useAuth();
 
   const fetchUserData = async () => {
     try {
@@ -54,22 +54,24 @@ function Profile() {
               </div>
             ) : userData.id ? (
               <>
-                <Row className="pb-3">
-                  <Col lg="5">
+                <Row>
+                  <Col lg={5} className="pb-3">
                     <Card className="h-100">
-                      <Card.Body>
-                        <h3 className="mb-3">
-                          {userData.firstName} {userData.lastName}
-                        </h3>
-                        <p>Email: {userData.email}</p>
-                        {userData.organization && (
-                          <p>
-                            Organization: {userData.organization.name} (
-                            {userData.organization.type})
-                          </p>
-                        )}
+                      <Card.Body className="justify-content-between d-flex flex-column">
+                        <div>
+                          <h3 className="mb-3">
+                            {userData.firstName} {userData.lastName}
+                          </h3>
+                          <p>Email: {userData.email}</p>
+                          {userData.organization && (
+                            <p>
+                              Organization: {userData.organization.name} (
+                              {userData.organization.type})
+                            </p>
+                          )}
+                        </div>
                         <Row>
-                          <div>
+                          <div className="d-flex justify-content-evenly">
                             <Button
                               className="mx-1"
                               onClick={() => navigate('/profile/edit')}
@@ -89,27 +91,34 @@ function Profile() {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={7} className="pb-3">
                     <Card className="h-100">
                       <Card.Body className="d-flex flex-column justify-content-between">
                         <Row className="justify-content-between">
-                          <Col lg={3}>
-                            <img
-                              src={getOrgBadge(rank)}
-                              className="img-fluid"
-                            />
-                          </Col>
-                          <Col lg={5}>
+                          {userRole === 'Provider' ? (
+                            <Col className="col-3">
+                              <img
+                                src={getOrgBadge(rank)}
+                                className="img-fluid"
+                              />
+                            </Col>
+                          ) : null}
+
+                          <Col className="col-5">
                             <div className="d-flex justify-content-between">
                               <h3 className="mb-3">
                                 {userData.organization.name}
                               </h3>
                             </div>
                             <p>{userData.organization.information}</p>
-                            <p className="pt-2">Coins: {coins}</p>
-                            <p>Rank: {rank}.</p>
+                            {userRole === 'Provider' ? (
+                              <>
+                                <p className="pt-2">Coins: {coins}</p>
+                                <p>Rank: {rank}.</p>
+                              </>
+                            ) : null}
                           </Col>
-                          <Col lg={4}>
+                          <Col className="col-4">
                             <h5>Address</h5>
                             <p>
                               {userData.organization.address.street}{' '}
