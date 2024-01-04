@@ -56,6 +56,92 @@ namespace FRF.API.Controllers
 
         [HttpGet]
         //[Authorize(Roles = OrganizationType.Distributer.ToString())]
+        [SwaggerOperation("Get recommended products")]
+        [SwaggerResponse(StatusCodes.Status200OK)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<ProductDto>>> GetRecommended(
+            [FromQuery] int productListSize,
+            [FromQuery] LocationDto? userLocationDto
+            )
+        {
+            var products = await _productService.GetAllProducts();
+            var organizations = await _organizationService.GetAllOrganizations();
+
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            var userOrganization = await _organizationService.GetOrganizationByUser(user.Id);
+
+            var foodRequests = await _foodRequestService.GetAllFoodRequestsByOrganization(userOrganization.Id);
+            var prevProducts = products.Where(
+                p => foodRequests
+                    .Where(fr => fr.State == FoodRequestState.Received)
+                    .Any(fr => fr.ProductPicks.Any(pp => pp.Product == p))
+                );
+            var prevOrganizations = organizations.Where(
+                o => foodRequests
+                    .Where(fr => fr.State == FoodRequestState.Received)
+                    .Any(fr => fr.ProductPicks.Any(pp => pp.Organization == o))
+                );
+
+            var userLocation = _mapper.Map<Location>(userLocationDto);
+
+            double prodK = 2.0, orgK = 2.0, evalK = 1.0, distK = 1.0;
+
+            // Filter and sort the products based on the specified criteria
+            products = products
+                .Where(p => DateTime.UtcNow <= p.ExpirationDate)
+                .OrderByDescending(p => 
+                {
+                    var productTypeCount = prevProducts?.Count(pp => pp.Type == p.Type) ?? 0;
+                    var maxProductCount = prevProducts?
+                        .GroupBy(pp => pp.Type)
+                        .Select(group => group.Count())
+                        .Max() ?? 0;
+
+                    var organizationsCount = prevOrganizations?.Count(po => po.Products.Contains(p)) ?? 0;
+                    var maxOrganizationsCount = prevOrganizations?
+                        .SelectMany(po => po.Products)
+                        .GroupBy(product => product.Id)
+                        .Select(group => group.Count())
+                        .Max() ?? 0;
+
+                    var organization = organizations.FirstOrDefault(o => o.Products.Contains(p));
+                    var averageEvaluation = organization?.AverageEvaulation ?? 0;
+
+                    var distance = organization?.Location != null ? _locationService.GetDistanse(userLocation, organization.Location) : 0;
+
+                    var sortingKoef =
+                        (double)productTypeCount / maxProductCount * prodK +
+                        (double)averageEvaluation / 5 * evalK +
+                        (double)organizationsCount / maxOrganizationsCount * orgK;
+
+                    sortingKoef += distance < 5 ? 1 * distK : (distance < 10 ? 0.5 * distK : (distance < 20 ? 0.25 * distK : 0));
+
+                    return Math.Round(sortingKoef, 1);
+                })
+                .ThenByDescending(p => p.ExpirationDate)
+                .Take(productListSize)
+                .ToList();
+
+
+            var productsDto = new List<ProductDto>();
+            foreach (var product in products)
+            {
+                var productDto = _mapper.Map<ProductDto>(product);
+                if (product != null)
+                {
+                    var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
+                    productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
+                }
+                productsDto.Add(productDto);
+            }
+
+            return Ok(productsDto);
+        }
+
+
+
+        [HttpGet]
+        //[Authorize(Roles = OrganizationType.Distributer.ToString())]
         [SwaggerOperation("Get all products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
