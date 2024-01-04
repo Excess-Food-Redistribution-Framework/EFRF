@@ -66,7 +66,8 @@ const FoodRequestDetailsModal: React.FC<FoodRequestDetailsModalProps> = ({ showM
           productIds: productPick.product.id,
           organizationIds: productPick.product?.organization?.id,
         }}
-        pagination={false}
+        isPagination={false}
+        isFilter={false}
       />
             </div>
           ))}

@@ -125,7 +125,8 @@ function FoodRequestPage(params: any) {
                 productIds: productId,
                 notExpired: showDisabled,
               }}
-              pagination={false}
+              isPagination={false}
+              isFilter={false}
               onToggleProduct={handleToggleProduct}
               onQuantityChange={handleSliderChange}
               buttonText="Remove"
@@ -198,7 +199,8 @@ function FoodRequestPage(params: any) {
         organizationIds: product?.organization.id,
         notExpired: !showDisabled,
       }}
-      pagination={false}
+      isPagination={false}
+      isFilter={false}
       onToggleProduct={handleToggleProduct}
       onQuantityChange={handleSliderChange}
       buttonText="Add to Cart"

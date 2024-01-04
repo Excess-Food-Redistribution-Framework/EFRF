@@ -16,6 +16,7 @@ const navigate = useNavigate();
   const pageSize = 5;
   const [showDisabled, setShowDisabled] = useState<boolean>(true);
   const isPagination = true;
+  const isFilter = true;
 
   const fetchUserData = async () => {
     try {
@@ -79,7 +80,9 @@ const navigate = useNavigate();
             notExpired: !showDisabled,
             organizationIds: organization.id
           }}
-          pagination={isPagination}
+          isPagination={isPagination}
+          isFilter={isFilter}
+          isOwnOrgProducts
         />
       )}
     </Container>

@@ -23,17 +23,16 @@ export interface ProductsApiParams {
   page?: number;
   pageSize?: number;
   notExpired?: boolean;
-  //onlyAvailable?: boolean;
   organizationIds?: string;
   productIds?: string;
   notProductIds?: string;
   foodRequestIds?: string;
   names?: string;
-  types?: ProductType
+  types?: ProductType[];
   minQuantity?: number;
   minExpirationDate?: string;
   maxDistanceKm?: number;
-  id?: string
+  id?: string;
   Latitude?: number;
   Longitude?: number;
 }
@@ -71,7 +70,9 @@ export interface ProductApiResponse {
 // Definícia props pre volanie funkcie(komponentu) ProductCards
 export interface ProductCardsProps {
   params: ProductsApiParams;
-  pagination: boolean;
+  isPagination: boolean;
+  isFilter: boolean;
+  isOwnOrgProducts?: boolean;
   onToggleProduct?: (productId: string) => void;
 }
 export interface ProductMapProps {

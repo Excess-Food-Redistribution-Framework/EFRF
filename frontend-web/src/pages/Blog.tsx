@@ -15,7 +15,7 @@ function Blog() {
           </Col>
         </Row>
       </Container>
-      <ArticlesCards params={{ page, pageSize }} pagination={isPagination} />
+      <ArticlesCards params={{ page, pageSize }} isPagination={isPagination} />
     </Container>
   );
 }

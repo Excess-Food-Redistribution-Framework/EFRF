@@ -53,10 +53,21 @@ const ProductListModal: React.FC<ProductListModalProps> = ({
       style={modalStyle}
       contentLabel="Product List Modal"
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <h2>{organization?.name}'s products</h2>
-        <button onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <span role="img" aria-label="close">❌</span>
+        <button
+          onClick={closeModal}
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <span role="img" aria-label="close">
+            ❌
+          </span>
         </button>
       </div>
       <ProductCards
@@ -66,7 +77,8 @@ const ProductListModal: React.FC<ProductListModalProps> = ({
           notExpired: !showDisabled,
           organizationIds: organization?.id,
         }}
-        pagination
+        isPagination
+        isFilter
       />
     </Modal>
   );
