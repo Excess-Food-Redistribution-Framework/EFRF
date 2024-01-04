@@ -6,7 +6,7 @@ import useMap from '../hooks/useMap';
 import { useAuth } from '../AuthProvider';
 
 function Products() {
-  const [view, setView] = useState<'list' | 'map'>('list');
+  const [view, setView] = useState<'list' | 'recommended' | 'map'>('list');
   const page = 1;
   const pageSize = 5;
   const isPaginationProducts = true;
@@ -16,9 +16,9 @@ function Products() {
   const pageSizeMap = 100000;
   const defaultLatitude = 51.5074;
   const defaultLongitude = 5;
-  const { isAuth } = useAuth();
+  const { isAuth, userRole } = useAuth();
 
-  const handleViewChange = (newView: 'list' | 'map') => {
+  const handleViewChange = (newView: 'list' | 'recommended' | 'map') => {
     setView(newView);
   };
 
@@ -37,6 +37,17 @@ function Products() {
                 >
                   List View
                 </Button>
+                {isAuth() && userRole === 'Distributor' && (
+                  <Button
+                    variant={
+                      view === 'recommended' ? 'primary' : 'outline-primary'
+                    }
+                    onClick={() => handleViewChange('recommended')}
+                    className="m-2"
+                  >
+                    Recommended
+                  </Button>
+                )}
                 <Button
                   variant={view === 'map' ? 'primary' : 'outline-primary'}
                   onClick={() => handleViewChange('map')}
@@ -49,7 +60,7 @@ function Products() {
           </Col>
         </Row>
       </Container>
-      {view === 'list' ? (
+      {view === 'list' && (
         <ProductCards
           params={{
             page,
@@ -59,26 +70,39 @@ function Products() {
           isPagination={isPaginationProducts}
           isFilter={isFilterProducts}
         />
-      ) : isAuth() ? (
-        <ProductsMap
+      )}
+      {view === 'map' &&
+        (isAuth() ? (
+          <ProductsMap
+            params={{
+              page,
+              pageSize: pageSizeMap,
+              maxDistanceKm: 50,
+              Longitude: organizations?.location?.longitude || defaultLongitude,
+              Latitude: organizations?.location?.latitude || defaultLatitude,
+              notExpired: showOnlyAvailableProducts,
+            }}
+            zoom={13}
+          />
+        ) : (
+          <ProductsMap
+            params={{
+              page,
+              pageSize: pageSizeMap,
+              notExpired: showOnlyAvailableProducts,
+            }}
+            zoom={5}
+          />
+        ))}
+      {view === 'recommended' && (
+        <ProductCards
           params={{
             page,
-            pageSize: pageSizeMap,
-            maxDistanceKm: 50,
-            Longitude: organizations?.location?.longitude || defaultLongitude,
-            Latitude: organizations?.location?.latitude || defaultLatitude,
+            pageSize,
             notExpired: showOnlyAvailableProducts,
           }}
-          zoom={13}
-        />
-      ) : (
-        <ProductsMap
-          params={{
-            page,
-            pageSize: pageSizeMap,
-            notExpired: showOnlyAvailableProducts,
-          }}
-          zoom={5}
+          isPagination={isPaginationProducts}
+          isFilter={isFilterProducts}
         />
       )}
     </Container>
