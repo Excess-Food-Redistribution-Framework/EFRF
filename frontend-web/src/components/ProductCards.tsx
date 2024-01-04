@@ -92,6 +92,45 @@ function ProductCards({
     });
   };
 
+  const resetFilters = () => {
+    setProps({
+      ...props,
+      names: '',
+      types: Object.values(ProductType),
+      minExpirationDate: undefined,
+      minRating: undefined,
+      maxDistanceKm: undefined,
+      minQuantity: undefined,
+    });
+    const minValidToElement = document.getElementById(
+      'formMinValidTo'
+    ) as HTMLInputElement;
+    if (minValidToElement) {
+      minValidToElement.value = '';
+    }
+
+    const minQuantityElement = document.getElementById(
+      'formMinQuantity'
+    ) as HTMLInputElement;
+    if (minQuantityElement) {
+      minQuantityElement.value = '';
+    }
+
+    const minRatingElement = document.getElementById(
+      'formMinRating'
+    ) as HTMLInputElement;
+    if (minRatingElement) {
+      minRatingElement.value = '';
+    }
+
+    const distanceFilterElement = document.getElementById(
+      'formDistanceFilter'
+    ) as HTMLInputElement;
+    if (distanceFilterElement) {
+      distanceFilterElement.value = '';
+    }
+  };
+
   const handleOtherChange = (key: string, value: number | string | boolean) => {
     setProps({
       ...props,
@@ -221,36 +260,40 @@ function ProductCards({
                 disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
               />
             </Form.Group>
-
-            <DropdownButton
-              variant="primary"
-              title={dropdownTitle}
-              className="mt-4"
-              onClick={() => setShowModal(true)}
-            >
-              <Dropdown.Item
-                onClick={() => handleSortChange('expirationDateAsc')}
+            <Container className="d-flex justify-content-between align-items-center">
+              <DropdownButton
+                variant="primary"
+                title={dropdownTitle}
+                className="mt-4"
+                onClick={() => setShowModal(true)}
               >
-                Valid To ▲
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => handleSortChange('expirationDateDesc')}
-              >
-                Valid To ▼
-              </Dropdown.Item>
-              <Dropdown.Item
-                disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
-                onClick={() => handleSortChange('distanceAsc')}
-              >
-                Distance ▲
-              </Dropdown.Item>
-              <Dropdown.Item
-                disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
-                onClick={() => handleSortChange('distanceDesc')}
-              >
-                Distance ▼
-              </Dropdown.Item>
-            </DropdownButton>
+                <Dropdown.Item
+                  onClick={() => handleSortChange('expirationDateAsc')}
+                >
+                  Valid To ▲
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => handleSortChange('expirationDateDesc')}
+                >
+                  Valid To ▼
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
+                  onClick={() => handleSortChange('distanceAsc')}
+                >
+                  Distance ▲
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
+                  onClick={() => handleSortChange('distanceDesc')}
+                >
+                  Distance ▼
+                </Dropdown.Item>
+              </DropdownButton>
+              <Button variant="primary" className="mt-4" onClick={resetFilters}>
+                Reset Filters
+              </Button>
+            </Container>
           </Form>
         </Modal.Body>
       </Modal>

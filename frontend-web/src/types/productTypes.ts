@@ -78,6 +78,7 @@ export interface ProductCardsProps {
   quantity?: number;
   onToggleProduct?: (productId: string) => void;
 }
+
 export interface ProductMapProps {
   params: ProductsApiParams;
   zoom: number;

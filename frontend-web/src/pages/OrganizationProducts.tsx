@@ -14,7 +14,7 @@ function OrganizationProducts() {
   const [loading, setLoading] = useState(true);
   const page = 1;
   const pageSize = 5;
-  const [showDisabled, setShowDisabled] = useState<boolean>(true);
+  const showOnlyAvailableProducts = true;
   const isPagination = true;
   const isFilter = true;
 
@@ -67,7 +67,7 @@ function OrganizationProducts() {
           params={{
             page,
             pageSize,
-            notExpired: !showDisabled,
+            notExpired: showOnlyAvailableProducts,
             organizationIds: organization.id,
           }}
           isPagination={isPagination}
