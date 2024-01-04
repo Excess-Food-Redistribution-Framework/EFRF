@@ -153,7 +153,7 @@ namespace FRF.API.Controllers
             [FromQuery] List<Guid>? foodRequestIds,
             [FromQuery] List<Guid>? productIds,
             [FromQuery] List<Guid>? notProductIds,
-            [FromQuery] string names,
+            [FromQuery] string? names,
             [FromQuery] List<ProductType>? types,
 
             [FromQuery] int? minQuantity,
@@ -221,14 +221,17 @@ namespace FRF.API.Controllers
                 products = products.Where(p => organizations.Any(o => o.Products.Contains(p)));
             }
 
-            var pattern = @"\s+";
-            var words = Regex.Split(names, pattern)
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .ToList();
-
-            if (words?.Count > 0)
+            if (names != null)
             {
-                products = products.Where(p => names.Any(n => p.Name.Contains(n)));
+                var pattern = @"\s+";
+                var words = Regex.Split(names, pattern)
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToList();
+
+                if (words?.Count > 0)
+                {
+                    products = products.Where(p => names.Any(n => p.Name.Contains(n)));
+                }
             }
 
             if (types?.Count > 0)
