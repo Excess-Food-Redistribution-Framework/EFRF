@@ -38,5 +38,5 @@ export interface ArticleApiResponse {
 // -------------------------------------------------------------------
 export interface ArticleCardsProps {
   params: ArticlesApiParams;
-  pagination: boolean;
+  isPagination: boolean;
 }

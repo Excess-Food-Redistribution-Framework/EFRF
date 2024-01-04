@@ -20,7 +20,6 @@ export function isProductExpired(product: ProductApiResponse): boolean {
 // Potrebný rozmer obrázku 800x600 + možnosť stiahnúť obrázky a pridať ich do assetov
 export function getProductImage(params: ProductType) {
   switch (params) {
-
     case ProductType.FreshProduce:
       return '/assets/img/FreshProduce.jpg';
     case ProductType.CannedGoods:

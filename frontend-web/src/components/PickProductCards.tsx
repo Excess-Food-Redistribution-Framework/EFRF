@@ -27,7 +27,7 @@ import {
     onQuantityChange?: (productId: string, quantity: number) => void;
     buttonText: string;
   }
-  function PickProductCards({ params, pagination, onToggleProduct, onQuantityChange, buttonText }: PickProductCardsProps) {
+  function PickProductCards({ params, isPagination, onToggleProduct, onQuantityChange, buttonText }: PickProductCardsProps) {
     const navigate = useNavigate();
     const { isAuth } = useAuth();
     const [props, setProps] = useState(params);
@@ -229,7 +229,7 @@ import {
             </Col>
           ))}
         </Row>
-        {pagination && (
+        {isPagination && (
           <Pagination className="my-5 justify-content-center">
             {generatePaginationItems(
               response.page,
