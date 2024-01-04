@@ -133,6 +133,10 @@ namespace FRF.API.Controllers
                 {
                     var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
                     productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
+                    if (organization2 != null && organization2.Location != null)
+                    {
+                        productDto.Distance = _locationService.GetDistanse(_mapper.Map<Location>(userLocationDto), organization2.Location);
+                    }
                 }
                 productsDto.Add(productDto);
             }
@@ -272,6 +276,10 @@ namespace FRF.API.Controllers
                 {
                     var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
                     productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
+                    if (organization2 != null && organization2.Location != null)
+                    {
+                        productDto.Distance = _locationService.GetDistanse(_mapper.Map<Location>(location), organization2.Location);
+                    }
                 }
                 productsDto.Add(productDto);
             }
