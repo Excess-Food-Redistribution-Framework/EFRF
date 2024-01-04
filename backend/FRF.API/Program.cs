@@ -56,6 +56,7 @@ builder.Services.AddScoped<IBaseRepository<Organization>, OrganizationRepository
 builder.Services.AddScoped<IBaseRepository<Article>, ArticleRepository>();
 builder.Services.AddScoped<IBaseRepository<Ticket>, TicketRepository>();
 builder.Services.AddScoped<IBaseRepository<ProductPick>, ProductPickRepository>();
+builder.Services.AddScoped<IBaseRepository<Comment>, CommentRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFoodRequestService, FoodRequestService>();

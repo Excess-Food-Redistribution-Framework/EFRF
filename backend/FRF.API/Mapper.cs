@@ -36,5 +36,9 @@ public class Mapper : Profile
 
         CreateMap<LocationDto, Location>();
         CreateMap<Location, LocationDto>();
+
+        CreateMap<CreateCommentDto, Comment>();
+        CreateMap<UpdateCommentDto, Comment>();
+        CreateMap<Comment, CommentDto>();
     }
 }

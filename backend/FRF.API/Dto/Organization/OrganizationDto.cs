@@ -1,4 +1,5 @@
 ﻿using FRF.API.Dto.Address;
+using FRF.API.Dto.User;
 using FRF.Domain.Enum;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,6 +21,14 @@ namespace FRF.API.Dto.Organization
 
         [Display(Name = "Information")]
         public string Information { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Users")]
+        public List<UserDto> Users { get; set; } = new List<UserDto>();
+
+        [Required]
+        [Display(Name = "Comments")]
+        public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
 
 
         [Display(Name = "Address")]

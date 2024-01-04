@@ -40,10 +40,12 @@ namespace FRF.API.Controllers
         // GET: api/<OrganizationController>
         [HttpGet]
         [SwaggerOperation("Get all organizations")]
-        public async Task<IEnumerable<Organization>?> Get()
+        public async Task<IEnumerable<OrganizationDto>?> Get()
         {
-            var organization = await _organizationService.GetAllOrganizations();
-            return organization;
+            var organizations = await _organizationService.GetAllOrganizations();
+
+            var organizationsDto = _mapper.Map<List<OrganizationDto>>(organizations);
+            return organizationsDto;
         }
 
         [HttpPost]
@@ -354,6 +356,94 @@ namespace FRF.API.Controllers
             await _userManager.RemoveFromRoleAsync(user, role.ToString());
 
             return Ok("User leaved organization");
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        [Route("Comment")]
+        [SwaggerOperation("Comment the organization")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User commented the organization successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User comment organization failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<Object> CreateComment([FromBody] CreateCommentDto createCommentDto)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user == null)
+            {
+                throw new NotFoundApiException("User not found");
+            }
+            
+            var organization = await _organizationService.GetOrganizationById(createCommentDto.OrganizationId);
+            if (organization.Users.Contains(user))
+            {
+                throw new BadRequestApiException("User is in commented organization");
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            if (userRoles.Contains(organization.Type.ToString()))
+            {
+                throw new BadRequestApiException("Same organization types");
+            }
+
+            var evaluation = createCommentDto.Evaluation;
+            if (evaluation < 1 || evaluation > 5)
+            {
+                throw new BadRequestApiException("Evaluation not in range [1..5]");
+            }
+
+            var comment = _mapper.Map<Comment>(createCommentDto);
+            comment.User = user;
+
+            await _organizationService.CreateComment(organization, comment);
+            var commentDto = _mapper.Map<CommentDto>(comment);
+            commentDto.Organization = _mapper.Map<OrganizationDto>(organization);
+            return Ok(commentDto);
+        }
+
+        [HttpPut]
+        [Authorize]
+        [Route("Comment")]
+        [SwaggerOperation("Update comment")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User updated comment successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User comment organization failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<Object> UpdateComment(Guid idComment, [FromBody] UpdateCommentDto updateCommentDto)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user == null)
+            {
+                throw new NotFoundApiException("User not found");
+            }
+
+            var evaluation = updateCommentDto.Evaluation;
+            if (evaluation < 1 || evaluation > 5)
+            {
+                throw new BadRequestApiException("Evaluation not in range [1..5]");
+            }
+
+            var comment = await _organizationService.UpdateComment(idComment, user, updateCommentDto.Text, updateCommentDto.Evaluation);
+
+            return Ok(_mapper.Map<CommentDto>(comment));
+        }
+
+        [HttpDelete]
+        [Authorize]
+        [Route("Comment")]
+        [SwaggerOperation("Delete comment")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User deleted comment successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User delete comment failed", Type = typeof(MessageResponseDto))]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<Object> DeleteComment(Guid idComment)
+        {
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user == null)
+            {
+                throw new NotFoundApiException("User not found");
+            }
+
+            await _organizationService.DeleteComment(idComment, user);
+            return Ok("Comment deleted successfuly");
         }
     }
 }
