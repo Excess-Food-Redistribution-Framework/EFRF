@@ -73,6 +73,7 @@ export interface ProductCardsProps {
   isPagination: boolean;
   isFilter: boolean;
   isOwnOrgProducts?: boolean;
+  quantity?: number;
   onToggleProduct?: (productId: string) => void;
 }
 export interface ProductMapProps {

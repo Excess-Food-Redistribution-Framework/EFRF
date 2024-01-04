@@ -1,6 +1,7 @@
 /* Updated styles for FoodRequestPage */
 .food-request-container {
   display: flex;
+  flex-direction: column; /* Change to column for smaller screens */
   max-width: 100%;
   margin: auto;
   padding: 20px;
@@ -16,9 +17,6 @@
 }
 
 .food-request-container form {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   width: 100%;
 }
 
@@ -53,16 +51,15 @@
 /* Sidebar Styles */
 .sidebar,
 .other-products {
-  width: 50%;
+  width: 100%; /* Change to full width for smaller screens */
   padding: 20px;
-  margin: 0 10px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #fff;
+  margin: 0; /* Remove the margin for smaller screens */
 }
 
 /* Main Content Styles */
 .main-content {
-  flex-grow: 1;
   padding: 20px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #fff;
@@ -88,3 +85,19 @@
   border-bottom: none;
 }
 
+@media (min-width: 768px) {
+  .food-request-container {
+    flex-direction: row; /* Revert to row for larger screens */
+  }
+
+  .sidebar,
+  .other-products {
+    width: 50%;
+    margin: 0 10px;
+  }
+
+  .main-content {
+    flex: 2 1 30%;
+    width: 30%; /* Keep the width for larger screens */
+  }
+}
