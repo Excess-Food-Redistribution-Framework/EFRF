@@ -13,7 +13,7 @@ import { ArticleApiResponse, ArticleCardsProps } from '../types/articleTypes';
 import { GetListOfArticles } from '../hooks/useArticle';
 import generatePaginationItems from '../utils/paginationUtils';
 
-function ArticlesCards({ params, pagination }: ArticleCardsProps) {
+function ArticlesCards({ params, isPagination }: ArticleCardsProps) {
   const navigate = useNavigate();
 
   const { listOfArticles, errorMessage } = GetListOfArticles(params);
@@ -55,7 +55,7 @@ function ArticlesCards({ params, pagination }: ArticleCardsProps) {
       </Container>
     );
   }
-
+  // TODO replace image and possibly style
   if (listOfArticles.data) {
     return (
       <Container className="p-4">
@@ -67,7 +67,6 @@ function ArticlesCards({ params, pagination }: ArticleCardsProps) {
                   variant="top"
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN4x7ayRXH93w1ZWcZeixVtzAdRcunrTI1Pw&usqp=CAU"
                 />
-
                 <Card.Body className="d-flex flex-column justify-content-between h-100">
                   <Card.Title>{article.title}</Card.Title>
                   <Card.Text>{article.teaser}</Card.Text>
@@ -83,7 +82,7 @@ function ArticlesCards({ params, pagination }: ArticleCardsProps) {
             </Col>
           ))}
         </Row>
-        {pagination && (
+        {isPagination && (
           <Pagination className="mt-3 justify-content-center">
             {paginationItems}
           </Pagination>

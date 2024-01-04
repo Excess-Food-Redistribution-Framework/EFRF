@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LoadMapContainer from '../components/LoadMapContainer';
 import { GetListOfProducts } from '../hooks/useProduct';
-import {  ProductMapProps } from '../types/productTypes';
+import { ProductMapProps } from '../types/productTypes';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
@@ -15,7 +15,7 @@ const mapContainerStyle: React.CSSProperties = {
   flex: 1,
   height: '50%',
   marginBottom: '20px',
-  marginTop: '50px'
+  marginTop: '50px',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -31,8 +31,9 @@ const buttonStyle: React.CSSProperties = {
 };
 
 import ProductListModal from '../components/ProductListModal';
+import { Zoom } from 'react-toastify';
 
-function ProductsMap({ params }: ProductMapProps) {
+function ProductsMap({ params, zoom }: ProductMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<any>(null);
@@ -83,7 +84,6 @@ function ProductsMap({ params }: ProductMapProps) {
       });
 
       if (map && response && response.data && response.data.length > 0) {
-        console.log(response.data);
         const bounds = new window.google.maps.LatLngBounds();
         const markers: Map<string, google.maps.Marker> = new Map();
 
@@ -116,25 +116,19 @@ function ProductsMap({ params }: ProductMapProps) {
         map.addListener('click', closeInfoWindow);
 
         const center = bounds.getCenter();
-        const zoom = 13;
 
         map.setCenter(center);
         map.setZoom(zoom);
       }
     };
 
-    const fetchData = async () => {
-      if (map && response && response.data && response.data.length > 0) {
-        await fetchLocations();
-      }
-    };
-
-    fetchData();
+    if (map && response && response.data && response.data.length > 0) {
+      fetchLocations();
+    }
   }, [map, response, infoWindow, setInfoWindow, setSelectedOrganization]);
 
   return (
     <div style={containerStyle}>
-      <LoadMapContainer googleMapsApiKey="AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE">
       <GoogleMap
           options={{
             disableDefaultUI: true,
@@ -153,7 +147,6 @@ function ProductsMap({ params }: ProductMapProps) {
           mapContainerStyle={mapContainerStyle}
           onLoad={(map) => setMap(map)}
         />
-      </LoadMapContainer>
       {selectedOrganization && (
         <div>
           <div style={buttonStyle} onClick={openModal}>

@@ -8,6 +8,22 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE&libraries=places&callback=initialize" async defer></script>
+    <script>
+      function initMap() {
+        const center = { lat: 40.7128, lng: -74.0060 };
+
+        const map = new google.maps.Map(document.getElementById('root'), {
+          center: center,
+          zoom: 12, 
+        });
+
+        const marker = new google.maps.Marker({
+          position: center,
+          map: map,
+          title: 'My marker',
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs5b037pFZXoneZJqkYotM5XQvcKTWcNE&libraries=places&callback=initMap"></script>
   </body>
 </html>

@@ -16,20 +16,23 @@ function ProductFormPage() {
   const todayFormatted = today.toLocaleDateString('en-CA');
 
   const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [type, setType] = useState(ProductType.Other);
   const [expirationDate, setExpirationDate] = useState(todayFormatted);
+  const [description, setDescription] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const formData = new FormData();
+    formData.append('Name', name);
+    formData.append('Type', type);
+    formData.append('Quantity', quantity.toString());
+    formData.append('ExpirationDate', expirationDate);
+    formData.append('ImageUrl', '');
+    formData.append('Description', description);
+    
     try {
-      const response = await axios.post('api/Product', {
-        name,
-        type,
-        quantity,
-        expirationDate,
-      } as ProductApiResponse);
+      await axios.post('api/Product', formData);
 
       navigate('/organizationProducts');
       toast.success('Product created successfully!')
@@ -66,7 +69,7 @@ function ProductFormPage() {
                   <Form.Label>Quantity</Form.Label>
                   <Form.Control
                     type="number"
-                    min="0"
+                    min="1"
                     step="1"
                     placeholder="Quantity"
                     value={quantity}
@@ -91,8 +94,8 @@ function ProductFormPage() {
                   </Form.Select>
                 </Form.Group>
 
-                <Form.Group controlId="formQuantity" className="mb-3">
-                  <Form.Label>Quantity</Form.Label>
+                <Form.Group controlId="formExpiration" className="mb-3">
+                  <Form.Label>Expiration Date</Form.Label>
                   <Form.Control
                     type="date"
                     min={todayFormatted}
@@ -103,6 +106,16 @@ function ProductFormPage() {
                         new Date(e.target.value).toLocaleDateString('en-CA')
                       )
                     }
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="formDescription" className="mb-3">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </Form.Group>
 

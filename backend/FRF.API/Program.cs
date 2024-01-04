@@ -54,6 +54,7 @@ builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IBaseRepository<FoodRequest>, FoodRequestRepository>();
 builder.Services.AddScoped<IBaseRepository<Organization>, OrganizationRepository>();
 builder.Services.AddScoped<IBaseRepository<Article>, ArticleRepository>();
+builder.Services.AddScoped<IBaseRepository<Ticket>, TicketRepository>();
 builder.Services.AddScoped<IBaseRepository<ProductPick>, ProductPickRepository>();
 builder.Services.AddScoped<IBaseRepository<Comment>, CommentRepository>();
 
@@ -61,6 +62,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFoodRequestService, FoodRequestService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Auth configuration:

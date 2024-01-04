@@ -69,6 +69,18 @@ function Hero() {
               </Col>
             </Row>
           )}
+
+          <Row className="pt-4">
+            <Col>
+              <Button
+                variant="primary"
+                onClick={() => handleClickButton('contact')}
+              >
+                Contact Us
+              </Button>
+            </Col>
+          </Row>
+
         </Col>
       </Row>
     </Container>
