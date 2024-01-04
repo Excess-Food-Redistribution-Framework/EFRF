@@ -26,6 +26,10 @@ namespace FRF.API.Dto.Product
         public int Quantity { get; set; } = 0;
 
         [Required]
+        [Display(Name = "Units")]
+        public ProductUnits Units { get; set; } = ProductUnits.Grams;
+
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "ExpirationDate")]
         public DateTime ExpirationDate { get; set; } = DateTime.UtcNow;
