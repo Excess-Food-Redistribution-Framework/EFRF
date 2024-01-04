@@ -6,11 +6,11 @@ import { useEffect, useState } from 'react';
 import { OrganizationApiResponse } from '../types/organizationTypes';
 import { useNavigate } from 'react-router-dom';
 
-
 function OrganizationProducts() {
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const { isAuth, user, token } = useAuth();
-  const [organization, setOrganization] = useState<OrganizationApiResponse | null>(null);
+  const [organization, setOrganization] =
+    useState<OrganizationApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const page = 1;
   const pageSize = 5;
@@ -25,11 +25,14 @@ const navigate = useNavigate();
         return;
       }
       // Fetch organization data
-      const organizationResponse = await axios.get('/api/Organization/Current', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const organizationResponse = await axios.get(
+        '/api/Organization/Current',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setOrganization(organizationResponse.data);
     } catch (error) {
       console.error('API Error:', error);
@@ -58,27 +61,14 @@ const navigate = useNavigate();
           </Col>
         </Row>
       </Container>
-      <Container className="pt-4 px-5 justify-content-end">
-        <Form>
-          <Form.Check
-            type="switch"
-            id="custom-switch-disabled"
-            label="Disabled"
-            checked={showDisabled}
-            onChange={() => {
-              setShowDisabled(!showDisabled);
-            }}
-          />
-        </Form>
-      </Container>
+
       {organization && (
         <ProductCards
           params={{
             page,
             pageSize,
-            //onlyAvailable: !showDisabled,
             notExpired: !showDisabled,
-            organizationIds: organization.id
+            organizationIds: organization.id,
           }}
           isPagination={isPagination}
           isFilter={isFilter}

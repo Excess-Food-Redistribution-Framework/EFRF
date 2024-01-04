@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import { useEffect, useState } from 'react';
 import {
   ProductApiResponse,
@@ -15,9 +16,9 @@ export function GetListOfProducts(params: ProductsApiParams) {
   useEffect(() => {
     async function fetchListOfProducts() {
       try {
+        const queryString = qs.stringify(params, { arrayFormat: 'indices' });
         const apiResponse = await axios.get<ProductsApiResponse>(
-          `${import.meta.env.VITE_API_BASE_URL}/api/product`,
-          { params }
+          `${import.meta.env.VITE_API_BASE_URL}/api/product?${queryString}`
         );
 
         if (apiResponse.status !== 200) {
@@ -109,7 +110,7 @@ export function UpdateProduct(
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/api/product/${productId}`,
-        updateData,
+        updateData
       );
 
       if (response.status !== 200) {
