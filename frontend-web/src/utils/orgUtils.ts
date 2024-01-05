@@ -1,4 +1,4 @@
-export function getOrgBadge(ranking) {
+export function getOrgBadge(ranking: number): string {
   switch (ranking) {
     case 1:
       return './assets/img/1_donor.png';
