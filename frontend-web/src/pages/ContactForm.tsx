@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 function ContactForm() {
   const navigate = useNavigate();
   const { user, isAuth } = useAuth();
-  const [email, setEmail] = useState(user ? user.email : '');
-  const [fullName, setFullName] = useState(user ? `${user.firstName} ${user.lastName}` : '');
+  const [email, setEmail] = useState(isAuth() && user ? user.email : '');
+  const [fullName, setFullName] = useState(isAuth() && user ? `${user.firstName} ${user.lastName}` : '');
   const [category, setCategory] = useState('');
   const [text, setText] = useState('');
 
@@ -45,22 +45,23 @@ function ContactForm() {
 
               <Form onSubmit={handleSubmit}>
 
-                <Row className="mb-3">
-                  <Col>
+                <Row>
+                  <Col md="6" className="mb-3">
                     <Form.Group controlId="formFullName">
-                      <Form.Label>Full Name</Form.Label>
+                      <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
+                        required
                       />
                     </Form.Group>
                   </Col>
-                  <Col>
+                  <Col md="6" className="mb-3">
                     <Form.Group controlId="formEmail">
                       <Form.Label>Email</Form.Label>
                       <Form.Control
-                        type="text"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
