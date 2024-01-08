@@ -38,6 +38,9 @@ function Navbar() {
               <Nav.Link to="/blog" as={NavLink}>
                 Blog
               </Nav.Link>
+              <Nav.Link to="/contact" as={NavLink}>
+                Contact Us
+              </Nav.Link>
               {isAuth() && userRole === 'Provider' && (
                 <Nav.Link to="/organizationProducts" as={NavLink}>
                   Organization products
