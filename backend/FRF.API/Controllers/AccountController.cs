@@ -72,11 +72,6 @@ namespace FRF.API.Controllers
             Organization organization = _mapper.Map<Organization>(model.Organization);
             organization.CreatorId = Guid.Parse(user.Id);
 
-            var rand = new Random();
-            var r = Math.Round(rand.NextDouble() * 5);
-            for (var i = 0; i < r; i++)
-                organization.Coins.Add(new Coin());
-
             await _organizationService.CreateOrganization(organization);
 
             var token = await LoginUserAndGenerateToken(model.Email, model.Password);
