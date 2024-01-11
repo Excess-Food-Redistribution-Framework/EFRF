@@ -18,6 +18,7 @@ namespace FRF.DAL
         public DbSet<InvitedOrganization> InvitedOrganizations { get; set; }
         public DbSet<ProductPick> ProductPick { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Coin> Coins { get; set; }
 
 
         // Constructor for the DatabaseContext class.

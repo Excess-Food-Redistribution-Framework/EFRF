@@ -36,5 +36,9 @@ namespace FRF.API.Dto.Organization
 
         [Display(Name = "Location")]
         public LocationDto? Location { get; set; }
+
+
+        [Display(Name = "Coins")]
+        public int CoinsSum { get; set; }
     }
 }

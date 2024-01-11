@@ -30,5 +30,7 @@ namespace FRF.Domain.Entities
 
         public List<Comment> Comments { get; set; } = new List<Comment>();
         public double AverageEvaulation { get; set; }
+
+        public List<Coin> Coins { get; set; } = new List<Coin>();
     }
 }

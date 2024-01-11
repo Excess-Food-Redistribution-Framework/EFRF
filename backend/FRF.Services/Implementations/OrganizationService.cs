@@ -144,6 +144,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.Address)
                     .Include(o => o.Location)
                     .Include(o => o.Comments)
+                    .Include(o => o.Coins)
                     .ToListAsync();
 
                 return organizations;
@@ -166,6 +167,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.Address)
                     .Include(o => o.Location)
                     .Include(o => o.Comments)
+                    .Include(o => o.Coins)
                     .Where(o => o.Id == organizationId)
                     .FirstOrDefaultAsync();
                 if (organization is null)
@@ -198,6 +200,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.Address)
                     .Include(o => o.Location)
                     .Include(o => o.Comments)
+                    .Include(o => o.Coins)
                     .Where(o => o.Users.Any(u => u.Id == userId))
                     .FirstOrDefaultAsync();
 
@@ -233,6 +236,7 @@ namespace FRF.Services.Implementations
                     .Include(o => o.Address)
                     .Include(o => o.Location)
                     .Include(o => o.Comments)
+                    .Include(o => o.Coins)
                     .Where(o => o.Products.Any(u => u.Id == productId))
                     .FirstOrDefaultAsync();
 

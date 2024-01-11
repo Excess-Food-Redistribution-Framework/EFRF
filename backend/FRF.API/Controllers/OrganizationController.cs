@@ -37,6 +37,47 @@ namespace FRF.API.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet]
+        [Route("GetBest")]
+        [SwaggerOperation("Get all organizations")]
+        public async Task<IEnumerable<OrganizationDto>?> GetBest([FromQuery] int? lastDays)
+        {
+            var organizations = await _organizationService.GetAllOrganizations();
+            var organizationsDto = new List<OrganizationDto>();
+
+            if (lastDays.HasValue)
+            {
+                organizations = organizations
+                    .OrderByDescending(o => o.Coins.Where(c => c.Date >= DateTime.UtcNow.AddDays((double)(-1 * lastDays)))
+                    .Sum(c => c.Value))
+                .ToList();
+
+                foreach (var o in organizations)
+                {
+                    var organizationDto = _mapper.Map<OrganizationDto>(o);
+                    organizationDto.CoinsSum = o.Coins.Where(c => c.Date >= DateTime.UtcNow.AddDays((double)(-1 * lastDays))).Sum(c => c.Value);
+                    organizationsDto.Add(organizationDto);
+                }
+            } 
+            else
+            {
+                organizations = organizations
+                    .OrderByDescending(o => o.Coins
+                    .Sum(c => c.Value))
+                .ToList();
+
+                foreach (var o in organizations)
+                {
+                    var organizationDto = _mapper.Map<OrganizationDto>(o);
+                    organizationDto.CoinsSum = o.Coins.Sum(c => c.Value);
+
+                    organizationsDto.Add(organizationDto);
+                }
+            }
+            
+            return organizationsDto;
+        }
+
         // GET: api/<OrganizationController>
         [HttpGet]
         [SwaggerOperation("Get all organizations")]
@@ -44,7 +85,16 @@ namespace FRF.API.Controllers
         {
             var organizations = await _organizationService.GetAllOrganizations();
 
-            var organizationsDto = _mapper.Map<List<OrganizationDto>>(organizations);
+            var organizationsDto = new List<OrganizationDto>();
+
+            foreach (var o in organizations)
+            {
+                var organizationDto = _mapper.Map<OrganizationDto>(o);
+                organizationDto.CoinsSum = o.Coins.Sum(c => c.Value);
+
+                organizationsDto.Add(organizationDto);
+            }
+
             return organizationsDto;
         }
 

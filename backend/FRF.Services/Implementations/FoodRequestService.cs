@@ -50,6 +50,17 @@ public class FoodRequestService : IFoodRequestService
                 request.State = state;
                 await _foodRequestRepository.Update(request);
 
+                if (state == FoodRequestState.Received)
+                {
+                    var provider = await _organizationRepository.GetById(request.ProviderId);
+                    if (provider == null)
+                    {
+                        throw new NotFoundApiException("Provider not found");
+                    }
+                    provider.Coins.Add(new Coin());
+                    await _organizationRepository.Update(provider);
+                }
+
                 return true;
             }
             else
