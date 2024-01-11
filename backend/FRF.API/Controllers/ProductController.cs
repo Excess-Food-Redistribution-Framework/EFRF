@@ -233,7 +233,7 @@ namespace FRF.API.Controllers
 
                 if (words?.Count > 0)
                 {
-                    products = products.Where(p => names.Any(n => p.Name.Contains(n)));
+                    products = products.Where(p => words.Any(w => p.Name.Contains(w) || w.Contains(p.Name)));
                 }
             }
 

@@ -51,5 +51,9 @@ namespace FRF.API.Dto.Product
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Image")]
         public string? ImageUrl { get; set; }
+
+        [Required]
+        [Display(Name = "AverageRating")]
+        public double? AverageRating { get; set; }
     }
 }
