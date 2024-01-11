@@ -62,8 +62,7 @@ namespace FRF.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductDto>>> GetRecommended(
-            [FromQuery] int productListSize,
-            [FromQuery] LocationDto? userLocationDto
+            [FromQuery] int productListSize
             )
         {
             var products = await _productService.GetAllProducts();
@@ -85,7 +84,7 @@ namespace FRF.API.Controllers
                 );
 
             var userLocation = new Location();
-            if (userLocationDto == null)
+            if (user != null)
             {
                 var organization = await _organizationService.GetOrganizationByUser(user.Id);
                 if (organization != null && organization.Location != null)
@@ -93,11 +92,6 @@ namespace FRF.API.Controllers
                     userLocation = organization.Location;
                 }
             }
-            else
-            {
-                userLocation = _mapper.Map<Location>(userLocationDto);
-            }
-
 
             double prodK = 2.0, orgK = 2.0, evalK = 1.0, distK = 1.0;
 
@@ -178,7 +172,6 @@ namespace FRF.API.Controllers
             [FromQuery] DateTime? minExpirationDate,
 
             [FromQuery] int? maxDistanceKm,
-            [FromQuery] LocationDto? location,
 
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
@@ -200,21 +193,14 @@ namespace FRF.API.Controllers
             }
 
             var actualLocation = new Location();
-            if (location == null)
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user != null)
             {
-                var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-                if (user != null)
+                var organization = await _organizationService.GetOrganizationByUser(user.Id);
+                if (organization != null && organization.Location != null)
                 {
-                    var organization = await _organizationService.GetOrganizationByUser(user.Id);
-                    if (organization != null && organization.Location != null)
-                    {
-                        actualLocation = organization.Location;
-                    }
+                    actualLocation = organization.Location;
                 }
-            }
-            else
-            {
-                actualLocation = _mapper.Map<Location>(location);
             }
 
             if (maxDistanceKm.HasValue && actualLocation != null)
