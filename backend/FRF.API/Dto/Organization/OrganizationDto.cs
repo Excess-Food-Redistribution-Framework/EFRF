@@ -1,4 +1,4 @@
-﻿using FRF.API.Dto.Address;
+using FRF.API.Dto.Address;
 using FRF.API.Dto.User;
 using FRF.Domain.Enum;
 using System.ComponentModel.DataAnnotations;
@@ -37,8 +37,10 @@ namespace FRF.API.Dto.Organization
         [Display(Name = "Location")]
         public LocationDto? Location { get; set; }
 
-
         [Display(Name = "Coins")]
         public int CoinsSum { get; set; }
+
+        [Display(Name = "AverageEvaulation")]
+        public double? AverageEvaulation { get; set; } = 0;
     }
 }
