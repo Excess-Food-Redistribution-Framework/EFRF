@@ -176,7 +176,11 @@ namespace FRF.API.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
 
-            [FromQuery] bool notExpired = false
+            [FromQuery] bool notExpired = false,
+
+            [FromQuery] bool sortByDistance = false,
+            [FromQuery] bool sortByRating = false,
+            [FromQuery] bool sortByValid = false
             )
         {
 
@@ -267,6 +271,7 @@ namespace FRF.API.Controllers
                 products = products.Where(p => !notProductIds.Contains(p.Id));
             }
 
+
             var productsDto = new List<ProductDto>();
             foreach (var product in products)
             {
@@ -283,6 +288,23 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
+
+
+            if (sortByDistance)
+            {
+                productsDto = productsDto.OrderBy(p => p.Distance).ToList();
+            }
+
+            if (sortByRating)
+            {
+                productsDto = productsDto.OrderByDescending(p => p.AverageRating).ToList();
+            }
+
+            if (sortByValid)
+            {
+                productsDto = productsDto.OrderByDescending(p => p.ExpirationDate).ToList();
+            }
+
             var pagination = new Pagination<ProductDto>()
             {
                 Page = page,
