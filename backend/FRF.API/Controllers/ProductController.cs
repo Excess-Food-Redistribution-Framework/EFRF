@@ -176,7 +176,11 @@ namespace FRF.API.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
 
-            [FromQuery] bool notExpired = false
+            [FromQuery] bool notExpired = false,
+
+            [FromQuery] bool sortByDistance = false,
+            [FromQuery] bool sortByRating = false,
+            [FromQuery] bool sortByValid = false
             )
         {
 
@@ -233,7 +237,7 @@ namespace FRF.API.Controllers
 
                 if (words?.Count > 0)
                 {
-                    products = products.Where(p => names.Any(n => p.Name.Contains(n)));
+                    products = products.Where(p => words.Any(w => p.Name.Contains(w) || w.Contains(p.Name)));
                 }
             }
 
@@ -267,6 +271,7 @@ namespace FRF.API.Controllers
                 products = products.Where(p => !notProductIds.Contains(p.Id));
             }
 
+
             var productsDto = new List<ProductDto>();
             foreach (var product in products)
             {
@@ -275,6 +280,7 @@ namespace FRF.API.Controllers
                 {
                     var organization2 = await _organizationService.GetOrganizationByProduct(product.Id);
                     productDto.Organization = _mapper.Map<OrganizationDto>(organization2);
+                    
                     if (organization2 != null && organization2.Location != null && actualLocation != null)
                     {
                         productDto.Distance = _locationService.GetDistanse(actualLocation, organization2.Location);
@@ -282,6 +288,23 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
+
+
+            if (sortByDistance)
+            {
+                productsDto = productsDto.OrderBy(p => p.Distance).ToList();
+            }
+
+            if (sortByRating)
+            {
+                productsDto = productsDto.OrderByDescending(p => p.AverageRating).ToList();
+            }
+
+            if (sortByValid)
+            {
+                productsDto = productsDto.OrderByDescending(p => p.ExpirationDate).ToList();
+            }
+
             var pagination = new Pagination<ProductDto>()
             {
                 Page = page,

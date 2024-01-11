@@ -36,5 +36,9 @@ namespace FRF.API.Dto.Organization
 
         [Display(Name = "Location")]
         public LocationDto? Location { get; set; }
+
+
+        [Display(Name = "AverageEvaulation")]
+        public double? AverageEvaulation { get; set; } = 0;
     }
 }
