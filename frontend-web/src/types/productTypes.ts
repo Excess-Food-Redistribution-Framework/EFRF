@@ -62,6 +62,7 @@ export interface ProductApiResponse {
   description: string;
   distance: number;
   availableQuantity: number;
+  units: string;
   ImageUrl: string;
   type: ProductType;
   expirationDate: string;
@@ -93,4 +94,18 @@ export interface ProductUpdateApiParams {
   type: ProductType;
   expirationDate: string;
   organization: OrganizationApiResponse;
+}
+
+export interface RecommendedProductCardsProps {
+  params: RecommendedProductsApiParams;
+  onToggleProduct?: (productId: string) => void;
+}
+
+export interface RecommendedProductsApiParams {
+  productListSize: number;
+}
+
+// Definícia pre očakávanú odpoveď API pre získanie listu produktov
+export interface RecommendedProductsApiResponse {
+  data: ProductApiResponse[];
 }
