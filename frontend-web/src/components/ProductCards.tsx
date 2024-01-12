@@ -355,7 +355,7 @@ function ProductCards({
         <>
           <Row xs={1} md={2} lg={4} className="g-4 justify-content-center">
             {response.data.map((product: ProductApiResponse) => (
-              <Col key={product.id} className="px-4">
+              <Col key={product.id} className="px-4 py-1">
                 <Card
                   className={`h-100 ${
                     getProductStatusClass(product) === 'available'
@@ -508,7 +508,7 @@ function ProductCards({
             ))}
           </Row>
           {isPagination && (
-            <Pagination className="my-5 justify-content-center">
+            <Pagination className="mt-5 justify-content-center">
               {generatePaginationItems(
                 response.page,
                 response.count,

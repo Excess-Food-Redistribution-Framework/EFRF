@@ -6,6 +6,8 @@ import {
   ProductUpdateApiParams,
   ProductsApiParams,
   ProductsApiResponse,
+  RecommendedProductsApiParams,
+  RecommendedProductsApiResponse,
 } from '../types/productTypes';
 
 // Funkcia na volanie API pre získanie listu produktov
@@ -36,6 +38,44 @@ export function GetListOfProducts(params: ProductsApiParams) {
     }
 
     fetchListOfProducts();
+  }, [params]);
+
+  return { response, errorMessage };
+}
+
+// Funkcia na volanie API pre získanie listu odporúčaných produktov
+export function GetListOfRecommendedProducts(
+  params: RecommendedProductsApiParams
+) {
+  const [response, setResponse] =
+    useState<RecommendedProductsApiResponse | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchListOfRecommendedProducts() {
+      try {
+        const queryString = qs.stringify(params, { arrayFormat: 'indices' });
+        const apiResponse = await axios.get<RecommendedProductsApiResponse>(
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/api/Product/Recommended?${queryString}`
+        );
+
+        if (apiResponse.status !== 200) {
+          throw new Error(apiResponse.statusText);
+        }
+
+        setResponse(apiResponse.data);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('An unknown error occurred');
+        }
+      }
+    }
+
+    fetchListOfRecommendedProducts();
   }, [params]);
 
   return { response, errorMessage };

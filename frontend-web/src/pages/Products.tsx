@@ -3,11 +3,12 @@ import { Col, Container, Row, Button } from 'react-bootstrap';
 import ProductCards from '../components/ProductCards';
 import ProductsMap from '../components/ProductsMap';
 import { useAuth } from '../AuthProvider';
+import RecommendedProductCards from '../components/RecommendedProductCards';
 
 function Products() {
   const [view, setView] = useState<'list' | 'recommended' | 'map'>('list');
   const page = 1;
-  const pageSize = 5;
+  const pageSize = 8;
   const isPaginationProducts = true;
   const isFilterProducts = true;
   const showOnlyAvailableProducts = true;
@@ -89,14 +90,19 @@ function Products() {
           />
         ))}
       {view === 'recommended' && (
+        /* <RecommendedProductCards
+          params={{
+            productListSize: pageSize,
+          }}
+        /> */
         <ProductCards
           params={{
             page,
             pageSize,
             notExpired: showOnlyAvailableProducts,
           }}
-          isPagination={isPaginationProducts}
-          isFilter={isFilterProducts}
+          isPagination={false}
+          isFilter={false}
         />
       )}
     </Container>
