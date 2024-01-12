@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Col, Container, Row, Button } from 'react-bootstrap';
 import ProductCards from '../components/ProductCards';
 import ProductsMap from '../components/ProductsMap';
-import useMap from '../hooks/useMap';
 import { useAuth } from '../AuthProvider';
 
 function Products() {
@@ -12,10 +11,7 @@ function Products() {
   const isPaginationProducts = true;
   const isFilterProducts = true;
   const showOnlyAvailableProducts = true;
-  const { organizations } = useMap();
   const pageSizeMap = 100000;
-  const defaultLatitude = 51.5074;
-  const defaultLongitude = 5;
   const { isAuth, userRole } = useAuth();
 
   const handleViewChange = (newView: 'list' | 'recommended' | 'map') => {
@@ -77,12 +73,10 @@ function Products() {
             params={{
               page,
               pageSize: pageSizeMap,
-              maxDistanceKm: 50,
-              Longitude: organizations?.location?.longitude || defaultLongitude,
-              Latitude: organizations?.location?.latitude || defaultLatitude,
+              maxDistanceKm: 1000,
               notExpired: showOnlyAvailableProducts,
             }}
-            zoom={13}
+            zoom={7}
           />
         ) : (
           <ProductsMap
@@ -91,7 +85,7 @@ function Products() {
               pageSize: pageSizeMap,
               notExpired: showOnlyAvailableProducts,
             }}
-            zoom={5}
+            zoom={7}
           />
         ))}
       {view === 'recommended' && (

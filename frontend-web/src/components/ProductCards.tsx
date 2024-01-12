@@ -47,14 +47,67 @@ function ProductCards({
   const [showModal, setShowModal] = useState(false);
   const { response, errorMessage } = GetListOfProducts(props);
 
-  const [sortOption, setSortOption] = useState('expirationDateAsc');
   const [dropdownTitle, setDropdownTitle] = useState('Sort by: Valid To ▲');
 
-  const handleSortChange = (newSortOption: string) => {
-    setSortOption(newSortOption);
-    const newTitle = `Sort by: ${
-      newSortOption.includes('expiration') ? 'Valid To' : 'Distance'
-    } ${newSortOption.includes('Asc') ? ' ▲ ' : ' ▼ '}`;
+  const handlePaginationClick = (pageNumber: number) => {
+    setProps({ ...props, page: pageNumber });
+  };
+
+  const handleOtherChange = (key: string, value: number | string | boolean) => {
+    setProps({
+      ...props,
+      [key]: value,
+      page: 1,
+    });
+  };
+
+  const handleSortChange = (
+    sortOption: string,
+    filterByAscDirection: boolean
+  ) => {
+    if (sortOption === 'Valid To') {
+      setProps({
+        ...props,
+        sortByValid: true,
+        sortByDistance: false,
+        sortByRating: false,
+        page: 1,
+      });
+    } else if (sortOption === 'Distance') {
+      setProps({
+        ...props,
+        sortByValid: false,
+        sortByDistance: true,
+        sortByRating: false,
+        page: 1,
+      });
+    } else if (sortOption === 'Rating') {
+      setProps({
+        ...props,
+        sortByValid: false,
+        sortByDistance: false,
+        sortByRating: true,
+        page: 1,
+      });
+    }
+
+    /* if (filterByAscDirection === true) {
+      setProps({
+        ...props,
+        filterByAscDirection: true,
+        page: 1,
+      });
+    } else {
+      setProps({
+        ...props,
+        filterByAscDirection: false,
+        page: 1,
+      });
+    } */
+
+    const newTitle = `Sort by: ${sortOption} ${
+      filterByAscDirection ? ' ▲ ' : ' ▼ '
+    }`;
 
     setDropdownTitle(newTitle);
 
@@ -64,10 +117,6 @@ function ProductCards({
     // sortDirection: newSortDirection,
     // page: 1,
     // });
-  };
-
-  const handlePaginationClick = (pageNumber: number) => {
-    setProps({ ...props, page: pageNumber });
   };
 
   const handleTypeChange = (type: ProductType) => {
@@ -129,14 +178,6 @@ function ProductCards({
     if (distanceFilterElement) {
       distanceFilterElement.value = '';
     }
-  };
-
-  const handleOtherChange = (key: string, value: number | string | boolean) => {
-    setProps({
-      ...props,
-      [key]: value,
-      page: 1,
-    });
   };
 
   const handleButtonClick = (productId: string) => {
@@ -268,24 +309,32 @@ function ProductCards({
                 onClick={() => setShowModal(true)}
               >
                 <Dropdown.Item
-                  onClick={() => handleSortChange('expirationDateAsc')}
+                  onClick={() => handleSortChange('Valid To', true)}
                 >
                   Valid To ▲
                 </Dropdown.Item>
                 <Dropdown.Item
-                  onClick={() => handleSortChange('expirationDateDesc')}
+                  onClick={() => handleSortChange('Valid To', false)}
                 >
                   Valid To ▼
                 </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleSortChange('Rating', true)}>
+                  Rating ▲
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => handleSortChange('Rating', false)}
+                >
+                  Rating ▼
+                </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
-                  onClick={() => handleSortChange('distanceAsc')}
+                  onClick={() => handleSortChange('Distance', true)}
                 >
                   Distance ▲
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isAuth() || (isAuth() && isOwnOrgProducts)}
-                  onClick={() => handleSortChange('distanceDesc')}
+                  onClick={() => handleSortChange('Distance', false)}
                 >
                   Distance ▼
                 </Dropdown.Item>
@@ -366,9 +415,7 @@ function ProductCards({
                     <Card.Title className="pt-2 fw-bold">
                       {product.name}
                     </Card.Title>
-                    <Card.Text className="">
-                      Short description of product
-                    </Card.Text>
+                    <Card.Text className="">{product.description}</Card.Text>
                     <Row>
                       <Col className="d-flex align-items-baseline">
                         <Card.Subtitle className="d-flex justify-content-center px-2">

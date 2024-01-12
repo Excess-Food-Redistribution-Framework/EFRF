@@ -34,8 +34,9 @@ export interface ProductsApiParams {
   minRating?: number;
   maxDistanceKm?: number;
   id?: string;
-  Latitude?: number;
-  Longitude?: number;
+  sortByDistance?: boolean;
+  sortByRating?: boolean;
+  sortByValid?: boolean;
 }
 
 // Definícia pre očakávanú odpoveď API pre získanie listu produktov

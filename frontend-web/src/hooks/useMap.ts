@@ -21,10 +21,7 @@ const useMap = () => {
     fetchOrganizationData();
   }, []);
 
-
   return { organizations, loading };
 };
-
-
 
 export default useMap;
