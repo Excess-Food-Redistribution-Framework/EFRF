@@ -56,7 +56,6 @@ namespace FRF.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = OrganizationType.Distributer.ToString())]
         [Route("Recommended")]
         [SwaggerOperation("Get recommended products")]
         [SwaggerResponse(StatusCodes.Status200OK)]
@@ -68,29 +67,29 @@ namespace FRF.API.Controllers
             var products = await _productService.GetAllProducts();
             var organizations = await _organizationService.GetAllOrganizations();
 
-            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
-            var userOrganization = await _organizationService.GetOrganizationByUser(user.Id);
+            var foodRequests = new List<FoodRequest>();
+            var prevProducts = new List<Product>();
+            var prevOrganizations = new List<Organization>();
+            var userLocation = new Location();
 
-            var foodRequests = await _foodRequestService.GetAllFoodRequestsByOrganization(userOrganization.Id);
-            var prevProducts = products.Where(
+            var user = await _userManager.FindByIdAsync(User?.FindFirst("UserId")?.Value);
+            if (user != null)
+            {
+                var userOrganization = await _organizationService.GetOrganizationByUser(user.Id);
+                foodRequests = (List<FoodRequest>)await _foodRequestService.GetAllFoodRequestsByOrganization(userOrganization.Id);
+
+                prevProducts = (List<Product>)products.Where(
                 p => foodRequests
                     .Where(fr => fr.State == FoodRequestState.Received)
                     .Any(fr => fr.ProductPicks.Any(pp => pp.Product == p))
                 );
-            var prevOrganizations = organizations.Where(
-                o => foodRequests
-                    .Where(fr => fr.State == FoodRequestState.Received)
-                    .Any(fr => fr.ProductPicks.Any(pp => pp.Organization == o))
-                );
+                prevOrganizations = (List<Organization>)organizations.Where(
+                    o => foodRequests
+                        .Where(fr => fr.State == FoodRequestState.Received)
+                        .Any(fr => fr.ProductPicks.Any(pp => pp.Organization == o))
+                    );
 
-            var userLocation = new Location();
-            if (user != null)
-            {
-                var organization = await _organizationService.GetOrganizationByUser(user.Id);
-                if (organization != null && organization.Location != null)
-                {
-                    userLocation = organization.Location;
-                }
+                userLocation = userOrganization.Location;
             }
 
             double prodK = 2.0, orgK = 2.0, evalK = 1.0, distK = 1.0;
@@ -101,17 +100,17 @@ namespace FRF.API.Controllers
                 .OrderByDescending(p => 
                 {
                     var productTypeCount = prevProducts?.Count(pp => pp.Type == p.Type) ?? 0;
-                    var maxProductCount = prevProducts?
+                    var maxProductCount = prevProducts?.Count() != 0 ? prevProducts?
                         .GroupBy(pp => pp.Type)
                         .Select(group => group.Count())
-                        .Max() ?? 0;
+                        .Max() : 1;
 
                     var organizationsCount = prevOrganizations?.Count(po => po.Products.Contains(p)) ?? 0;
-                    var maxOrganizationsCount = prevOrganizations?
+                    var maxOrganizationsCount = prevOrganizations?.Count() != 0 ? prevOrganizations?
                         .SelectMany(po => po.Products)
                         .GroupBy(product => product.Id)
                         .Select(group => group.Count())
-                        .Max() ?? 0;
+                        .Max() : 1;
 
                     var organization = organizations.FirstOrDefault(o => o.Products.Contains(p));
                     var averageEvaluation = organization?.AverageEvaulation ?? 0;
@@ -124,8 +123,13 @@ namespace FRF.API.Controllers
                         (double)organizationsCount / maxOrganizationsCount * orgK;
 
                     sortingKoef += distance < 5 ? 1 * distK : (distance < 10 ? 0.5 * distK : (distance < 20 ? 0.25 * distK : 0));
+                    
+                    if (sortingKoef == null)
+                    {
+                        sortingKoef = 0;
+                    }
 
-                    return Math.Round(sortingKoef, 1);
+                    return Math.Round((double)sortingKoef, 1);
                 })
                 .ThenByDescending(p => p.ExpirationDate)
                 .Take(productListSize)
