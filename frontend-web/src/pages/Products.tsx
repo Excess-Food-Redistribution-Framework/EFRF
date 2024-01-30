@@ -100,6 +100,7 @@ function Products() {
             page,
             pageSize,
             notExpired: showOnlyAvailableProducts,
+            sortByDistance: true,
           }}
           isPagination={false}
           isFilter={false}
