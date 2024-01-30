@@ -151,6 +151,9 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
+            
+            // Sort products by distance
+            productsDto = productsDto.OrderBy(p => p.Distance).ToList();
 
             return Ok(productsDto);
         }
@@ -292,7 +295,9 @@ namespace FRF.API.Controllers
                 }
                 productsDto.Add(productDto);
             }
-
+            
+            // Show nearest and soon expiring products first
+            productsDto = productsDto.OrderBy(p => p.ExpirationDate).ThenBy(p => p.Distance).ToList();
 
             if (sortByDistance)
             {
@@ -307,6 +312,13 @@ namespace FRF.API.Controllers
             if (sortByValid)
             {
                 productsDto = productsDto.OrderByDescending(p => p.ExpirationDate).ToList();
+            }
+            
+            // Show non-expired products first
+            if (!notExpired)
+            {
+                var todayDate = DateTime.UtcNow.Date;
+                productsDto = productsDto.OrderBy(p => p.ExpirationDate < todayDate).ToList();
             }
 
             var pagination = new Pagination<ProductDto>()
